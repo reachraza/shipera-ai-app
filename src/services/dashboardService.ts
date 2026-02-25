@@ -20,14 +20,14 @@ export async function getDashboardStats(orgId: string, days?: number): Promise<D
     // Build base queries
     let rfpsQuery = supabase.from('rfps').select('*', { count: 'exact', head: true }).eq('org_id', orgId);
     let carriersQuery = supabase.from('carriers').select('*', { count: 'exact', head: true }).eq('org_id', orgId).eq('is_deleted', false);
-    let lanesQuery = supabase.from('rfp_lanes').select('*, rfps!inner(org_id)', { count: 'exact', head: true }).eq('rfps.org_id', orgId);
+    let lanesQuery = supabase.from('rfp_lanes').select('*, rfps!inner(org_id, created_at)', { count: 'exact', head: true }).eq('rfps.org_id', orgId);
     let invitesQuery = supabase.from('rfp_invites').select('*, rfps!inner(org_id)', { count: 'exact', head: true }).eq('rfps.org_id', orgId);
 
     // Apply time filter if provided
     if (cutoffDate) {
         rfpsQuery = rfpsQuery.gte('created_at', cutoffDate);
         carriersQuery = carriersQuery.gte('created_at', cutoffDate);
-        lanesQuery = lanesQuery.gte('created_at', cutoffDate);
+        lanesQuery = lanesQuery.gte('rfps.created_at', cutoffDate);
         invitesQuery = invitesQuery.gte('created_at', cutoffDate);
     }
 
