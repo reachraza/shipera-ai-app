@@ -120,7 +120,7 @@ export default function DashboardPage() {
       <header className="relative py-4 flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div className="relative z-10">
           <h1 className="text-4xl font-extrabold tracking-tight text-foreground">
-            Welcome back, <span className="text-primary">{appUser?.email?.split('@')[0] || 'Member'}</span>
+            Welcome back, <span className="text-primary">{appUser?.full_name || appUser?.email?.split('@')[0] || 'Member'}</span>
           </h1>
           <p className="text-muted-foreground mt-2 font-medium flex items-center gap-2">
             <Clock size={16} className="text-primary" />
