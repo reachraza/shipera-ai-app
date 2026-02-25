@@ -42,12 +42,20 @@ export async function createRFP(orgId: string, rfp: RFPFormData): Promise<RFP> {
     .single();
 
   if (error) throw error;
+
+  // Log activity
+  const { data: { user } } = await supabase.auth.getUser();
+  if (user) {
+    const { logActivity } = await import('./activityService');
+    await logActivity(orgId, user.id, 'create', 'rfp', data.id, { title: data.title });
+  }
+
   return data as RFP;
 }
 
 export async function updateRFP(id: string, rfp: Partial<RFPFormData>): Promise<RFP> {
   const supabase = createClient();
-  
+
   const payload = { ...rfp };
   if (payload.deadline === '') {
     payload.deadline = null as any;
@@ -61,5 +69,38 @@ export async function updateRFP(id: string, rfp: Partial<RFPFormData>): Promise<
     .single();
 
   if (error) throw error;
+
+  // Log activity
+  const { data: { user } } = await supabase.auth.getUser();
+  if (user) {
+    const { logActivity } = await import('./activityService');
+    await logActivity(data.org_id, user.id, 'update', 'rfp', data.id, { title: data.title });
+  }
+
+  return data as RFP;
+}
+
+export async function updateRFPStatus(id: string, status: RFP['status']): Promise<RFP> {
+  const supabase = createClient();
+
+  const { data, error } = await supabase
+    .from('rfps')
+    .update({ status })
+    .eq('id', id)
+    .select()
+    .single();
+
+  if (error) throw error;
+
+  // Log activity
+  const { data: { user } } = await supabase.auth.getUser();
+  if (user) {
+    const { logActivity } = await import('./activityService');
+    await logActivity(data.org_id, user.id, 'update', 'rfp', data.id, {
+      title: data.title,
+      new_status: status
+    });
+  }
+
   return data as RFP;
 }

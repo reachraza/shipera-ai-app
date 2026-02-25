@@ -13,6 +13,8 @@ export interface User {
   org_id: string;
   role: UserRole;
   email?: string;
+  full_name?: string;
+  needs_password_change?: boolean;
   created_at: string;
 }
 
@@ -96,6 +98,7 @@ export interface RFPInvite {
   rfp_id: string;
   carrier_id: string;
   status: InviteStatus;
+  access_token?: string;
   created_at: string;
   // Joined fields
   carrier?: Carrier;

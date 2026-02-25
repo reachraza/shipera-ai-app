@@ -13,8 +13,9 @@ interface AuthContextType {
   role: UserRole | null;
   loading: boolean;
   signIn: (email: string, password: string) => Promise<{ error: Error | null }>;
-  signUp: (email: string, password: string, orgName: string) => Promise<{ error: Error | null; needsConfirmation?: boolean }>;
+  signUp: (email: string, password: string, orgName: string, fullName: string, orgId?: string, role?: UserRole) => Promise<{ error: Error | null; needsConfirmation?: boolean }>;
   signOut: () => Promise<void>;
+  updateProfile: (updates: Partial<AppUser>) => void;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -77,33 +78,41 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       return;
     }
 
-    // ── No profile found — create org + user as a fallback ──
-    console.log('No user profile found, attempting to create org + user...');
+    // ── No profile found — create org + user as a fallback (if DB trigger failed or was delayed) ──
+    console.log('No user profile found, attempting to fallback profile creation...');
 
     try {
-      // Get the auth user's metadata to read org_name
+      // Get the auth user's metadata
       const { data: { user: authUser } } = await supabase.auth.getUser();
       const orgName = authUser?.user_metadata?.org_name;
+      const invitedOrgId = authUser?.user_metadata?.invited_org_id;
+      const invitedRole = authUser?.user_metadata?.invited_role;
+      const fullName = authUser?.user_metadata?.full_name;
 
-      if (!orgName) {
-        console.error('Cannot create profile: no org_name in user metadata');
-        setAppUser(null);
-        setLoading(false);
-        return;
-      }
+      let targetOrgId = invitedOrgId;
 
-      // Create the organization
-      const { data: orgData, error: orgError } = await supabase
-        .from('organizations')
-        .insert({ name: orgName })
-        .select('id')
-        .single();
+      // If they were NOT invited, we create a new organization for them
+      if (!targetOrgId) {
+        if (!orgName) {
+          console.error('Cannot create profile: no org_name in user metadata');
+          setAppUser(null);
+          setLoading(false);
+          return;
+        }
 
-      if (orgError) {
-        console.error('Error creating organization:', orgError);
-        setAppUser(null);
-        setLoading(false);
-        return;
+        const { data: orgData, error: orgError } = await supabase
+          .from('organizations')
+          .insert({ name: orgName })
+          .select('id')
+          .single();
+
+        if (orgError) {
+          console.error('Error creating organization:', orgError);
+          setAppUser(null);
+          setLoading(false);
+          return;
+        }
+        targetOrgId = orgData.id;
       }
 
       // Create the user profile
@@ -111,9 +120,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         .from('users')
         .insert({
           id: userId,
-          org_id: orgData.id,
-          role: 'admin',
+          org_id: targetOrgId,
+          role: invitedRole || 'admin',
           email: authUser?.email,
+          full_name: fullName || null,
         })
         .select('*')
         .single();
@@ -138,16 +148,18 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     return { error: error ? new Error(error.message) : null };
   }
 
-  async function signUp(email: string, password: string, orgName: string): Promise<{ error: Error | null; needsConfirmation?: boolean }> {
+  async function signUp(email: string, password: string, orgName: string, fullName: string, orgId?: string, role?: UserRole): Promise<{ error: Error | null; needsConfirmation?: boolean }> {
     try {
-      // 1. Sign up the user and pass the organization name as metadata
-      // The Postgres database trigger (on_auth_user_created) handles creating the org & user profile
+      // 1. Sign up the user and pass the organization name and properties as metadata
       const { data: authData, error: authError } = await supabase.auth.signUp({
         email,
         password,
         options: {
           data: {
             org_name: orgName,
+            full_name: fullName,
+            invited_org_id: orgId || null,
+            invited_role: role || null,
           },
         },
       });
@@ -161,7 +173,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       // Explicitly update our local state to immediately reflect the new session
       setSession(authData.session);
       setSupabaseUser(authData.user);
-      
+
       // Wait a moment for the database trigger to finish creating the profile, then fetch it
       await new Promise(resolve => setTimeout(resolve, 500));
       await fetchAppUser(authData.user!.id);
@@ -169,15 +181,15 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       return { error: null };
     } catch (err: any) {
       console.error('Signup error:', err);
-      
+
       let errorMessage = 'An unexpected error occurred during signup. Please try again.';
-      
+
       if (err.message === 'Email signups are disabled' || err.code === 'email_provider_disabled') {
         errorMessage = 'Signups are currently disabled for this application. Please contact the administrator.';
       } else if (err.message?.includes('already registered')) {
-         errorMessage = 'An account with this email address already exists. Please try logging in instead.';
+        errorMessage = 'An account with this email address already exists. Please try logging in instead.';
       } else if (err.message) {
-         errorMessage = err.message;
+        errorMessage = err.message;
       }
 
       return { error: new Error(errorMessage) };
@@ -189,6 +201,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     setSession(null);
     setSupabaseUser(null);
     setAppUser(null);
+  }
+
+  function updateProfile(updates: Partial<AppUser>) {
+    if (appUser) {
+      setAppUser({ ...appUser, ...updates });
+    }
   }
 
   return (
@@ -203,6 +221,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         signIn,
         signUp,
         signOut,
+        updateProfile,
       }}
     >
       {children}

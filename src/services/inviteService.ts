@@ -27,6 +27,25 @@ export async function createInvites(rfpId: string, carrierIds: string[]): Promis
     .select('*, carrier:carriers(*)');
 
   if (error) throw error;
+
+  // Log activity for the first invite (they all belong to the same org/RFP)
+  if (data && data.length > 0) {
+    const { data: { user } } = await supabase.auth.getUser();
+    if (user && data[0].carrier?.org_id) {
+      const { logActivity } = await import('./activityService');
+
+      // We can log a bulk action or individual. For now, logging just one event to avoid flooding it
+      await logActivity(
+        data[0].carrier.org_id,
+        user.id,
+        'invite',
+        'rfp_invite',
+        rfpId, // We use the RFP ID as the entity being acted up
+        { carriers_invited: data.length }
+      );
+    }
+  }
+
   return data as RFPInvite[];
 }
 

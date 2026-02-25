@@ -1,27 +1,51 @@
 'use client';
 
-import { useState } from 'react';
-import { useRouter } from 'next/navigation';
+import { useState, useEffect, Suspense } from 'react';
+import { useRouter, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import Image from 'next/image';
 import { useAuth } from '@/hooks/useAuth';
+import { Button } from '@/components/ui/Button';
+import { Input } from '@/components/ui/Input';
 
-export default function SignupPage() {
+function SignupContent() {
+  const searchParams = useSearchParams();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [orgName, setOrgName] = useState('');
+  const [fullName, setFullName] = useState('');
+  const [invitedOrgId, setInvitedOrgId] = useState<string | null>(null);
+  const [invitedRole, setInvitedRole] = useState<any>(null);
+
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
   const [needsConfirmation, setNeedsConfirmation] = useState(false);
   const { signUp } = useAuth();
   const router = useRouter();
 
+  useEffect(() => {
+    const inviteParam = searchParams.get('invite');
+    if (inviteParam) {
+      try {
+        const payload = JSON.parse(atob(inviteParam));
+        if (payload.orgId && payload.role) {
+          setInvitedOrgId(payload.orgId);
+          setInvitedRole(payload.role);
+          setOrgName('Invited to existing organization');
+        }
+      } catch (e) {
+        console.error('Invalid invite link');
+        setError('Invalid or corrupted invite link.');
+      }
+    }
+  }, [searchParams]);
+
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     setError('');
     setLoading(true);
 
-    const { error, needsConfirmation } = await signUp(email, password, orgName);
+    const { error, needsConfirmation } = await signUp(email, password, orgName, fullName, invitedOrgId || undefined, invitedRole || undefined);
     if (error) {
       setError(error.message);
       setLoading(false);
@@ -42,9 +66,9 @@ export default function SignupPage() {
       <div className="w-full max-w-md relative z-10 px-4 py-8">
         <div className="text-center mb-8">
           <div className="inline-flex items-center justify-center w-24 h-24 mb-4 relative">
-            <Image 
-              src="/logo.png" 
-              alt="Shipera Logo" 
+            <Image
+              src="/logo.png"
+              alt="Shipera Logo"
               fill
               className="object-contain drop-shadow-2xl rounded-full"
               priority
@@ -58,7 +82,7 @@ export default function SignupPage() {
 
         <div className="glass-panel p-8 sm:p-10 rounded-2xl shadow-2xl relative overflow-hidden">
           <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-accent via-primary to-accent" />
-          
+
           {needsConfirmation ? (
             <div className="text-center py-4">
               <div className="w-16 h-16 mx-auto mb-5 rounded-full bg-green-500/10 flex items-center justify-center">
@@ -84,7 +108,7 @@ export default function SignupPage() {
           ) : (
             <>
               <h2 className="text-2xl font-bold text-foreground mb-6">Create Account</h2>
-              
+
               <form onSubmit={handleSubmit} className="space-y-5">
                 {error && (
                   <div className="p-4 bg-red-500/10 border border-red-500/20 rounded-xl text-red-600 dark:text-red-400 text-sm font-medium flex items-center gap-2">
@@ -93,64 +117,59 @@ export default function SignupPage() {
                   </div>
                 )}
 
-                <div className="space-y-1.5">
-                  <label htmlFor="orgName" className="block text-sm font-semibold text-foreground">
-                    Organization Name
-                  </label>
-                  <input
-                    id="orgName"
-                    type="text"
-                    required
-                    value={orgName}
-                    onChange={(e) => setOrgName(e.target.value)}
-                    className="w-full px-4 py-3 bg-muted border border-border rounded-xl focus:ring-2 focus:ring-primary focus:border-primary focus:bg-background outline-none transition-all text-foreground placeholder-muted-foreground"
-                    placeholder="Acme Logistics"
-                  />
-                </div>
+                <Input
+                  label="Organization Name"
+                  id="orgName"
+                  name="orgName"
+                  type="text"
+                  required
+                  disabled={!!invitedOrgId}
+                  value={orgName}
+                  onChange={(e) => setOrgName(e.target.value)}
+                  placeholder="Acme Logistics"
+                />
 
-                <div className="space-y-1.5">
-                  <label htmlFor="email" className="block text-sm font-semibold text-foreground">
-                    Work Email
-                  </label>
-                  <input
-                    id="email"
-                    type="email"
-                    required
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
-                    className="w-full px-4 py-3 bg-muted border border-border rounded-xl focus:ring-2 focus:ring-primary focus:border-primary focus:bg-background outline-none transition-all text-foreground placeholder-muted-foreground"
-                    placeholder="you@company.com"
-                  />
-                </div>
+                <Input
+                  label="Full Name"
+                  id="fullName"
+                  name="fullName"
+                  type="text"
+                  required
+                  value={fullName}
+                  onChange={(e) => setFullName(e.target.value)}
+                  placeholder="John Doe"
+                />
 
-                <div className="space-y-1.5">
-                  <label htmlFor="password" className="block text-sm font-semibold text-foreground">
-                    Password
-                  </label>
-                  <input
-                    id="password"
-                    type="password"
-                    required
-                    minLength={6}
-                    value={password}
-                    onChange={(e) => setPassword(e.target.value)}
-                    className="w-full px-4 py-3 bg-muted border border-border rounded-xl focus:ring-2 focus:ring-primary focus:border-primary focus:bg-background outline-none transition-all text-foreground placeholder-muted-foreground"
-                    placeholder="••••••••"
-                  />
-                </div>
+                <Input
+                  label="Work Email"
+                  id="email"
+                  name="email"
+                  type="email"
+                  required
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  placeholder="you@company.com"
+                />
 
-                <button
+                <Input
+                  label="Password"
+                  id="password"
+                  name="password"
+                  type="password"
+                  required
+                  minLength={6}
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  placeholder="••••••••"
+                />
+
+                <Button
                   type="submit"
-                  disabled={loading}
-                  className="w-full py-3.5 mt-2 bg-primary text-primary-foreground font-bold rounded-xl hover:bg-primary-hover disabled:opacity-50 disabled:cursor-not-allowed transition-all shadow-lg shadow-primary/25 hover:shadow-primary/40 transform hover:-translate-y-0.5"
+                  isLoading={loading}
+                  className="w-full mt-2"
                 >
-                  {loading ? (
-                    <span className="flex items-center justify-center gap-2">
-                      <svg className="animate-spin h-5 w-5" viewBox="0 0 24 24"><circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" fill="none"></circle><path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>
-                      Creating account...
-                    </span>
-                  ) : 'Create Account'}
-                </button>
+                  {loading ? 'Creating account...' : 'Create Account'}
+                </Button>
               </form>
 
               <p className="mt-8 text-center text-sm text-muted-foreground">
@@ -164,5 +183,13 @@ export default function SignupPage() {
         </div>
       </div>
     </div>
+  );
+}
+
+export default function SignupPage() {
+  return (
+    <Suspense fallback={<div className="min-h-screen flex items-center justify-center bg-background"><div className="animate-spin h-8 w-8 border-4 border-primary rounded-full border-t-transparent"></div></div>}>
+      <SignupContent />
+    </Suspense>
   );
 }

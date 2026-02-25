@@ -5,6 +5,7 @@ import { useAuth } from '@/hooks/useAuth';
 import { Carrier, RFPInvite } from '@/constants/types';
 import { getCarriers } from '@/services/carrierService';
 import { createInvites } from '@/services/inviteService';
+import { Button } from '@/components/ui/Button';
 
 interface CarrierSelectProps {
   rfpId: string;
@@ -97,11 +98,10 @@ export default function CarrierSelect({ rfpId, existingInvites, onInvited }: Car
             return (
               <label
                 key={carrier.id}
-                className={`flex items-center gap-3 p-3 rounded-lg cursor-pointer transition-all border ${
-                  isSelected 
-                    ? 'bg-primary/5 border-primary shadow-sm' 
+                className={`flex items-center gap-3 p-3 rounded-lg cursor-pointer transition-all border ${isSelected
+                    ? 'bg-primary/5 border-primary shadow-sm'
                     : 'border-transparent hover:bg-muted/80 hover:border-border/50'
-                }`}
+                  }`}
               >
                 <div className="relative flex items-center justify-center shrink-0">
                   <input
@@ -113,7 +113,7 @@ export default function CarrierSelect({ rfpId, existingInvites, onInvited }: Car
                   <div className="w-5 h-5 rounded border-2 border-muted-foreground/30 bg-background peer-checked:bg-primary peer-checked:border-primary transition-all"></div>
                   <svg className="absolute w-3 h-3 text-primary-foreground opacity-0 peer-checked:opacity-100 transition-opacity pointer-events-none" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
                 </div>
-                
+
                 <div className="flex-1 min-w-0">
                   <div className="font-bold text-foreground truncate">{carrier.name}</div>
                   <div className="text-xs text-muted-foreground truncate">
@@ -121,9 +121,9 @@ export default function CarrierSelect({ rfpId, existingInvites, onInvited }: Car
                   </div>
                 </div>
                 {carrier.mc_number && (
-                   <div className="text-xs font-mono text-muted-foreground px-2 py-1 bg-muted rounded">
-                     MC {carrier.mc_number}
-                   </div>
+                  <div className="text-xs font-mono text-muted-foreground px-2 py-1 bg-muted rounded">
+                    MC {carrier.mc_number}
+                  </div>
                 )}
               </label>
             );
@@ -135,13 +135,13 @@ export default function CarrierSelect({ rfpId, existingInvites, onInvited }: Car
         <span className="text-sm font-semibold text-foreground">
           {selectedIds.size} carrier{selectedIds.size !== 1 ? 's' : ''} selected
         </span>
-        <button
+        <Button
           onClick={handleInvite}
           disabled={selectedIds.size === 0 || submitting}
-          className="px-5 py-2.5 bg-primary text-primary-foreground font-bold rounded-xl hover:bg-primary-hover disabled:opacity-50 transition-all shadow-md shadow-primary/20 hover:shadow-primary/40 text-sm"
+          isLoading={submitting}
         >
           {submitting ? 'Sending...' : 'Send Invites'}
-        </button>
+        </Button>
       </div>
     </div>
   );

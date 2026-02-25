@@ -6,6 +6,8 @@ import CarrierTable from '@/components/CarrierTable';
 import CarrierForm from '@/components/CarrierForm';
 import { Carrier } from '@/constants/types';
 import { useAuthContext } from '@/context/AuthProvider';
+import { Button } from '@/components/ui/Button';
+import { Input } from '@/components/ui/Input';
 
 export default function CarriersPage() {
   const [showForm, setShowForm] = useState(false);
@@ -48,29 +50,29 @@ export default function CarriersPage() {
           <p className="text-muted-foreground mt-1 text-sm font-medium">Manage your approved partners and fleet compliance</p>
         </div>
         {role === 'admin' && (
-          <button
+          <Button
             onClick={handleAdd}
-            className="flex items-center justify-center gap-2 px-6 py-3 bg-primary text-primary-foreground font-bold rounded-2xl hover:bg-primary-hover transition-all shadow-lg shadow-primary/25 hover:shadow-primary/40 active:scale-95 shrink-0"
+            className="shrink-0 gap-2"
           >
             <Plus size={20} />
             Add Carrier
-          </button>
+          </Button>
         )}
       </div>
 
       <div className="flex flex-col md:flex-row gap-4">
-        <div className="relative flex-1 group">
-          <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-muted-foreground group-focus-within:text-primary transition-colors" size={18} />
-          <input
+        <div className="flex-1">
+          <Input
             type="text"
             placeholder="Search by name, MC#, or email..."
-            className="w-full pl-12 pr-4 py-3.5 bg-card/50 backdrop-blur-sm border border-border rounded-2xl focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all text-sm font-medium"
+            icon={<Search size={18} />}
+            className="bg-card/50 backdrop-blur-sm group-focus-within:ring-primary/20"
           />
         </div>
-        <button className="flex items-center justify-center gap-2 px-5 py-3 bg-muted/50 border border-border rounded-2xl text-sm font-bold text-muted-foreground hover:bg-muted hover:text-foreground transition-all">
+        <Button variant="outline" className="gap-2 bg-muted/50 text-muted-foreground border-border">
           <Filter size={18} />
           Filter
-        </button>
+        </Button>
       </div>
 
       {showForm && (

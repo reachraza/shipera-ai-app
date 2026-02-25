@@ -1,11 +1,11 @@
 import { RFPInvite } from '@/constants/types';
 import { INVITE_STATUSES } from '@/constants/statuses';
-import { 
-  UserPlus, 
-  ShieldCheck, 
-  ShieldAlert, 
-  Mail, 
-  Clock, 
+import {
+  UserPlus,
+  ShieldCheck,
+  ShieldAlert,
+  Mail,
+  Clock,
   Trash2,
   ExternalLink
 } from 'lucide-react';
@@ -15,7 +15,7 @@ export default function InviteTable({ invites }: { invites: RFPInvite[] }) {
     return (
       <div className="text-center py-20 px-4 bg-muted/20">
         <div className="inline-flex h-16 w-16 rounded-3xl bg-muted/50 items-center justify-center mb-4 text-muted-foreground/50">
-           <UserPlus size={32} />
+          <UserPlus size={32} />
         </div>
         <p className="text-foreground font-bold">No carriers invited</p>
         <p className="text-sm text-muted-foreground mt-1 max-w-xs mx-auto font-medium">Use the search above to find and invite approved partners to this tender event.</p>
@@ -37,14 +37,14 @@ export default function InviteTable({ invites }: { invites: RFPInvite[] }) {
         <tbody className="divide-y divide-border/50">
           {invites.map((invite) => {
             const statusInfo = INVITE_STATUSES.find((s) => s.value === invite.status);
-            
-            const StatusIcon = invite.status === 'submitted' ? ShieldCheck : 
-                             invite.status === 'opened' ? ExternalLink : Clock;
 
-            const statusColor = invite.status === 'submitted' ? 'bg-primary/10 text-primary border-primary/20' : 
-                               invite.status === 'opened' ? 'bg-amber-500/10 text-amber-600 dark:text-amber-400 border-amber-500/20' : 
-                               'bg-accent/10 text-accent border-accent/20';
-            
+            const StatusIcon = invite.status === 'submitted' ? ShieldCheck :
+              invite.status === 'opened' ? ExternalLink : Clock;
+
+            const statusColor = invite.status === 'submitted' ? 'bg-primary/10 text-primary border-primary/20' :
+              invite.status === 'opened' ? 'bg-amber-500/10 text-amber-600 dark:text-amber-400 border-amber-500/20' :
+                'bg-accent/10 text-accent border-accent/20';
+
             return (
               <tr key={invite.id} className="hover:bg-muted/30 transition-colors group">
                 <td className="px-6 py-5">
@@ -69,10 +69,22 @@ export default function InviteTable({ invites }: { invites: RFPInvite[] }) {
                   </div>
                 </td>
                 <td className="px-6 py-5 text-right">
-                   <button className="inline-flex items-center gap-2 px-3 py-1.5 bg-card border border-border rounded-xl text-[10px] font-black uppercase tracking-widest text-red-500 hover:bg-red-500 hover:text-white hover:border-red-500 transition-all opacity-0 group-hover:opacity-100 shadow-sm">
-                     <Trash2 size={12} />
-                     Revoke
-                   </button>
+                  <div className="flex items-center justify-end gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                    <button
+                      onClick={() => {
+                        const url = `${window.location.origin}/bid/${invite.access_token}`;
+                        navigator.clipboard.writeText(url);
+                        alert('Copied secure bidding link to clipboard!');
+                      }}
+                      className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-primary/10 border border-primary/20 rounded-xl text-[10px] font-black uppercase tracking-widest text-primary hover:bg-primary hover:text-white transition-all shadow-sm"
+                    >
+                      Copy Link
+                    </button>
+                    <button className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-card border border-border rounded-xl text-[10px] font-black uppercase tracking-widest text-red-500 hover:bg-red-500 hover:text-white hover:border-red-500 transition-all shadow-sm">
+                      <Trash2 size={12} />
+                      Revoke
+                    </button>
+                  </div>
                 </td>
               </tr>
             );

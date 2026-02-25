@@ -6,6 +6,9 @@ import { CARRIER_STATUSES } from '@/constants/statuses';
 import { EQUIPMENT_TYPES } from '@/constants/equipmentTypes';
 import { createCarrier, updateCarrier } from '@/services/carrierService';
 import { useAuth } from '@/hooks/useAuth';
+import { Button } from '@/components/ui/Button';
+import { Input } from '@/components/ui/Input';
+import { Select } from '@/components/ui/Select';
 
 interface CarrierFormProps {
   carrier?: Carrier | null;
@@ -72,92 +75,69 @@ export default function CarrierForm({ carrier, onSaved, onCancel }: CarrierFormP
       )}
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
-        <div className="space-y-1.5">
-          <label className="block text-sm font-semibold text-foreground">Carrier Name <span className="text-red-500">*</span></label>
-          <input
-            name="name"
-            type="text"
-            required
-            value={formData.name}
-            onChange={handleChange}
-            className="w-full px-4 py-2.5 bg-muted border border-border rounded-xl focus:ring-2 focus:ring-primary focus:border-primary focus:bg-background outline-none transition-all text-foreground"
-            placeholder="ABC Trucking"
-          />
-        </div>
+        <Input
+          label="Carrier Name"
+          name="name"
+          type="text"
+          required
+          value={formData.name}
+          onChange={handleChange}
+          placeholder="ABC Trucking"
+        />
 
-        <div className="space-y-1.5">
-          <label className="block text-sm font-semibold text-foreground">Email</label>
-          <input
-            name="email"
-            type="email"
-            value={formData.email}
-            onChange={handleChange}
-            className="w-full px-4 py-2.5 bg-muted border border-border rounded-xl focus:ring-2 focus:ring-primary focus:border-primary focus:bg-background outline-none transition-all text-foreground"
-            placeholder="dispatch@abctrucking.com"
-          />
-        </div>
+        <Input
+          label="Email"
+          name="email"
+          type="email"
+          value={formData.email}
+          onChange={handleChange}
+          placeholder="dispatch@abctrucking.com"
+        />
 
-        <div className="space-y-1.5">
-          <label className="block text-sm font-semibold text-foreground">MC Number</label>
-          <input
-            name="mc_number"
-            type="text"
-            value={formData.mc_number}
-            onChange={handleChange}
-            className="w-full px-4 py-2.5 bg-muted border border-border rounded-xl focus:ring-2 focus:ring-primary focus:border-primary focus:bg-background outline-none transition-all text-foreground"
-            placeholder="MC-123456"
-          />
-        </div>
+        <Input
+          label="MC Number"
+          name="mc_number"
+          type="text"
+          value={formData.mc_number}
+          onChange={handleChange}
+          placeholder="MC-123456"
+        />
 
-        <div className="space-y-1.5">
-          <label className="block text-sm font-semibold text-foreground">DOT Number</label>
-          <input
-            name="dot_number"
-            type="text"
-            value={formData.dot_number}
-            onChange={handleChange}
-            className="w-full px-4 py-2.5 bg-muted border border-border rounded-xl focus:ring-2 focus:ring-primary focus:border-primary focus:bg-background outline-none transition-all text-foreground"
-            placeholder="DOT-789012"
-          />
-        </div>
+        <Input
+          label="DOT Number"
+          name="dot_number"
+          type="text"
+          value={formData.dot_number}
+          onChange={handleChange}
+          placeholder="DOT-789012"
+        />
 
-        <div className="space-y-1.5">
-          <label className="block text-sm font-semibold text-foreground">Phone</label>
-          <input
-            name="phone"
-            type="tel"
-            value={formData.phone}
-            onChange={handleChange}
-            className="w-full px-4 py-2.5 bg-muted border border-border rounded-xl focus:ring-2 focus:ring-primary focus:border-primary focus:bg-background outline-none transition-all text-foreground"
-            placeholder="(555) 123-4567"
-          />
-        </div>
+        <Input
+          label="Phone"
+          name="phone"
+          type="tel"
+          value={formData.phone}
+          onChange={handleChange}
+          placeholder="(555) 123-4567"
+        />
 
-        <div className="space-y-1.5">
-          <label className="block text-sm font-semibold text-foreground">Insurance Expiration</label>
-          <input
-            name="insurance_expiration"
-            type="date"
-            value={formData.insurance_expiration}
-            onChange={handleChange}
-            className="w-full px-4 py-2.5 bg-muted text-foreground border border-border rounded-xl focus:ring-2 focus:ring-primary focus:border-primary focus:bg-background outline-none transition-all [color-scheme:light] dark:[color-scheme:dark]"
-          />
-        </div>
+        <Input
+          label="Insurance Expiration"
+          name="insurance_expiration"
+          type="date"
+          value={formData.insurance_expiration}
+          onChange={handleChange}
+          className="[color-scheme:light] dark:[color-scheme:dark]"
+        />
 
-        <div className="space-y-1.5 md:col-span-2">
-          <label className="block text-sm font-semibold text-foreground">Status</label>
-          <select
+        <div className="md:col-span-2">
+          <Select
+            label="Status"
             name="status"
             value={formData.status}
             onChange={handleChange}
-            className="w-full px-4 py-2.5 bg-muted border border-border rounded-xl focus:ring-2 focus:ring-primary focus:border-primary focus:bg-background outline-none transition-all text-foreground appearance-none"
-          >
-            {CARRIER_STATUSES.map((status) => (
-              <option key={status.value} value={status.value}>
-                {status.label}
-              </option>
-            ))}
-          </select>
+            options={CARRIER_STATUSES}
+          />
         </div>
       </div>
 
@@ -169,11 +149,10 @@ export default function CarrierForm({ carrier, onSaved, onCancel }: CarrierFormP
               key={type}
               type="button"
               onClick={() => handleEquipmentToggle(type)}
-              className={`px-4 py-2 rounded-xl text-xs font-bold border transition-all ${
-                formData.equipment_types.includes(type)
-                  ? 'bg-primary text-primary-foreground border-primary shadow-md shadow-primary/20 scale-105'
-                  : 'bg-muted text-muted-foreground border-border hover:bg-background hover:text-foreground hover:border-primary/50'
-              }`}
+              className={`px-4 py-2 rounded-xl text-xs font-bold border transition-all ${formData.equipment_types.includes(type)
+                ? 'bg-primary text-primary-foreground border-primary shadow-md shadow-primary/20 scale-105'
+                : 'bg-muted text-muted-foreground border-border hover:bg-background hover:text-foreground hover:border-primary/50'
+                }`}
             >
               {type}
             </button>
@@ -182,20 +161,21 @@ export default function CarrierForm({ carrier, onSaved, onCancel }: CarrierFormP
       </div>
 
       <div className="flex flex-col-reverse sm:flex-row gap-3 pt-6 border-t border-border mt-6">
-        <button
+        <Button
           type="button"
+          variant="outline"
           onClick={onCancel}
-          className="flex-1 sm:flex-none px-6 py-3 text-muted-foreground font-bold rounded-xl border border-border hover:bg-muted hover:text-foreground transition-all"
+          className="flex-1 sm:flex-none"
         >
           Cancel
-        </button>
-        <button
+        </Button>
+        <Button
           type="submit"
-          disabled={loading}
-          className="flex-1 sm:flex-none px-6 py-3 bg-primary text-primary-foreground font-bold rounded-xl hover:bg-primary-hover disabled:opacity-50 transition-all shadow-md shadow-primary/20 hover:shadow-primary/40"
+          isLoading={loading}
+          className="flex-1 sm:flex-none"
         >
-          {loading ? 'Saving...' : carrier ? 'Update Carrier' : 'Complete Registration'}
-        </button>
+          {carrier ? 'Update Carrier' : 'Complete Registration'}
+        </Button>
       </div>
     </form>
   );

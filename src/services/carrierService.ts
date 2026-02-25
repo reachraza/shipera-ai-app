@@ -42,6 +42,16 @@ export async function createCarrier(orgId: string, carrier: CarrierFormData): Pr
     .single();
 
   if (error) throw error;
+
+  // Log activity
+  const { data: { user } } = await supabase.auth.getUser();
+  if (user) {
+    // Import this at the top of the file: import { logActivity } from './activityService';
+    // We'll add the import via another chunk but for now assume it's there
+    const { logActivity } = await import('./activityService');
+    await logActivity(orgId, user.id, 'create', 'carrier', data.id, { name: data.name });
+  }
+
   return data as Carrier;
 }
 
@@ -61,6 +71,14 @@ export async function updateCarrier(id: string, carrier: Partial<CarrierFormData
     .single();
 
   if (error) throw error;
+
+  // Log activity
+  const { data: { user } } = await supabase.auth.getUser();
+  if (user) {
+    const { logActivity } = await import('./activityService');
+    await logActivity(data.org_id, user.id, 'update', 'carrier', data.id, { name: data.name });
+  }
+
   return data as Carrier;
 }
 
