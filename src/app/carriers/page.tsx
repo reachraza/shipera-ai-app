@@ -1,15 +1,18 @@
 'use client';
 
-import { useState } from 'react';
+import React, { useState } from 'react';
 import { Truck, Plus, Search, Filter } from 'lucide-react';
 import CarrierTable from '@/components/CarrierTable';
 import CarrierForm from '@/components/CarrierForm';
 import { Carrier } from '@/constants/types';
+import { useAuthContext } from '@/context/AuthProvider';
 
 export default function CarriersPage() {
   const [showForm, setShowForm] = useState(false);
   const [editingCarrier, setEditingCarrier] = useState<Carrier | null>(null);
   const [refreshKey, setRefreshKey] = useState(0);
+
+  const { role } = useAuthContext();
 
   function handleAdd() {
     setEditingCarrier(null);
@@ -24,7 +27,7 @@ export default function CarriersPage() {
   function handleSaved() {
     setShowForm(false);
     setEditingCarrier(null);
-    setRefreshKey((prev) => prev + 1);
+    setRefreshKey((prev: number) => prev + 1);
   }
 
   function handleCancel() {
@@ -44,13 +47,15 @@ export default function CarriersPage() {
           </h1>
           <p className="text-muted-foreground mt-1 text-sm font-medium">Manage your approved partners and fleet compliance</p>
         </div>
-        <button
-          onClick={handleAdd}
-          className="flex items-center justify-center gap-2 px-6 py-3 bg-primary text-primary-foreground font-bold rounded-2xl hover:bg-primary-hover transition-all shadow-lg shadow-primary/25 hover:shadow-primary/40 active:scale-95 shrink-0"
-        >
-          <Plus size={20} />
-          Add Carrier
-        </button>
+        {role === 'admin' && (
+          <button
+            onClick={handleAdd}
+            className="flex items-center justify-center gap-2 px-6 py-3 bg-primary text-primary-foreground font-bold rounded-2xl hover:bg-primary-hover transition-all shadow-lg shadow-primary/25 hover:shadow-primary/40 active:scale-95 shrink-0"
+          >
+            <Plus size={20} />
+            Add Carrier
+          </button>
+        )}
       </div>
 
       <div className="flex flex-col md:flex-row gap-4">
@@ -86,9 +91,8 @@ export default function CarriersPage() {
 
       <div className="glass-panel rounded-2xl overflow-hidden shadow-sm">
         <CarrierTable
-          key={refreshKey}
           onEdit={handleEdit}
-          onRefresh={() => setRefreshKey((prev) => prev + 1)}
+          onRefresh={() => setRefreshKey((prev: number) => prev + 1)}
         />
       </div>
     </div>

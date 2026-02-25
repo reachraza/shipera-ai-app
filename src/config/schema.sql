@@ -116,6 +116,17 @@ AS $$
   SELECT org_id FROM public.users WHERE id = auth.uid() LIMIT 1;
 $$;
 
+-- Helper function to get the current user's role
+CREATE OR REPLACE FUNCTION public.get_user_role()
+RETURNS text
+LANGUAGE sql
+SECURITY DEFINER
+SET search_path = public
+STABLE
+AS $$
+  SELECT role FROM public.users WHERE id = auth.uid() LIMIT 1;
+$$;
+
 -- ─── Trigger: Auto-create Org + User on Signup ─────────────
 CREATE OR REPLACE FUNCTION public.handle_new_user()
 RETURNS TRIGGER
@@ -178,8 +189,14 @@ CREATE POLICY "Users can view own org members" ON users
 CREATE POLICY "Users can insert profile" ON users
   FOR INSERT WITH CHECK (auth.role() = 'authenticated');
 
-CREATE POLICY "Users can manage carriers in their org" ON carriers
-  FOR ALL USING (org_id = public.get_user_org_id());
+CREATE POLICY "Users can view carriers in their org" ON carriers
+  FOR SELECT USING (org_id = public.get_user_org_id());
+
+CREATE POLICY "Admins can manage carriers in their org" ON carriers
+  FOR ALL USING (
+    org_id = public.get_user_org_id() AND 
+    public.get_user_role() = 'admin'
+  );
 
 CREATE POLICY "Users can manage rfps in their org" ON rfps
   FOR ALL USING (org_id = public.get_user_org_id());
