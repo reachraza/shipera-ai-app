@@ -77,7 +77,7 @@ export default function RFPList({ searchQuery = '', statusFilter = 'all' }: { se
           <FileText size={40} strokeWidth={1.5} />
         </div>
         <h3 className="text-xl font-bold text-foreground">No Active Tenders</h3>
-        <p className="text-muted-foreground mt-2 max-w-sm mx-auto font-medium">You haven't initialized any RFPs yet. Create your first Request for Proposal to begin sourcing carriers.</p>
+        <p className="text-muted-foreground mt-2 max-w-sm mx-auto font-medium">You haven&apos;t initialized any RFPs yet. Create your first Request for Proposal to begin sourcing carriers.</p>
         <Link href="/rfps/new" className="inline-flex items-center gap-2 mt-8 px-6 py-3 bg-primary text-primary-foreground font-bold rounded-2xl hover:bg-primary-hover transition-all shadow-lg shadow-primary/25 active:scale-95">
           Create First RFP
         </Link>

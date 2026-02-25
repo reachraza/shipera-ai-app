@@ -10,13 +10,11 @@ import {
   Truck,
   FileText,
   CheckCircle,
-  TrendingUp,
   Clock,
   ArrowRight,
   Loader2,
   Plus,
   RefreshCw,
-  Trash2,
   Mail,
   AlertTriangle,
   Filter
@@ -46,9 +44,10 @@ export default function DashboardPage() {
         ]);
         setData(stats);
         setActivities(recentActivities);
-      } catch (err: any) {
-        console.error('Failed to load dashboard stats:', err);
-        setError(err.message || 'Failed to connect to the database. Please try again later.');
+      } catch (err) {
+        const error = err as Error;
+        console.error('Failed to load dashboard stats:', error);
+        setError(error.message || 'Failed to connect to the database. Please try again later.');
       } finally {
         setLoading(false);
       }
@@ -63,7 +62,7 @@ export default function DashboardPage() {
     { label: 'Invites Sent', value: data?.totalInvites ?? '-', icon: CheckCircle, color: 'text-green-500' },
   ];
 
-  function getActivityDisplay(action: string, entity: string, metadata: any) {
+  function getActivityDisplay(action: string, entity: string, _metadata: Record<string, unknown>) {
     let title = 'Action Logged';
     let subtitle = `A ${entity} was ${action}d.`;
     let Icon = Activity;
@@ -124,7 +123,7 @@ export default function DashboardPage() {
           </h1>
           <p className="text-muted-foreground mt-2 font-medium flex items-center gap-2">
             <Clock size={16} className="text-primary" />
-            Here's what's happening in your network today.
+            Here&apos;s what&apos;s happening in your network today.
           </p>
         </div>
 

@@ -85,7 +85,7 @@ export default function RFPDetailPage() {
           <FileText size={40} strokeWidth={1.5} />
         </div>
         <h2 className="text-2xl font-black text-foreground">RFP Not Found</h2>
-        <p className="text-muted-foreground mt-2 font-medium">The requested tender does not exist or you don't have permission.</p>
+        <p className="text-muted-foreground mt-2 font-medium">The requested tender does not exist or you don&apos;t have permission.</p>
         <button
           onClick={() => router.push('/rfps')}
           className="mt-8 px-6 py-3 bg-primary text-primary-foreground font-bold rounded-2xl hover:bg-primary-hover shadow-lg shadow-primary/25 transition-all active:scale-95"
@@ -138,7 +138,7 @@ export default function RFPDetailPage() {
               <div className="mt-8 relative group">
                 <div className="absolute -left-4 top-0 w-1 h-full bg-border group-hover:bg-primary transition-colors" />
                 <p className="text-foreground/80 text-sm font-medium leading-relaxed italic">
-                  "{rfp.notes}"
+                  &quot;{rfp.notes}&quot;
                 </p>
               </div>
             )}

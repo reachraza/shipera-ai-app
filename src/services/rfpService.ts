@@ -56,9 +56,9 @@ export async function createRFP(orgId: string, rfp: RFPFormData): Promise<RFP> {
 export async function updateRFP(id: string, rfp: Partial<RFPFormData>): Promise<RFP> {
   const supabase = createClient();
 
-  const payload = { ...rfp };
+  const payload: Partial<RFPFormData> = { ...rfp };
   if (payload.deadline === '') {
-    payload.deadline = null as any;
+    payload.deadline = null;
   }
 
   const { data, error } = await supabase

@@ -9,6 +9,10 @@ export const ROLES: Record<UserRole, { label: string; description: string }> = {
     label: 'Coordinator',
     description: 'Can manage RFPs, carriers, and bids',
   },
+  supervisor: {
+    label: 'Supervisor',
+    description: 'Oversees team operations and approvals',
+  },
 };
 
 export const PROTECTED_ROUTES = ['/dashboard', '/carriers', '/rfps'];

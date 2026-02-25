@@ -78,7 +78,7 @@ export default function CarrierSelect({ rfpId, existingInvites, onInvited }: Car
     return (
       <div className="p-4 bg-muted/50 border border-border rounded-xl text-center">
         <p className="text-sm font-medium text-muted-foreground">No eligible carriers available to invite.</p>
-        <p className="text-xs text-muted-foreground mt-1">Carriers must be 'approved' in your network.</p>
+        <p className="text-xs text-muted-foreground mt-1">Carriers must be &apos;approved&apos; in your network.</p>
       </div>
     );
   }
@@ -99,8 +99,8 @@ export default function CarrierSelect({ rfpId, existingInvites, onInvited }: Car
               <label
                 key={carrier.id}
                 className={`flex items-center gap-3 p-3 rounded-lg cursor-pointer transition-all border ${isSelected
-                    ? 'bg-primary/5 border-primary shadow-sm'
-                    : 'border-transparent hover:bg-muted/80 hover:border-border/50'
+                  ? 'bg-primary/5 border-primary shadow-sm'
+                  : 'border-transparent hover:bg-muted/80 hover:border-border/50'
                   }`}
               >
                 <div className="relative flex items-center justify-center shrink-0">

@@ -50,7 +50,8 @@ export async function POST(request: Request) {
 
         return NextResponse.json({ message: 'User created successfully' });
 
-    } catch (error: any) {
-        return NextResponse.json({ error: error.message || 'Internal server error' }, { status: 500 });
+    } catch (error) {
+        const err = error as Error;
+        return NextResponse.json({ error: err.message || 'Internal server error' }, { status: 500 });
     }
 }

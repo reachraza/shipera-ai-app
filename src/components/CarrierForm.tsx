@@ -125,7 +125,7 @@ export default function CarrierForm({ carrier, onSaved, onCancel }: CarrierFormP
           label="Insurance Expiration"
           name="insurance_expiration"
           type="date"
-          value={formData.insurance_expiration}
+          value={formData.insurance_expiration || ''}
           onChange={handleChange}
           className="[color-scheme:light] dark:[color-scheme:dark]"
         />
@@ -163,9 +163,9 @@ export default function CarrierForm({ carrier, onSaved, onCancel }: CarrierFormP
       <div className="flex flex-col-reverse sm:flex-row gap-3 pt-6 border-t border-border mt-6">
         <Button
           type="button"
-          variant="outline"
+          variant="ghost"
           onClick={onCancel}
-          className="flex-1 sm:flex-none"
+          className="flex-1 sm:flex-none font-bold border-transparent hover:bg-muted"
         >
           Cancel
         </Button>

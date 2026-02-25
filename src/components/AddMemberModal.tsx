@@ -129,7 +129,7 @@ export default function AddMemberModal({ onClose, onAdded }: AddMemberModalProps
                         <Select
                             label="Access Role"
                             value={role}
-                            onChange={(e) => setRole(e.target.value as any)}
+                            onChange={(e) => setRole(e.target.value as UserRole)}
                             options={[
                                 { label: 'Admin (Full Access)', value: 'admin' },
                                 { label: 'Supervisor (Can manage users & processes)', value: 'supervisor' },

@@ -9,6 +9,7 @@ import {
   Trash2,
   ExternalLink
 } from 'lucide-react';
+import { Button } from '@/components/ui/Button';
 
 export default function InviteTable({ invites }: { invites: RFPInvite[] }) {
   if (invites.length === 0) {
@@ -70,20 +71,26 @@ export default function InviteTable({ invites }: { invites: RFPInvite[] }) {
                 </td>
                 <td className="px-6 py-5 text-right">
                   <div className="flex items-center justify-end gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
-                    <button
+                    <Button
+                      variant="outline"
+                      size="sm"
                       onClick={() => {
                         const url = `${window.location.origin}/bid/${invite.access_token}`;
                         navigator.clipboard.writeText(url);
                         alert('Copied secure bidding link to clipboard!');
                       }}
-                      className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-primary/10 border border-primary/20 rounded-xl text-[10px] font-black uppercase tracking-widest text-primary hover:bg-primary hover:text-white transition-all shadow-sm"
+                      className="text-[10px] uppercase tracking-widest"
                     >
                       Copy Link
-                    </button>
-                    <button className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-card border border-border rounded-xl text-[10px] font-black uppercase tracking-widest text-red-500 hover:bg-red-500 hover:text-white hover:border-red-500 transition-all shadow-sm">
-                      <Trash2 size={12} />
+                    </Button>
+                    <Button
+                      variant="danger-outline"
+                      size="sm"
+                      className="text-[10px] uppercase tracking-widest"
+                    >
+                      <Trash2 size={12} className="mr-1.5" />
                       Revoke
-                    </button>
+                    </Button>
                   </div>
                 </td>
               </tr>

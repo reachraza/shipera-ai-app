@@ -48,9 +48,10 @@ export default function ForcePasswordUpdate() {
             // 3. Force a reload to refresh the Auth context and remove the full-screen blocker
             window.location.reload();
 
-        } catch (err: any) {
-            console.error('Failed to update password:', err);
-            setError(err.message || 'Failed to update password. Please try again.');
+        } catch (err) {
+            const error = err as Error;
+            console.error('Failed to update password:', error);
+            setError(error.message || 'Failed to update password. Please try again.');
             setLoading(false);
         }
     }

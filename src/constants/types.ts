@@ -6,7 +6,7 @@ export interface Organization {
 }
 
 // ─── User ────────────────────────────────────────────────────
-export type UserRole = 'admin' | 'coordinator';
+export type UserRole = 'admin' | 'coordinator' | 'supervisor';
 
 export interface User {
   id: string;
@@ -30,7 +30,7 @@ export interface Carrier {
   equipment_types: string[];
   email: string;
   phone: string;
-  insurance_expiration: string;
+  insurance_expiration: string | null;
   status: CarrierStatus;
   is_deleted: boolean;
   created_at: string;
@@ -43,7 +43,7 @@ export interface CarrierFormData {
   equipment_types: string[];
   email: string;
   phone: string;
-  insurance_expiration: string;
+  insurance_expiration: string | null;
   status: CarrierStatus;
 }
 
@@ -56,16 +56,16 @@ export interface RFP {
   org_id: string;
   title: string;
   mode: RFPMode;
-  deadline: string;
   notes: string;
   status: RFPStatus;
+  deadline: string | null;
   created_at: string;
 }
 
 export interface RFPFormData {
   title: string;
   mode: RFPMode;
-  deadline: string;
+  deadline: string | null;
   notes: string;
 }
 
@@ -79,6 +79,7 @@ export interface RFPLane {
   destination_state: string;
   equipment_type: string;
   frequency: string | null;
+  rfp?: RFP;
 }
 
 export interface RFPLaneCSVRow {
@@ -102,6 +103,7 @@ export interface RFPInvite {
   created_at: string;
   // Joined fields
   carrier?: Carrier;
+  rfp?: RFP;
 }
 
 // ─── Bid ─────────────────────────────────────────────────────
@@ -113,6 +115,9 @@ export interface Bid {
   transit_time: string;
   notes: string;
   created_at: string;
+  // Joined fields
+  carrier?: Partial<Carrier>;
+  lane?: Partial<RFPLane>;
 }
 
 // ─── Activity Log ────────────────────────────────────────────

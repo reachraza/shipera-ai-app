@@ -5,6 +5,7 @@ import { User, UserRole } from '@/constants/types';
 import { getOrganizationUsers, updateUserRole, removeUserFromOrg } from '@/services/userService';
 import { useAuth } from '@/hooks/useAuth';
 import { ShieldCheck, User as UserIcon, Loader2, Trash2, CalendarDays, KeyRound } from 'lucide-react';
+import { Button } from '@/components/ui/Button';
 
 interface TeamTableProps {
     refreshTrigger: number;
@@ -151,7 +152,7 @@ export default function TeamTable({ refreshTrigger, searchQuery = '' }: TeamTabl
                                     {currentUserRole === 'admin' ? (
                                         <select
                                             value={user.role}
-                                            onChange={(e) => handleRoleChange(user, e.target.value as any)}
+                                            onChange={(e) => handleRoleChange(user, e.target.value as UserRole)}
                                             className="bg-transparent border border-border rounded-lg px-2.5 py-1.5 focus:outline-none focus:border-primary text-xs font-bold uppercase tracking-wider text-foreground cursor-pointer shadow-sm hover:border-primary/50 transition-colors"
                                         >
                                             <option value="admin">Admin</option>
@@ -173,13 +174,15 @@ export default function TeamTable({ refreshTrigger, searchQuery = '' }: TeamTabl
                                 {currentUserRole === 'admin' && (
                                     <td className="px-6 py-5 text-right">
                                         <div className="flex justify-end opacity-0 group-hover:opacity-100 transition-all transform translate-x-2 group-hover:translate-x-0">
-                                            <button
+                                            <Button
+                                                variant="ghost"
+                                                size="icon"
                                                 onClick={() => handleRemove(user)}
-                                                className="inline-flex items-center justify-center p-2 text-muted-foreground hover:bg-red-500 hover:text-white border border-transparent hover:border-red-600 rounded-xl transition-all shadow-sm"
+                                                className="h-9 w-9 text-muted-foreground hover:bg-red-500 hover:text-white border-transparent hover:border-red-600 rounded-xl"
                                                 title="Remove User"
                                             >
                                                 <Trash2 size={16} />
-                                            </button>
+                                            </Button>
                                         </div>
                                     </td>
                                 )}

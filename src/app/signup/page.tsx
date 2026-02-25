@@ -1,51 +1,55 @@
 'use client';
 
-import { useState, useEffect, Suspense } from 'react';
+import { useState, Suspense, useMemo } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import Image from 'next/image';
 import { useAuth } from '@/hooks/useAuth';
+import { UserRole } from '@/constants/types';
 import { Button } from '@/components/ui/Button';
 import { Input } from '@/components/ui/Input';
 
 function SignupContent() {
   const searchParams = useSearchParams();
+  const inviteParam = searchParams.get('invite');
+
+  const inviteInfo = useMemo(() => {
+    if (!inviteParam) return { orgId: null, role: null };
+    try {
+      const payload = JSON.parse(atob(inviteParam));
+      return {
+        orgId: (payload.orgId as string) || null,
+        role: (payload.role as UserRole) || null
+      };
+    } catch {
+      return { orgId: null, role: null };
+    }
+  }, [inviteParam]);
+
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const [orgName, setOrgName] = useState('');
+  const [orgName, setOrgName] = useState(inviteInfo.orgId ? 'Invited to existing organization' : '');
   const [fullName, setFullName] = useState('');
-  const [invitedOrgId, setInvitedOrgId] = useState<string | null>(null);
-  const [invitedRole, setInvitedRole] = useState<any>(null);
 
-  const [error, setError] = useState('');
+  const [error, setError] = useState(inviteParam && !inviteInfo.orgId ? 'Invalid or corrupted invite link.' : '');
   const [loading, setLoading] = useState(false);
   const [needsConfirmation, setNeedsConfirmation] = useState(false);
   const { signUp } = useAuth();
   const router = useRouter();
-
-  useEffect(() => {
-    const inviteParam = searchParams.get('invite');
-    if (inviteParam) {
-      try {
-        const payload = JSON.parse(atob(inviteParam));
-        if (payload.orgId && payload.role) {
-          setInvitedOrgId(payload.orgId);
-          setInvitedRole(payload.role);
-          setOrgName('Invited to existing organization');
-        }
-      } catch (e) {
-        console.error('Invalid invite link');
-        setError('Invalid or corrupted invite link.');
-      }
-    }
-  }, [searchParams]);
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     setError('');
     setLoading(true);
 
-    const { error, needsConfirmation } = await signUp(email, password, orgName, fullName, invitedOrgId || undefined, invitedRole || undefined);
+    const { error, needsConfirmation } = await signUp(
+      email,
+      password,
+      orgName,
+      fullName,
+      inviteInfo.orgId || undefined,
+      inviteInfo.role || undefined
+    );
     if (error) {
       setError(error.message);
       setLoading(false);
@@ -123,7 +127,7 @@ function SignupContent() {
                   name="orgName"
                   type="text"
                   required
-                  disabled={!!invitedOrgId}
+                  disabled={!!inviteInfo.orgId}
                   value={orgName}
                   onChange={(e) => setOrgName(e.target.value)}
                   placeholder="Acme Logistics"
@@ -186,10 +190,16 @@ function SignupContent() {
   );
 }
 
+function SignupSuspense() {
+  const searchParams = useSearchParams();
+  const invite = searchParams.get('invite') || 'none';
+  return <SignupContent key={invite} />;
+}
+
 export default function SignupPage() {
   return (
     <Suspense fallback={<div className="min-h-screen flex items-center justify-center bg-background"><div className="animate-spin h-8 w-8 border-4 border-primary rounded-full border-t-transparent"></div></div>}>
-      <SignupContent />
+      <SignupSuspense />
     </Suspense>
   );
 }

@@ -179,17 +179,18 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       await fetchAppUser(authData.user!.id);
 
       return { error: null };
-    } catch (err: any) {
-      console.error('Signup error:', err);
+    } catch (err) {
+      const error = err as Error;
+      console.error('Signup error:', error);
 
       let errorMessage = 'An unexpected error occurred during signup. Please try again.';
 
-      if (err.message === 'Email signups are disabled' || err.code === 'email_provider_disabled') {
+      if (error.message === 'Email signups are disabled' || (error as { code?: string }).code === 'email_provider_disabled') {
         errorMessage = 'Signups are currently disabled for this application. Please contact the administrator.';
-      } else if (err.message?.includes('already registered')) {
+      } else if (error.message?.includes('already registered')) {
         errorMessage = 'An account with this email address already exists. Please try logging in instead.';
-      } else if (err.message) {
-        errorMessage = err.message;
+      } else if (error.message) {
+        errorMessage = error.message;
       }
 
       return { error: new Error(errorMessage) };

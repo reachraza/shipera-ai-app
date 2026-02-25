@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import { useParams } from 'next/navigation';
-import { RFPLane, RFPInvite, Bid } from '@/constants/types';
+import { RFPLane, RFPInvite } from '@/constants/types';
 import { Loader2, DollarSign, Clock, MapPin, Building, FileText, CheckCircle2 } from 'lucide-react';
 import { Button } from '@/components/ui/Button';
 
@@ -10,7 +10,7 @@ export default function CarrierBiddingPage() {
     const params = useParams();
     const token = params.token as string;
 
-    const [invite, setInvite] = useState<any>(null);
+    const [invite, setInvite] = useState<RFPInvite | null>(null);
     const [lanes, setLanes] = useState<RFPLane[]>([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState('');
@@ -33,14 +33,15 @@ export default function CarrierBiddingPage() {
                 setLanes(data.lanes);
 
                 // Initialize empty bid form data
-                const initialMap: any = {};
+                const initialMap: Record<string, { rate: string, transit_time: string, notes: string }> = {};
                 data.lanes.forEach((lane: RFPLane) => {
                     initialMap[lane.id] = { rate: '', transit_time: '', notes: '' };
                 });
                 setBidsData(initialMap);
 
-            } catch (err: any) {
-                setError(err.message);
+            } catch (err) {
+                const error = err as Error;
+                setError(error.message);
             } finally {
                 setLoading(false);
             }
@@ -90,9 +91,10 @@ export default function CarrierBiddingPage() {
             }
 
             setIsSuccess(true);
-        } catch (err: any) {
-            console.error(err);
-            alert(err.message);
+        } catch (err) {
+            const error = err as Error;
+            console.error(error);
+            alert(error.message);
         } finally {
             setIsSubmitting(false);
         }
@@ -146,8 +148,22 @@ export default function CarrierBiddingPage() {
     }
 
     // Bidding UI
-    const rfp = invite.rfp;
-    const carrier = invite.carrier;
+    const rfp = invite?.rfp;
+    const carrier = invite?.carrier;
+
+    if (!rfp || !carrier) {
+        return (
+            <div className="min-h-screen bg-transparent p-6 flex flex-col items-center justify-center">
+                <div className="glass-panel p-10 rounded-3xl max-w-lg w-full text-center border border-red-500/20 shadow-2xl shadow-red-500/10">
+                    <div className="h-20 w-20 bg-red-500/10 text-red-500 rounded-full flex items-center justify-center mx-auto mb-6">
+                        <MapPin size={32} />
+                    </div>
+                    <h2 className="text-2xl font-black text-foreground mb-2">Incomplete Data</h2>
+                    <p className="text-muted-foreground font-medium">We couldn&apos;t load the full bidding context. The RFP or carrier information is missing.</p>
+                </div>
+            </div>
+        );
+    }
 
     return (
         <div className="min-h-screen pb-24 p-4 sm:p-8 animate-in fade-in slide-in-from-bottom-8 duration-700">
@@ -190,7 +206,7 @@ export default function CarrierBiddingPage() {
 
                     {rfp.notes && (
                         <div className="mt-8 border-l-2 border-primary pl-4 relative z-10">
-                            <p className="text-sm font-medium text-muted-foreground italic">" {rfp.notes} "</p>
+                            <p className="text-sm font-medium text-muted-foreground italic">&quot; {rfp.notes} &quot;</p>
                         </div>
                     )}
                 </div>

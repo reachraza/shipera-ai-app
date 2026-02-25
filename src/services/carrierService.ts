@@ -58,9 +58,9 @@ export async function createCarrier(orgId: string, carrier: CarrierFormData): Pr
 export async function updateCarrier(id: string, carrier: Partial<CarrierFormData>): Promise<Carrier> {
   const supabase = createClient();
 
-  const payload = { ...carrier };
+  const payload: Partial<CarrierFormData> = { ...carrier };
   if (payload.insurance_expiration === '') {
-    payload.insurance_expiration = null as any;
+    payload.insurance_expiration = null;
   }
 
   const { data, error } = await supabase

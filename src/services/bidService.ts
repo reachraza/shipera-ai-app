@@ -75,14 +75,14 @@ export async function submitBids(
  * Fetches all bids submitted against a specific RFP.
  * Returns the bids joined with carrier details and lane details.
  */
-export async function getBidsForRFP(rfpId: string): Promise<any[]> {
+export async function getBidsForRFP(rfpId: string): Promise<Bid[]> {
     const supabase = createClient();
 
     const { data, error } = await supabase
         .from('bids')
         .select(`
       *,
-      carrier:carriers(id, name, mc_number, contact_email, contact_phone),
+      carrier:carriers(id, name, mc_number, contact_email:email, contact_phone:phone),
       lane:rfp_lanes(id, origin_city, origin_state, destination_city, destination_state, equipment_type)
     `)
         .eq('lane.rfp_id', rfpId);
@@ -93,5 +93,5 @@ export async function getBidsForRFP(rfpId: string): Promise<any[]> {
 
     // Supabase inner join filtering quirk workaround
     // It returns all bids, but if the lane.rfp_id doesn't match, `lane` is null
-    return (data || []).filter((bid: any) => bid.lane !== null);
+    return (data || []).filter((bid) => bid.lane !== null) as unknown as Bid[];
 }

@@ -2,14 +2,15 @@
 
 import { useEffect, useState } from 'react';
 import { getBidsForRFP } from '@/services/bidService';
-import { Loader2, DollarSign, Clock, MapPin, Building, FileText } from 'lucide-react';
+import { Loader2, DollarSign, Clock, MapPin, Building } from 'lucide-react';
+import { Bid } from '@/constants/types';
 
 interface BidListProps {
     rfpId: string;
 }
 
 export default function BidList({ rfpId }: BidListProps) {
-    const [bids, setBids] = useState<any[]>([]);
+    const [bids, setBids] = useState<Bid[]>([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState('');
 
@@ -39,7 +40,7 @@ export default function BidList({ rfpId }: BidListProps) {
         if (!acc[laneId]) acc[laneId] = [];
         acc[laneId].push(bid);
         return acc;
-    }, {} as Record<string, any[]>);
+    }, {} as Record<string, Bid[]>);
 
     if (loading) {
         return (
@@ -74,6 +75,8 @@ export default function BidList({ rfpId }: BidListProps) {
         <div className="space-y-6">
             {Object.entries(bidsByLane).map(([laneId, laneBids]) => {
                 const lane = laneBids[0].lane;
+                if (!lane) return null;
+
                 return (
                     <div key={laneId} className="bg-background border border-border rounded-2xl overflow-hidden shadow-sm">
                         {/* Lane Header */}
@@ -103,7 +106,7 @@ export default function BidList({ rfpId }: BidListProps) {
                                     </tr>
                                 </thead>
                                 <tbody className="divide-y divide-border/30">
-                                    {((laneBids as any[]) || []).sort((a: any, b: any) => a.rate - b.rate).map((bid: any) => (
+                                    {[...laneBids].sort((a, b) => a.rate - b.rate).map((bid) => (
                                         <tr key={bid.id} className="hover:bg-muted/20 transition-colors">
                                             <td className="px-4 py-3.5">
                                                 <div className="flex items-center gap-2">

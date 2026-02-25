@@ -26,11 +26,11 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
   const { appUser, signOut } = useAuth();
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
 
-  const navItems = [
+  const navItems: { name: string; href: string; icon: any; adminOnly?: boolean }[] = [
     { name: 'Dashboard', href: '/dashboard', icon: LayoutDashboard },
     { name: 'Carriers', href: '/carriers', icon: Truck },
     { name: 'RFPs', href: '/rfps', icon: FileText },
-    { name: 'Teams', href: '/teams', icon: Users, adminOnly: true },
+    // { name: 'Teams', href: '/teams', icon: Users, adminOnly: true },
   ];
 
   async function handleSignOut() {

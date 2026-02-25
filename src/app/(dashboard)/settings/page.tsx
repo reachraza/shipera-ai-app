@@ -2,13 +2,13 @@
 
 import { useState, useEffect } from 'react';
 import { useAuth } from '@/hooks/useAuth';
-import { Settings, User, Building, ShieldCheck, Mail, Save, Loader2, KeyRound } from 'lucide-react';
+import { Settings, User, Building, ShieldCheck, Mail, Save, KeyRound, Edit2 } from 'lucide-react';
 import { createClient } from '@/config/supabase';
 import { Button } from '@/components/ui/Button';
 import { Input } from '@/components/ui/Input';
 
 export default function SettingsPage() {
-    const { appUser, signOut, session, updateProfile } = useAuth();
+    const { appUser, signOut, updateProfile } = useAuth();
     const supabase = createClient();
 
     const [activeTab, setActiveTab] = useState<'profile' | 'organization' | 'security'>('profile');
@@ -24,10 +24,12 @@ export default function SettingsPage() {
     const [profileLoading, setProfileLoading] = useState(false);
     const [profileSuccess, setProfileSuccess] = useState('');
     const [profileError, setProfileError] = useState('');
+    const [isEditingProfile, setIsEditingProfile] = useState(false);
 
     const [orgLoading, setOrgLoading] = useState(false);
     const [orgSuccess, setOrgSuccess] = useState('');
     const [orgError, setOrgError] = useState('');
+    const [isEditingOrg, setIsEditingOrg] = useState(false);
 
     useEffect(() => {
         if (appUser?.full_name && !hasLoadedName) {
@@ -72,8 +74,9 @@ export default function SettingsPage() {
 
             setSuccess('Password updated successfully!');
             setNewPassword('');
-        } catch (err: any) {
-            setError(err.message || 'Failed to update password');
+        } catch (err) {
+            const error = err as Error;
+            setError(error.message || 'Failed to update password');
         } finally {
             setLoading(false);
         }
@@ -95,8 +98,10 @@ export default function SettingsPage() {
 
             updateProfile({ full_name: fullName });
             setProfileSuccess('Profile updated successfully! Changes are applied instantly.');
-        } catch (err: any) {
-            setProfileError(err.message || 'Failed to update profile');
+            setIsEditingProfile(false);
+        } catch (err) {
+            const error = err as Error;
+            setProfileError(error.message || 'Failed to update profile');
         } finally {
             setProfileLoading(false);
         }
@@ -119,8 +124,10 @@ export default function SettingsPage() {
             if (dbError) throw dbError;
 
             setOrgSuccess('Organization name updated successfully!');
-        } catch (err: any) {
-            setOrgError(err.message || 'Failed to update organization name');
+            setIsEditingOrg(false);
+        } catch (err) {
+            const error = err as Error;
+            setOrgError(error.message || 'Failed to update organization name');
         } finally {
             setOrgLoading(false);
         }
@@ -194,50 +201,94 @@ export default function SettingsPage() {
                                                 <ShieldCheck size={14} className="text-primary" /> {appUser.role.toUpperCase()}
                                             </p>
                                         </div>
+                                        {!isEditingProfile && (
+                                            <Button
+                                                variant="outline"
+                                                size="sm"
+                                                onClick={() => setIsEditingProfile(true)}
+                                                className="ml-auto gap-2 text-[10px] font-black uppercase tracking-widest border-primary/20 hover:border-primary/50 text-primary bg-primary/5"
+                                            >
+                                                <Edit2 size={14} />
+                                                Edit Profile
+                                            </Button>
+                                        )}
                                     </div>
 
-                                    <form onSubmit={handleProfileUpdate} className="space-y-4 max-w-md mt-8">
-                                        {profileError && (
-                                            <div className="p-3 bg-red-500/10 border border-red-500/20 text-red-500 rounded-xl text-sm font-medium">
-                                                {profileError}
+                                    {isEditingProfile ? (
+                                        <form onSubmit={handleProfileUpdate} className="space-y-4 max-w-md mt-8">
+                                            {profileError && (
+                                                <div className="p-3 bg-red-500/10 border border-red-500/20 text-red-500 rounded-xl text-sm font-medium">
+                                                    {profileError}
+                                                </div>
+                                            )}
+                                            {profileSuccess && (
+                                                <div className="p-3 bg-green-500/10 border border-green-500/20 text-green-600 dark:text-green-400 rounded-xl text-sm font-medium">
+                                                    {profileSuccess}
+                                                </div>
+                                            )}
+                                            <div className="space-y-1.5">
+                                                <Input
+                                                    label="Full Name"
+                                                    icon={<User size={16} />}
+                                                    type="text"
+                                                    required
+                                                    value={fullName}
+                                                    onChange={(e) => setFullName(e.target.value)}
+                                                />
                                             </div>
-                                        )}
-                                        {profileSuccess && (
-                                            <div className="p-3 bg-green-500/10 border border-green-500/20 text-green-600 dark:text-green-400 rounded-xl text-sm font-medium">
-                                                {profileSuccess}
+                                            <div className="space-y-1.5">
+                                                <Input
+                                                    label="Email Address"
+                                                    icon={<Mail size={16} />}
+                                                    type="email"
+                                                    disabled
+                                                    value={appUser.email || ''}
+                                                    className="opacity-70 cursor-not-allowed"
+                                                />
+                                                <p className="text-[10px] text-muted-foreground uppercase tracking-widest mt-1">Email cannot be changed.</p>
                                             </div>
-                                        )}
-                                        <div className="space-y-1.5">
-                                            <Input
-                                                label="Full Name"
-                                                icon={<User size={16} />}
-                                                type="text"
-                                                required
-                                                value={fullName}
-                                                onChange={(e) => setFullName(e.target.value)}
-                                            />
+                                            <div className="flex gap-3">
+                                                <Button
+                                                    type="submit"
+                                                    disabled={profileLoading || !fullName || fullName === (appUser.full_name || '')}
+                                                    isLoading={profileLoading}
+                                                    className="gap-2"
+                                                >
+                                                    {!profileLoading && <Save size={18} />}
+                                                    Update Profile
+                                                </Button>
+                                                <Button
+                                                    variant="ghost"
+                                                    type="button"
+                                                    onClick={() => {
+                                                        setIsEditingProfile(false);
+                                                        setFullName(appUser.full_name || '');
+                                                    }}
+                                                    className="font-bold border-transparent hover:bg-muted"
+                                                >
+                                                    Cancel
+                                                </Button>
+                                            </div>
+                                        </form>
+                                    ) : (
+                                        <div className="space-y-4 max-w-md mt-8">
+                                            {profileSuccess && (
+                                                <div className="p-3 bg-green-500/10 border border-green-500/20 text-green-600 dark:text-green-400 rounded-xl text-sm font-medium">
+                                                    {profileSuccess}
+                                                </div>
+                                            )}
+                                            <div className="grid grid-cols-1 gap-4">
+                                                <div className="p-4 bg-background rounded-xl border border-border">
+                                                    <h3 className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest mb-1">Full Name</h3>
+                                                    <p className="font-bold text-foreground">{appUser.full_name || 'Not set'}</p>
+                                                </div>
+                                                <div className="p-4 bg-background rounded-xl border border-border">
+                                                    <h3 className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest mb-1">Email Address</h3>
+                                                    <p className="font-bold text-foreground opacity-70">{appUser.email}</p>
+                                                </div>
+                                            </div>
                                         </div>
-                                        <div className="space-y-1.5">
-                                            <Input
-                                                label="Email Address"
-                                                icon={<Mail size={16} />}
-                                                type="email"
-                                                disabled
-                                                value={appUser.email || ''}
-                                                className="opacity-70 cursor-not-allowed"
-                                            />
-                                            <p className="text-[10px] text-muted-foreground uppercase tracking-widest mt-1">Email cannot be changed.</p>
-                                        </div>
-                                        <Button
-                                            type="submit"
-                                            disabled={profileLoading || !fullName || fullName === (appUser.full_name || '')}
-                                            isLoading={profileLoading}
-                                            className="gap-2"
-                                        >
-                                            {!profileLoading && <Save size={18} />}
-                                            Update Profile
-                                        </Button>
-                                    </form>
+                                    )}
                                 </div>
                             </div>
                         )}
@@ -251,44 +302,74 @@ export default function SettingsPage() {
                                 </div>
 
                                 <div className="bg-muted/30 p-6 rounded-2xl border border-border space-y-6">
-                                    <form onSubmit={handleOrgUpdate} className="space-y-4 max-w-md">
-                                        {orgError && (
-                                            <div className="p-3 bg-red-500/10 border border-red-500/20 text-red-500 rounded-xl text-sm font-medium">
-                                                {orgError}
+                                    <div className="flex items-center justify-between">
+                                        <div className="flex items-start gap-4 p-4 bg-background rounded-xl border border-border flex-1">
+                                            <div className="p-3 bg-primary/10 text-primary rounded-lg shrink-0">
+                                                <Building size={24} />
                                             </div>
-                                        )}
-                                        {orgSuccess && (
-                                            <div className="p-3 bg-green-500/10 border border-green-500/20 text-green-600 dark:text-green-400 rounded-xl text-sm font-medium">
-                                                {orgSuccess}
+                                            <div>
+                                                <h3 className="text-sm font-bold text-muted-foreground uppercase tracking-wider mb-1">Company Name</h3>
+                                                <p className="text-xl font-black text-foreground tracking-tight">{orgName}</p>
                                             </div>
-                                        )}
-                                        <div className="space-y-1.5">
-                                            <Input
-                                                label="Company Name"
-                                                icon={<Building size={16} />}
-                                                type="text"
-                                                required
-                                                disabled={appUser.role !== 'admin'}
-                                                value={orgName}
-                                                onChange={(e) => setOrgName(e.target.value)}
-                                            />
-                                            {appUser.role !== 'admin' && (
-                                                <p className="text-[10px] text-muted-foreground uppercase tracking-widest mt-1">Only administrators can change company details.</p>
-                                            )}
                                         </div>
-
-                                        {appUser.role === 'admin' && (
+                                        {appUser.role === 'admin' && !isEditingOrg && (
                                             <Button
-                                                type="submit"
-                                                disabled={orgLoading || !orgName}
-                                                isLoading={orgLoading}
-                                                className="gap-2"
+                                                variant="outline"
+                                                size="sm"
+                                                onClick={() => setIsEditingOrg(true)}
+                                                className="ml-4 gap-2 text-[10px] font-black uppercase tracking-widest border-primary/20 hover:border-primary/50 text-primary bg-primary/5"
                                             >
-                                                {!orgLoading && <Save size={18} />}
-                                                Update Organization
+                                                <Edit2 size={14} />
+                                                Edit Name
                                             </Button>
                                         )}
-                                    </form>
+                                    </div>
+
+                                    {isEditingOrg ? (
+                                        <form onSubmit={handleOrgUpdate} className="space-y-4 max-w-md animate-in slide-in-from-top-2 duration-200">
+                                            {orgError && (
+                                                <div className="p-3 bg-red-500/10 border border-red-500/20 text-red-500 rounded-xl text-sm font-medium">
+                                                    {orgError}
+                                                </div>
+                                            )}
+                                            <div className="space-y-1.5">
+                                                <Input
+                                                    label="New Company Name"
+                                                    icon={<Building size={16} />}
+                                                    type="text"
+                                                    required
+                                                    value={orgName}
+                                                    onChange={(e) => setOrgName(e.target.value)}
+                                                />
+                                            </div>
+
+                                            <div className="flex gap-3">
+                                                <Button
+                                                    type="submit"
+                                                    disabled={orgLoading || !orgName}
+                                                    isLoading={orgLoading}
+                                                    className="gap-2"
+                                                >
+                                                    {!orgLoading && <Save size={18} />}
+                                                    Update Organization
+                                                </Button>
+                                                <Button
+                                                    variant="ghost"
+                                                    type="button"
+                                                    onClick={() => setIsEditingOrg(false)}
+                                                    className="font-bold border-transparent hover:bg-muted"
+                                                >
+                                                    Cancel
+                                                </Button>
+                                            </div>
+                                        </form>
+                                    ) : (
+                                        orgSuccess && (
+                                            <div className="p-3 bg-green-500/10 border border-green-500/20 text-green-600 dark:text-green-400 rounded-xl text-sm font-medium max-w-md">
+                                                {orgSuccess}
+                                            </div>
+                                        )
+                                    )}
 
                                     <div className="border-t border-border pt-6 grid grid-cols-1 sm:grid-cols-2 gap-4">
                                         <div className="p-4 bg-background rounded-xl border border-border">

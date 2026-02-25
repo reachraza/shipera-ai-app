@@ -68,9 +68,10 @@ function InviteAcceptContent() {
                     router.push('/dashboard');
                 }, 1500);
 
-            } catch (err: any) {
-                console.error('Auto-join failed:', err);
-                setError(err.message || 'Failed to process the invite. The link may have expired or been corrupted.');
+            } catch (err) {
+                const error = err as Error;
+                console.error('Auto-join failed:', error);
+                setError(error.message || 'Failed to process the invite. The link may have expired or been corrupted.');
                 setStatus('');
             }
         }

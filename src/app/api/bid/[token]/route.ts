@@ -1,19 +1,18 @@
-import { NextResponse } from 'next/server';
+import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
 
-// Initialize a Server-Side ONLY client using the Service Role Key
-// This allows us to query the database and bypass RLS for public bidding links
-const supabase = createClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.SUPABASE_SERVICE_ROLE_KEY!
-);
-
 export async function GET(
-    request: Request,
-    { params }: { params: { token: string } }
+    request: NextRequest,
+    { params }: { params: Promise<{ token: string }> }
 ) {
+    // Initialize a Server-Side ONLY client inside the handler
+    const supabase = createClient(
+        process.env.NEXT_PUBLIC_SUPABASE_URL!,
+        process.env.SUPABASE_SERVICE_ROLE_KEY!
+    );
+
     try {
-        const { token } = params;
+        const { token } = await params;
 
         // 1. Fetch the Invite along with Carrier and RFP details
         const { data: invite, error: inviteError } = await supabase
@@ -61,11 +60,16 @@ export async function GET(
 }
 
 export async function POST(
-    request: Request,
-    { params }: { params: { token: string } }
+    request: NextRequest,
+    { params }: { params: Promise<{ token: string }> }
 ) {
+    const supabase = createClient(
+        process.env.NEXT_PUBLIC_SUPABASE_URL!,
+        process.env.SUPABASE_SERVICE_ROLE_KEY!
+    );
+
     try {
-        const { token } = params;
+        const { token } = await params;
         const body = await request.json();
         const { bids } = body;
 
@@ -94,7 +98,7 @@ export async function POST(
         const { error: bidsError } = await supabase
             .from('bids')
             .upsert(
-                bids.map((bid: any) => ({
+                bids.map((bid: { rfp_lane_id: string, rate: number, transit_time: string, notes: string }) => ({
                     ...bid,
                     carrier_id: invite.carrier_id
                 }))

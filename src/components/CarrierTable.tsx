@@ -17,6 +17,7 @@ import {
   Clock,
   MoreVertical
 } from 'lucide-react';
+import { Button } from '@/components/ui/Button';
 
 interface CarrierTableProps {
   onEdit: (carrier: Carrier) => void;
@@ -183,20 +184,24 @@ export default function CarrierTable({ onEdit, onRefresh, searchQuery = '', stat
                 {role === 'admin' && (
                   <td className="px-6 py-5 text-right">
                     <div className="flex justify-end gap-2 opacity-0 group-hover:opacity-100 transition-all transform translate-x-2 group-hover:translate-x-0">
-                      <button
+                      <Button
+                        variant="ghost"
+                        size="icon"
                         onClick={() => onEdit(carrier)}
-                        className="inline-flex items-center justify-center p-2.5 text-foreground bg-card hover:bg-primary hover:text-primary-foreground border border-border rounded-xl transition-all shadow-sm"
+                        className="h-10 w-10 bg-card hover:bg-primary hover:text-primary-foreground border-border rounded-xl"
                         title="Edit"
                       >
                         <Edit2 size={16} />
-                      </button>
-                      <button
+                      </Button>
+                      <Button
+                        variant="ghost"
+                        size="icon"
                         onClick={() => handleDelete(carrier)}
-                        className="inline-flex items-center justify-center p-2.5 text-red-500 bg-card hover:bg-red-500 hover:text-white border border-border rounded-xl transition-all shadow-sm"
+                        className="h-10 w-10 bg-card hover:bg-red-500 hover:text-white border-border rounded-xl"
                         title="Delete"
                       >
                         <Trash2 size={16} />
-                      </button>
+                      </Button>
                     </div>
                   </td>
                 )}
