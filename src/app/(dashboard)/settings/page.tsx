@@ -20,15 +20,17 @@ export default function SettingsPage() {
     const [newPassword, setNewPassword] = useState('');
     const [orgName, setOrgName] = useState('Loading...');
     const [fullName, setFullName] = useState('');
+    const [hasLoadedName, setHasLoadedName] = useState(false);
     const [profileLoading, setProfileLoading] = useState(false);
     const [profileSuccess, setProfileSuccess] = useState('');
     const [profileError, setProfileError] = useState('');
 
     useEffect(() => {
-        if (appUser?.full_name && !fullName) {
+        if (appUser?.full_name && !hasLoadedName) {
             setFullName(appUser.full_name);
+            setHasLoadedName(true);
         }
-    }, [appUser, fullName]);
+    }, [appUser, hasLoadedName]);
 
     useEffect(() => {
         async function fetchOrgName() {
