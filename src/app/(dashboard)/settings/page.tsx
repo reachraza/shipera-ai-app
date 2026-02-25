@@ -25,6 +25,10 @@ export default function SettingsPage() {
     const [profileSuccess, setProfileSuccess] = useState('');
     const [profileError, setProfileError] = useState('');
 
+    const [orgLoading, setOrgLoading] = useState(false);
+    const [orgSuccess, setOrgSuccess] = useState('');
+    const [orgError, setOrgError] = useState('');
+
     useEffect(() => {
         if (appUser?.full_name && !hasLoadedName) {
             setFullName(appUser.full_name);
@@ -95,6 +99,30 @@ export default function SettingsPage() {
             setProfileError(err.message || 'Failed to update profile');
         } finally {
             setProfileLoading(false);
+        }
+    }
+
+    async function handleOrgUpdate(e: React.FormEvent) {
+        e.preventDefault();
+        if (appUser?.role !== 'admin') return;
+
+        setOrgLoading(true);
+        setOrgError('');
+        setOrgSuccess('');
+
+        try {
+            const { error: dbError } = await supabase
+                .from('organizations')
+                .update({ name: orgName })
+                .eq('id', appUser?.org_id);
+
+            if (dbError) throw dbError;
+
+            setOrgSuccess('Organization name updated successfully!');
+        } catch (err: any) {
+            setOrgError(err.message || 'Failed to update organization name');
+        } finally {
+            setOrgLoading(false);
         }
     }
 
@@ -223,17 +251,46 @@ export default function SettingsPage() {
                                 </div>
 
                                 <div className="bg-muted/30 p-6 rounded-2xl border border-border space-y-6">
-                                    <div className="flex items-start gap-4 p-4 bg-background rounded-xl border border-border">
-                                        <div className="p-3 bg-primary/10 text-primary rounded-lg shrink-0">
-                                            <Building size={24} />
+                                    <form onSubmit={handleOrgUpdate} className="space-y-4 max-w-md">
+                                        {orgError && (
+                                            <div className="p-3 bg-red-500/10 border border-red-500/20 text-red-500 rounded-xl text-sm font-medium">
+                                                {orgError}
+                                            </div>
+                                        )}
+                                        {orgSuccess && (
+                                            <div className="p-3 bg-green-500/10 border border-green-500/20 text-green-600 dark:text-green-400 rounded-xl text-sm font-medium">
+                                                {orgSuccess}
+                                            </div>
+                                        )}
+                                        <div className="space-y-1.5">
+                                            <Input
+                                                label="Company Name"
+                                                icon={<Building size={16} />}
+                                                type="text"
+                                                required
+                                                disabled={appUser.role !== 'admin'}
+                                                value={orgName}
+                                                onChange={(e) => setOrgName(e.target.value)}
+                                            />
+                                            {appUser.role !== 'admin' && (
+                                                <p className="text-[10px] text-muted-foreground uppercase tracking-widest mt-1">Only administrators can change company details.</p>
+                                            )}
                                         </div>
-                                        <div>
-                                            <h3 className="text-sm font-bold text-muted-foreground uppercase tracking-wider mb-1">Company Name</h3>
-                                            <p className="text-xl font-black text-foreground tracking-tight">{orgName}</p>
-                                        </div>
-                                    </div>
 
-                                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                                        {appUser.role === 'admin' && (
+                                            <Button
+                                                type="submit"
+                                                disabled={orgLoading || !orgName}
+                                                isLoading={orgLoading}
+                                                className="gap-2"
+                                            >
+                                                {!orgLoading && <Save size={18} />}
+                                                Update Organization
+                                            </Button>
+                                        )}
+                                    </form>
+
+                                    <div className="border-t border-border pt-6 grid grid-cols-1 sm:grid-cols-2 gap-4">
                                         <div className="p-4 bg-background rounded-xl border border-border">
                                             <h3 className="text-xs font-bold text-muted-foreground uppercase tracking-wider mb-1">Your Role</h3>
                                             <p className="font-bold text-foreground capitalize flex items-center gap-2">
@@ -247,6 +304,7 @@ export default function SettingsPage() {
                                         </div>
                                     </div>
                                 </div>
+
                             </div>
                         )}
 
