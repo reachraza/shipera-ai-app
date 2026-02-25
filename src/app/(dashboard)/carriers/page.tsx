@@ -13,6 +13,9 @@ export default function CarriersPage() {
   const [showForm, setShowForm] = useState(false);
   const [editingCarrier, setEditingCarrier] = useState<Carrier | null>(null);
   const [refreshKey, setRefreshKey] = useState(0);
+  const [searchQuery, setSearchQuery] = useState('');
+  const [statusFilter, setStatusFilter] = useState<string>('all');
+
 
   const { role } = useAuthContext();
 
@@ -67,12 +70,24 @@ export default function CarriersPage() {
             placeholder="Search by name, MC#, or email..."
             icon={<Search size={18} />}
             className="bg-card/50 backdrop-blur-sm group-focus-within:ring-primary/20"
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
           />
         </div>
-        <Button variant="outline" className="gap-2 bg-muted/50 text-muted-foreground border-border">
-          <Filter size={18} />
-          Filter
-        </Button>
+        <div className="relative">
+          <select
+            value={statusFilter}
+            onChange={(e) => setStatusFilter(e.target.value)}
+            className="h-full pl-10 pr-4 py-2 bg-muted/50 text-muted-foreground border border-border rounded-xl text-sm font-bold appearance-none cursor-pointer focus:outline-none focus:ring-2 focus:ring-primary/20"
+          >
+            <option value="all">All Statuses</option>
+            <option value="approved">Approved</option>
+            <option value="pending">Pending</option>
+            <option value="suspended">Suspended</option>
+          </select>
+          <Filter size={18} className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground pointer-events-none" />
+        </div>
+
       </div>
 
       {showForm && (
@@ -95,8 +110,11 @@ export default function CarriersPage() {
         <CarrierTable
           onEdit={handleEdit}
           onRefresh={() => setRefreshKey((prev: number) => prev + 1)}
+          searchQuery={searchQuery}
+          statusFilter={statusFilter}
         />
       </div>
+
     </div>
   );
 }

@@ -8,9 +8,11 @@ import { ShieldCheck, User as UserIcon, Loader2, Trash2, CalendarDays, KeyRound 
 
 interface TeamTableProps {
     refreshTrigger: number;
+    searchQuery?: string;
 }
 
-export default function TeamTable({ refreshTrigger }: TeamTableProps) {
+export default function TeamTable({ refreshTrigger, searchQuery = '' }: TeamTableProps) {
+
     const { orgId, role: currentUserRole, loading: authLoading } = useAuth();
     const [users, setUsers] = useState<User[]>([]);
     const [loading, setLoading] = useState(true);
@@ -77,6 +79,14 @@ export default function TeamTable({ refreshTrigger }: TeamTableProps) {
         );
     }
 
+    const filteredUsers = users.filter((user) => {
+        const matchesSearch =
+            user.full_name?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+            user.email?.toLowerCase().includes(searchQuery.toLowerCase());
+
+        return matchesSearch;
+    });
+
     return (
         <div className="overflow-x-auto w-full">
             <table className="w-full text-sm text-left">
@@ -91,7 +101,15 @@ export default function TeamTable({ refreshTrigger }: TeamTableProps) {
                     </tr>
                 </thead>
                 <tbody className="divide-y divide-border/50">
+                    {filteredUsers.length === 0 && users.length > 0 && (
+                        <tr>
+                            <td colSpan={currentUserRole === 'admin' ? 4 : 3} className="px-6 py-12 text-center text-muted-foreground font-medium">
+                                No members match your search.
+                            </td>
+                        </tr>
+                    )}
                     {users.length === 0 && (
+
                         <tr>
                             <td colSpan={4} className="px-6 py-12 text-center">
                                 <div className="inline-flex h-12 w-12 bg-muted text-muted-foreground rounded-full items-center justify-center mb-3">
@@ -104,7 +122,8 @@ export default function TeamTable({ refreshTrigger }: TeamTableProps) {
                             </td>
                         </tr>
                     )}
-                    {users.map((user) => {
+                    {filteredUsers.map((user) => {
+
                         const date = new Date(user.created_at).toLocaleDateString('en-US', {
                             month: 'short',
                             day: 'numeric',

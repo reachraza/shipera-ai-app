@@ -10,8 +10,12 @@ import {
 } from 'lucide-react';
 import { Button } from '@/components/ui/Button';
 import { Input } from '@/components/ui/Input';
+import { useState } from 'react';
 
 export default function RFPsPage() {
+  const [searchQuery, setSearchQuery] = useState('');
+  const [statusFilter, setStatusFilter] = useState<string>('all');
+
   return (
     <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-700">
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
@@ -37,20 +41,33 @@ export default function RFPsPage() {
         <div className="flex-1">
           <Input
             type="text"
-            placeholder="Search by title, mode, or status..."
+            placeholder="Search by title, mode, or notes..."
             icon={<Search size={18} />}
             className="bg-card/50 backdrop-blur-sm group-focus-within:ring-primary/20"
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
           />
         </div>
-        <Button variant="outline" className="gap-2 bg-muted/50 text-muted-foreground border-border">
-          <Filter size={18} />
-          Filter
-        </Button>
+        <div className="relative">
+          <select
+            value={statusFilter}
+            onChange={(e) => setStatusFilter(e.target.value)}
+            className="h-full pl-10 pr-4 py-2 bg-muted/50 text-muted-foreground border border-border rounded-xl text-sm font-bold appearance-none cursor-pointer focus:outline-none focus:ring-2 focus:ring-primary/20"
+          >
+            <option value="all">All Statuses</option>
+            <option value="draft">Draft</option>
+            <option value="active">Active</option>
+            <option value="closed">Closed</option>
+          </select>
+          <Filter size={18} className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground pointer-events-none" />
+        </div>
+
       </div>
 
       <div className="pt-2">
-        <RFPList />
+        <RFPList searchQuery={searchQuery} statusFilter={statusFilter} />
       </div>
+
     </div>
   );
 }

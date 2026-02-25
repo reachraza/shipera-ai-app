@@ -21,9 +21,12 @@ import {
 interface CarrierTableProps {
   onEdit: (carrier: Carrier) => void;
   onRefresh: () => void;
+  searchQuery?: string;
+  statusFilter?: string;
 }
 
-export default function CarrierTable({ onEdit, onRefresh }: CarrierTableProps) {
+export default function CarrierTable({ onEdit, onRefresh, searchQuery = '', statusFilter = 'all' }: CarrierTableProps) {
+
   const { orgId, role, loading: authLoading } = useAuth();
   const [carriers, setCarriers] = useState<Carrier[]>([]);
   const [loading, setLoading] = useState(true);
@@ -73,7 +76,19 @@ export default function CarrierTable({ onEdit, onRefresh }: CarrierTableProps) {
     );
   }
 
+  const filteredCarriers = carriers.filter((carrier) => {
+    const matchesSearch =
+      carrier.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      carrier.mc_number?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      carrier.email?.toLowerCase().includes(searchQuery.toLowerCase());
+
+    const matchesStatus = statusFilter === 'all' || carrier.status === statusFilter;
+
+    return matchesSearch && matchesStatus;
+  });
+
   if (carriers.length === 0) {
+
     return (
       <div className="text-center py-20 px-4">
         <div className="inline-flex h-20 w-20 rounded-3xl bg-muted/50 items-center justify-center mb-6 text-muted-foreground border border-border/50">
@@ -100,7 +115,15 @@ export default function CarrierTable({ onEdit, onRefresh }: CarrierTableProps) {
           </tr>
         </thead>
         <tbody className="divide-y divide-border/50">
-          {carriers.map((carrier) => {
+          {filteredCarriers.length === 0 && carriers.length > 0 && (
+            <tr>
+              <td colSpan={5} className="text-center py-20 text-muted-foreground font-medium">
+                No carriers match your current filters.
+              </td>
+            </tr>
+          )}
+          {filteredCarriers.map((carrier) => {
+
             const statusInfo = CARRIER_STATUSES.find((s) => s.value === carrier.status);
 
             const StatusIcon = carrier.status === 'approved' ? ShieldCheck :
