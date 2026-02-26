@@ -2,6 +2,7 @@
 
 import { useAuth } from '@/hooks/useAuth';
 import { useEffect, useState } from 'react';
+import Link from 'next/link';
 import { getDashboardStats, DashboardStats } from '@/services/dashboardService';
 import { getRecentActivity } from '@/services/activityService';
 import { ActivityLog } from '@/constants/types';
@@ -195,9 +196,9 @@ export default function DashboardPage() {
       <section className="space-y-6">
         <div className="flex items-center justify-between">
           <h2 className="text-2xl font-bold tracking-tight text-foreground">Recent Activity</h2>
-          <button className="text-sm font-bold text-primary flex items-center gap-1 hover:gap-2 transition-all text-left disabled:opacity-50" disabled>
+          <Link href="/activity" className="text-sm font-bold text-primary flex items-center gap-1 hover:gap-2 transition-all text-left">
             View All <ArrowRight size={16} />
-          </button>
+          </Link>
         </div>
 
         <div className="glass-panel overflow-hidden rounded-3xl border border-border/50">
