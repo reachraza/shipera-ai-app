@@ -102,7 +102,7 @@ export default function ForcePasswordUpdate() {
                     <div className="mt-8 pt-6 border-t border-border/50 text-center">
                         <Button
                             variant="ghost"
-                            onClick={signOut}
+                            onClick={() => signOut()}
                             className="text-xs"
                         >
                             Cancel and Log Out
