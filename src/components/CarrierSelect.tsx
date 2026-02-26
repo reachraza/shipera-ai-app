@@ -6,6 +6,8 @@ import { Carrier, RFPInvite } from '@/constants/types';
 import { getCarriers } from '@/services/carrierService';
 import { createInvites } from '@/services/inviteService';
 import { Button } from '@/components/ui/Button';
+import CarrierDetailsModal from '@/components/CarrierDetailsModal';
+import { Eye } from 'lucide-react';
 
 interface CarrierSelectProps {
   rfpId: string;
@@ -20,6 +22,7 @@ export default function CarrierSelect({ rfpId, existingInvites, onInvited }: Car
   const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState('');
+  const [selectedCarrierView, setSelectedCarrierView] = useState<Carrier | null>(null);
 
   useEffect(() => {
     if (orgId) loadCarriers();
@@ -96,36 +99,50 @@ export default function CarrierSelect({ rfpId, existingInvites, onInvited }: Car
           {carriers.map((carrier) => {
             const isSelected = selectedIds.has(carrier.id);
             return (
-              <label
+              <div
                 key={carrier.id}
-                className={`flex items-center gap-3 p-3 rounded-lg cursor-pointer transition-all border ${isSelected
+                className={`flex items-center justify-between p-2 rounded-lg transition-all border group ${isSelected
                   ? 'bg-primary/5 border-primary shadow-sm'
                   : 'border-transparent hover:bg-muted/80 hover:border-border/50'
                   }`}
               >
-                <div className="relative flex items-center justify-center shrink-0">
-                  <input
-                    type="checkbox"
-                    checked={isSelected}
-                    onChange={() => toggleCarrier(carrier.id)}
-                    className="peer sr-only"
-                  />
-                  <div className="w-5 h-5 rounded border-2 border-muted-foreground/30 bg-background peer-checked:bg-primary peer-checked:border-primary transition-all"></div>
-                  <svg className="absolute w-3 h-3 text-primary-foreground opacity-0 peer-checked:opacity-100 transition-opacity pointer-events-none" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
-                </div>
+                <label className="flex items-center gap-3 cursor-pointer flex-1 min-w-0 pr-4">
+                  <div className="relative flex items-center justify-center shrink-0">
+                    <input
+                      type="checkbox"
+                      checked={isSelected}
+                      onChange={() => toggleCarrier(carrier.id)}
+                      className="peer sr-only"
+                    />
+                    <div className="w-5 h-5 rounded border-2 border-muted-foreground/30 bg-background peer-checked:bg-primary peer-checked:border-primary transition-all"></div>
+                    <svg className="absolute w-3 h-3 text-primary-foreground opacity-0 peer-checked:opacity-100 transition-opacity pointer-events-none" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
+                  </div>
 
-                <div className="flex-1 min-w-0">
-                  <div className="font-bold text-foreground truncate">{carrier.name}</div>
-                  <div className="text-xs text-muted-foreground truncate">
-                    {carrier.equipment_types?.join(', ') || 'No equipment listed'}
+                  <div className="flex-1 min-w-0">
+                    <div className="font-bold text-foreground truncate">{carrier.name}</div>
+                    <div className="text-xs text-muted-foreground truncate">
+                      {carrier.equipment_types?.join(', ') || 'No equipment listed'}
+                    </div>
                   </div>
-                </div>
-                {carrier.mc_number && (
-                  <div className="text-xs font-mono text-muted-foreground px-2 py-1 bg-muted rounded">
-                    MC {carrier.mc_number}
-                  </div>
-                )}
-              </label>
+                  {carrier.mc_number && (
+                    <div className="text-xs font-mono text-muted-foreground px-2 py-1 bg-muted rounded hidden sm:block">
+                      MC {carrier.mc_number}
+                    </div>
+                  )}
+                </label>
+
+                <button
+                  type="button"
+                  onClick={(e) => {
+                    e.preventDefault();
+                    setSelectedCarrierView(carrier);
+                  }}
+                  className="p-2 text-muted-foreground hover:bg-muted hover:text-primary rounded-lg transition-colors flex shrink-0 border border-transparent hover:border-border"
+                  title="View Details"
+                >
+                  <Eye size={18} />
+                </button>
+              </div>
             );
           })}
         </div>
@@ -143,6 +160,13 @@ export default function CarrierSelect({ rfpId, existingInvites, onInvited }: Car
           {submitting ? 'Sending...' : 'Send Invites'}
         </Button>
       </div>
+
+      {selectedCarrierView && (
+        <CarrierDetailsModal
+          onClose={() => setSelectedCarrierView(null)}
+          carrier={selectedCarrierView}
+        />
+      )}
     </div>
   );
 }
