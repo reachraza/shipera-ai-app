@@ -59,7 +59,7 @@ export default function DashboardPage() {
   const stats = [
     { label: 'Total RFPs', value: data?.totalRfps ?? '-', icon: FileText, color: 'text-primary' },
     { label: 'Active Carriers', value: data?.activeCarriers ?? '-', icon: Truck, color: 'text-accent' },
-    { label: 'Total Lanes', value: data?.totalLanes ?? '-', icon: Activity, color: 'text-amber-500' },
+    { label: 'Total Lanes', value: data?.totalLanes ?? '-', icon: Activity, color: 'text-indigo-500' },
     { label: 'Invites Sent', value: data?.totalInvites ?? '-', icon: CheckCircle, color: 'text-green-500' },
   ];
 
@@ -94,7 +94,7 @@ export default function DashboardPage() {
       subtitle = 'A CSV of freight lanes was successfully processed.';
     } else if (action === 'update') {
       Icon = RefreshCw;
-      color = 'text-amber-500';
+      color = 'text-indigo-500';
       title = 'Record Updated';
       subtitle = `A ${entity.replace('_', ' ')} profile was modified.`;
     }

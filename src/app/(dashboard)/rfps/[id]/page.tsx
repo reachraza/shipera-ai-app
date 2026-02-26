@@ -130,7 +130,7 @@ export default function RFPDetailPage() {
                 Deadline: {rfp.deadline ? new Date(rfp.deadline).toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' }) : 'Not set'}
               </span>
               <span className="flex items-center gap-2 px-3 py-1.5 bg-muted/40 rounded-xl border border-border/50">
-                <Clock size={14} className="text-amber-500" />
+                <Clock size={14} className="text-indigo-500" />
                 Created: {new Date(rfp.created_at).toLocaleDateString()}
               </span>
             </div>

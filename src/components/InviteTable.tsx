@@ -55,7 +55,7 @@ export default function InviteTable({ invites }: { invites: RFPInvite[] }) {
               invite.status === 'opened' ? ExternalLink : Clock;
 
             const statusColor = invite.status === 'submitted' ? 'bg-primary/10 text-primary border-primary/20' :
-              invite.status === 'opened' ? 'bg-amber-500/10 text-amber-600 dark:text-amber-400 border-amber-500/20' :
+              invite.status === 'opened' ? 'bg-indigo-500/10 text-indigo-600 dark:text-indigo-400 border-indigo-500/20' :
                 'bg-accent/10 text-accent border-accent/20';
 
             return (

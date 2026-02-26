@@ -85,7 +85,7 @@ export default function ActivityPage() {
             subtitle = 'A CSV of freight lanes was successfully processed.';
         } else if (action === 'update') {
             Icon = RefreshCw;
-            color = 'text-amber-500';
+            color = 'text-indigo-500';
             title = 'Record Updated';
             subtitle = `A ${entity.replace('_', ' ')} profile was modified.`;
         }
@@ -115,7 +115,7 @@ export default function ActivityPage() {
             <div className="space-y-8 animate-in fade-in duration-700 max-w-4xl mx-auto">
                 <header className="flex items-center justify-between">
                     <div>
-                        <Link href="/dashboard" className="inline-flex items-center gap-2 text-sm font-bold text-muted-foreground hover:text-foreground transition-colors mb-2">
+                        <Link href="/dashboard" className="inline-flex items-center gap-2 text-sm font-bold text-muted-foreground hover:text-primary transition-colors mb-2">
                             <ArrowLeft size={16} /> Back to Dashboard
                         </Link>
                         <h1 className="text-3xl font-extrabold tracking-tight text-foreground">
