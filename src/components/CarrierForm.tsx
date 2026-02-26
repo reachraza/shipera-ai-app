@@ -97,9 +97,12 @@ export default function CarrierForm({ carrier, onSaved, onCancel }: CarrierFormP
         const contractStatus = data.contractAuthorityStatus || 'N';
         const brokerStatus = data.brokerAuthorityStatus || 'N';
         const operationCode = data.carrierOperation?.carrierOperationCode || 'N';
+        const statusCode = data.statusCode || 'N';
 
-        // Let carriers through if they have ANY active authority (Common, Contract, or Broker) OR if their Operation Code is A (Authorized For Hire)
-        if (commonStatus !== 'A' && contractStatus !== 'A' && brokerStatus !== 'A' && operationCode !== 'A') {
+        // Let carriers through if they have ANY active authority (Common, Contract, or Broker) 
+        // OR if their Operation Code is A (Interstate) or C (Intrastate)
+        // OR if their overall Status Code is A (Active)
+        if (commonStatus !== 'A' && contractStatus !== 'A' && brokerStatus !== 'A' && operationCode !== 'A' && operationCode !== 'C' && statusCode !== 'A') {
           console.warn(`[FMCSA] Carrier ${data.legalName} has no active authority.`);
           computed = 'suspended';
           message = 'No Active Operating Authority';
@@ -144,10 +147,10 @@ export default function CarrierForm({ carrier, onSaved, onCancel }: CarrierFormP
         mc_number: fmcsaData.mcNumber || formData.mc_number,
         dot_number: fmcsaData.dotNumber || formData.dot_number,
         // Extended FMCSA Data
-        fmcsa_street: fmcsaData.physStreet || null,
-        fmcsa_city: fmcsaData.physCity || null,
-        fmcsa_state: fmcsaData.physState || null,
-        fmcsa_zip: fmcsaData.physZip || null,
+        fmcsa_street: fmcsaData.phyStreet || null,
+        fmcsa_city: fmcsaData.phyCity || null,
+        fmcsa_state: fmcsaData.phyState || null,
+        fmcsa_zip: fmcsaData.phyZipcode || null,
         common_authority: fmcsaData.commonAuthorityStatus || null,
         contract_authority: fmcsaData.contractAuthorityStatus || null,
         broker_authority: fmcsaData.brokerAuthorityStatus || null,
@@ -210,8 +213,8 @@ export default function CarrierForm({ carrier, onSaved, onCancel }: CarrierFormP
 
             <div className="p-4 rounded-xl border border-border bg-muted/20">
               <p className="text-[10px] uppercase font-bold text-muted-foreground tracking-widest mb-1 flex items-center gap-1"><MapPin size={12} /> Base Location</p>
-              <p className="text-sm font-semibold text-foreground truncate">{fmcsaData.physCity}, {fmcsaData.physState}</p>
-              <p className="text-xs text-muted-foreground truncate">{fmcsaData.physStreet || 'Address N/A'}</p>
+              <p className="text-sm font-semibold text-foreground truncate">{fmcsaData.phyCity}, {fmcsaData.phyState}</p>
+              <p className="text-xs text-muted-foreground truncate">{fmcsaData.phyStreet || 'Address N/A'}</p>
             </div>
 
             <div className="p-4 rounded-xl border border-border bg-muted/20">

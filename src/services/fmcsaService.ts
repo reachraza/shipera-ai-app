@@ -8,10 +8,11 @@ export interface FMCSACarrier {
     phoneNumber?: string;
     emailAddress?: string;
     carrierOperationDesc?: string;
-    physCity?: string;
-    physState?: string;
-    physZip?: string;
-    physStreet?: string;
+    phyCity?: string;
+    phyState?: string;
+    phyZipcode?: string;
+    phyStreet?: string;
+    statusCode?: string;
     allowedToOperate?: string;
     commonAuthorityStatus?: string;
     contractAuthorityStatus?: string;
