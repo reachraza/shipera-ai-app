@@ -139,7 +139,7 @@ export default function DashboardPage() {
   }
 
   return (
-    <div className="space-y-10 animate-in fade-in duration-700">
+    <div className="flex flex-col h-full space-y-4 sm:space-y-6 animate-in fade-in duration-700 pb-2">
       {/* Welcome Header */}
       <header className="relative py-4 flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div className="relative z-10">
@@ -168,93 +168,95 @@ export default function DashboardPage() {
         </div>
       </header>
 
-      {/* Error State */}
-      {error && (
-        <div className="bg-red-500/10 border border-red-500/20 text-red-600 dark:text-red-400 p-6 rounded-3xl flex items-start gap-4 animate-in slide-in-from-top-4">
-          <AlertTriangle className="shrink-0 mt-0.5" size={24} />
-          <div>
-            <h3 className="font-bold text-lg mb-1">We ran into a snag!</h3>
-            <p className="text-sm font-medium opacity-90">{error}</p>
-            <Button
-              variant="destructive"
-              onClick={() => window.location.reload()}
-              className="mt-4 text-xs uppercase tracking-widest px-4 py-2"
-            >
-              Retry Connection
-            </Button>
-          </div>
-        </div>
-      )}
-
-      {/* Stats Grid */}
-      {loading ? (
-        <div className="flex items-center justify-center h-32">
-          <Loader2 className="animate-spin text-primary h-8 w-8" />
-        </div>
-      ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-          {stats.map((stat) => {
-            const Icon = stat.icon;
-            return (
-              <div
-                key={stat.label}
-                className="glass-panel p-6 rounded-3xl relative overflow-hidden group hover:scale-[1.02] transition-all duration-300"
+      <div className="flex-1 flex flex-col space-y-4 sm:space-y-6 min-h-0">
+        {/* Error State */}
+        {error && (
+          <div className="bg-red-500/10 border border-red-500/20 text-red-600 dark:text-red-400 p-6 rounded-3xl flex items-start gap-4 animate-in slide-in-from-top-4">
+            <AlertTriangle className="shrink-0 mt-0.5" size={24} />
+            <div>
+              <h3 className="font-bold text-lg mb-1">We ran into a snag!</h3>
+              <p className="text-sm font-medium opacity-90">{error}</p>
+              <Button
+                variant="destructive"
+                onClick={() => window.location.reload()}
+                className="mt-4 text-xs uppercase tracking-widest px-4 py-2"
               >
-                <div className="absolute top-0 right-0 w-24 h-24 bg-primary/5 rounded-bl-full pointer-events-none group-hover:bg-primary/10 transition-colors" />
-                <div className="relative z-10">
-                  <div className={`w-12 h-12 rounded-2xl bg-card border border-border flex items-center justify-center mb-4 shadow-sm ${stat.color}`}>
-                    <Icon size={24} />
-                  </div>
-                  <p className="text-sm font-bold text-muted-foreground uppercase tracking-widest leading-none mb-1">{stat.label}</p>
-                  <div className="flex items-end gap-2">
-                    <h3 className="text-3xl font-black text-foreground">{stat.value}</h3>
-                  </div>
-                </div>
-              </div>
-            );
-          })}
-        </div>
-      )}
-
-      {/* Recent Activity Section */}
-      <section className="space-y-6">
-        <div className="flex items-center justify-between">
-          <h2 className="text-2xl font-bold tracking-tight text-foreground">Recent Activity</h2>
-          <Link href="/activity" className="text-sm font-bold text-primary flex items-center gap-1 hover:gap-2 transition-all text-left">
-            View All <ArrowRight size={16} />
-          </Link>
-        </div>
-
-        <div className="glass-panel overflow-hidden rounded-3xl border border-border/50">
-          {activities.length === 0 ? (
-            <div className="p-10 text-center text-muted-foreground">
-              <Activity className="mx-auto h-12 w-12 opacity-20 mb-3" />
-              <p className="font-bold">No recent activity</p>
-              <p className="text-sm font-medium opacity-80 mt-1">Actions you take like creating RFPs or inviting carriers will appear here.</p>
+                Retry Connection
+              </Button>
             </div>
-          ) : (
-            activities.slice(0, 5).map((activity) => {
-              const { title, subtitle, Icon, color } = getActivityDisplay(activity.action_type, activity.entity_type, activity.metadata);
+          </div>
+        )}
+
+        {/* Stats Grid */}
+        {loading ? (
+          <div className="flex items-center justify-center h-32">
+            <Loader2 className="animate-spin text-primary h-8 w-8" />
+          </div>
+        ) : (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+            {stats.map((stat) => {
+              const Icon = stat.icon;
               return (
-                <div key={activity.id} className="p-6 flex items-center justify-between border-b border-border/40 last:border-0 hover:bg-muted/30 transition-colors group">
-                  <div className="flex items-center gap-4">
-                    <div className={`w-12 h-12 rounded-2xl bg-muted flex items-center justify-center border border-border/50 group-hover:bg-card transition-colors ${color}`}>
-                      <Icon size={20} />
+                <div
+                  key={stat.label}
+                  className="glass-panel p-6 rounded-3xl relative overflow-hidden group hover:scale-[1.02] transition-all duration-300"
+                >
+                  <div className="absolute top-0 right-0 w-24 h-24 bg-primary/5 rounded-bl-full pointer-events-none group-hover:bg-primary/10 transition-colors" />
+                  <div className="relative z-10">
+                    <div className={`w-12 h-12 rounded-2xl bg-card border border-border flex items-center justify-center mb-4 shadow-sm ${stat.color}`}>
+                      <Icon size={24} />
                     </div>
-                    <div>
-                      <p className="text-foreground font-bold">{title}</p>
-                      <p className="text-sm text-muted-foreground font-medium">{subtitle}</p>
+                    <p className="text-sm font-bold text-muted-foreground uppercase tracking-widest leading-none mb-1">{stat.label}</p>
+                    <div className="flex items-end gap-2">
+                      <h3 className="text-3xl font-black text-foreground">{stat.value}</h3>
                     </div>
-                  </div>
-                  <div className="text-right">
-                    <p className="text-xs font-bold text-muted-foreground uppercase tracking-wider">{getRelativeTime(activity.created_at)}</p>
                   </div>
                 </div>
               );
-            })
-          )}
-        </div>
-      </section>
+            })}
+          </div>
+        )}
+
+        {/* Recent Activity Section */}
+        <section className="flex-1 flex flex-col space-y-4 min-h-0">
+          <div className="flex items-center justify-between">
+            <h2 className="text-2xl font-bold tracking-tight text-foreground">Recent Activity</h2>
+            <Link href="/activity" className="text-sm font-bold text-primary flex items-center gap-1 hover:gap-2 transition-all text-left">
+              View All <ArrowRight size={16} />
+            </Link>
+          </div>
+
+          <div className="glass-panel overflow-hidden rounded-3xl border border-border/50">
+            {activities.length === 0 ? (
+              <div className="p-10 text-center text-muted-foreground">
+                <Activity className="mx-auto h-12 w-12 opacity-20 mb-3" />
+                <p className="font-bold">No recent activity</p>
+                <p className="text-sm font-medium opacity-80 mt-1">Actions you take like creating RFPs or inviting carriers will appear here.</p>
+              </div>
+            ) : (
+              activities.slice(0, 5).map((activity) => {
+                const { title, subtitle, Icon, color } = getActivityDisplay(activity.action_type, activity.entity_type, activity.metadata);
+                return (
+                  <div key={activity.id} className="p-6 flex items-center justify-between border-b border-border/40 last:border-0 hover:bg-muted/30 transition-colors group">
+                    <div className="flex items-center gap-4">
+                      <div className={`w-12 h-12 rounded-2xl bg-muted flex items-center justify-center border border-border/50 group-hover:bg-card transition-colors ${color}`}>
+                        <Icon size={20} />
+                      </div>
+                      <div>
+                        <p className="text-foreground font-bold">{title}</p>
+                        <p className="text-sm text-muted-foreground font-medium">{subtitle}</p>
+                      </div>
+                    </div>
+                    <div className="text-right">
+                      <p className="text-xs font-bold text-muted-foreground uppercase tracking-wider">{getRelativeTime(activity.created_at)}</p>
+                    </div>
+                  </div>
+                );
+              })
+            )}
+          </div>
+        </section>
+      </div>
     </div>
   );
 }
