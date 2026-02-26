@@ -10,7 +10,7 @@ import { useAuth } from '@/hooks/useAuth';
 import { Button } from '@/components/ui/Button';
 import { Input } from '@/components/ui/Input';
 import { Select } from '@/components/ui/Select';
-import { Search, Check, AlertCircle, Loader2, ArrowRight, ShieldCheck, Info, RotateCcw } from 'lucide-react';
+import { Search, Check, AlertCircle, Loader2, ArrowRight, ShieldCheck, Info, RotateCcw, MapPin, ShieldAlert, FileText } from 'lucide-react';
 import { FMCSACarrier } from '@/services/fmcsaService';
 
 interface CarrierFormProps {
@@ -190,16 +190,38 @@ export default function CarrierForm({ carrier, onSaved, onCancel }: CarrierFormP
             </div>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
             <div className="p-4 rounded-xl border border-border bg-muted/20">
-              <p className="text-[10px] uppercase font-bold text-muted-foreground tracking-widest mb-1">DOT Number</p>
-              <p className="font-mono font-bold text-primary">DOT-{fmcsaData.dotNumber}</p>
+              <p className="text-[10px] uppercase font-bold text-muted-foreground tracking-widest mb-1 flex items-center gap-1"><FileText size={12} /> Identifiers</p>
+              <p className="font-mono font-bold text-primary text-sm">DOT-{fmcsaData.dotNumber}</p>
+              {fmcsaData.mcNumber && <p className="font-mono font-bold text-primary/70 text-xs">MC-{fmcsaData.mcNumber}</p>}
             </div>
+
+            <div className="p-4 rounded-xl border border-border bg-muted/20">
+              <p className="text-[10px] uppercase font-bold text-muted-foreground tracking-widest mb-1 flex items-center gap-1"><MapPin size={12} /> Base Location</p>
+              <p className="text-sm font-semibold text-foreground truncate">{fmcsaData.physCity}, {fmcsaData.physState}</p>
+              <p className="text-xs text-muted-foreground truncate">{fmcsaData.physStreet || 'Address N/A'}</p>
+            </div>
+
+            <div className="p-4 rounded-xl border border-border bg-muted/20">
+              <p className="text-[10px] uppercase font-bold text-muted-foreground tracking-widest mb-1 flex items-center gap-1"><ShieldAlert size={12} /> Safety & OOS</p>
+              <div className="flex flex-col gap-0.5 mt-1">
+                <div className="flex justify-between text-xs">
+                  <span className="text-muted-foreground">Vehicle OOS:</span>
+                  <span className={`font-mono font-bold ${(fmcsaData.vehicleOosRate || 0) > parseFloat(String(fmcsaData.vehicleOosRateNationalAverage || 0)) ? 'text-red-500' : 'text-green-500'}`}>{fmcsaData.vehicleOosRate || 0}%</span>
+                </div>
+                <div className="flex justify-between text-xs">
+                  <span className="text-muted-foreground">Driver OOS:</span>
+                  <span className={`font-mono font-bold ${(fmcsaData.driverOosRate || 0) > parseFloat(String(fmcsaData.driverOosRateNationalAverage || 0)) ? 'text-red-500' : 'text-green-500'}`}>{fmcsaData.driverOosRate || 0}%</span>
+                </div>
+              </div>
+            </div>
+
             <div className="p-4 rounded-xl border border-border bg-muted/20">
               <p className="text-[10px] uppercase font-bold text-muted-foreground tracking-widest mb-1">Status</p>
-              <div className="flex items-center gap-2">
+              <div className="flex items-center gap-2 mt-2">
                 <div className={`w-2 h-2 rounded-full ${computedStatus?.status === 'approved' ? 'bg-green-500 animate-pulse' : computedStatus?.status === 'pending' ? 'bg-yellow-500 animate-pulse' : 'bg-red-500'}`} />
-                <span className={`font-bold ${computedStatus?.status === 'approved' ? 'text-green-600 dark:text-green-400' : computedStatus?.status === 'pending' ? 'text-yellow-600 dark:text-yellow-400' : 'text-red-600 dark:text-red-400'}`}>
+                <span className={`font-bold text-sm leading-tight ${computedStatus?.status === 'approved' ? 'text-green-600 dark:text-green-400' : computedStatus?.status === 'pending' ? 'text-yellow-600 dark:text-yellow-400' : 'text-red-600 dark:text-red-400'}`}>
                   {computedStatus?.message || 'Authorized to Operate'}
                 </span>
               </div>
