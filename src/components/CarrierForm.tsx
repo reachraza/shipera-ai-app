@@ -96,9 +96,10 @@ export default function CarrierForm({ carrier, onSaved, onCancel }: CarrierFormP
         const commonStatus = data.commonAuthorityStatus || 'N';
         const contractStatus = data.contractAuthorityStatus || 'N';
         const brokerStatus = data.brokerAuthorityStatus || 'N';
+        const operationCode = data.carrierOperation?.carrierOperationCode || 'N';
 
-        // Let carriers through if they have ANY active authority (Common, Contract, or Broker)
-        if (commonStatus !== 'A' && contractStatus !== 'A' && brokerStatus !== 'A') {
+        // Let carriers through if they have ANY active authority (Common, Contract, or Broker) OR if their Operation Code is A (Authorized For Hire)
+        if (commonStatus !== 'A' && contractStatus !== 'A' && brokerStatus !== 'A' && operationCode !== 'A') {
           console.warn(`[FMCSA] Carrier ${data.legalName} has no active authority.`);
           computed = 'suspended';
           message = 'No Active Operating Authority';
@@ -142,6 +143,16 @@ export default function CarrierForm({ carrier, onSaved, onCancel }: CarrierFormP
         status: computedStatus ? computedStatus.status : (fmcsaData.allowedToOperate === 'Y' ? 'approved' : formData.status),
         mc_number: fmcsaData.mcNumber || formData.mc_number,
         dot_number: fmcsaData.dotNumber || formData.dot_number,
+        // Extended FMCSA Data
+        fmcsa_street: fmcsaData.physStreet || null,
+        fmcsa_city: fmcsaData.physCity || null,
+        fmcsa_state: fmcsaData.physState || null,
+        fmcsa_zip: fmcsaData.physZip || null,
+        common_authority: fmcsaData.commonAuthorityStatus || null,
+        contract_authority: fmcsaData.contractAuthorityStatus || null,
+        broker_authority: fmcsaData.brokerAuthorityStatus || null,
+        vehicle_oos_rate: fmcsaData.vehicleOosRate || null,
+        driver_oos_rate: fmcsaData.driverOosRate || null,
       };
 
       if (carrier) {

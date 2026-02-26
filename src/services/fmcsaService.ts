@@ -20,6 +20,10 @@ export interface FMCSACarrier {
     vehicleOosRateNationalAverage?: string | number;
     driverOosRate?: number;
     driverOosRateNationalAverage?: string | number;
+    carrierOperation?: {
+        carrierOperationCode?: string;
+        carrierOperationDesc?: string;
+    };
 }
 
 export async function getCarrierByDot(dotNumber: string): Promise<FMCSACarrier | null> {
