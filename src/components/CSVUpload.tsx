@@ -117,19 +117,22 @@ export default function CSVUpload({ rfpId, onUploaded }: CSVUploadProps) {
           </div>
 
           <div>
-            <p className="text-foreground font-bold text-lg mb-1 flex items-center justify-center gap-2">
+            <div className="text-foreground font-bold text-lg mb-1 flex items-center justify-center gap-2">
               {loading ? 'Processing File...' : 'Click or Drag & Drop Network CSV or XLSX'}
               <div className="relative group/tooltip flex items-center justify-center">
                 <Info size={16} className="text-muted-foreground hover:text-primary cursor-help transition-colors" />
-                <div className="absolute bottom-full mb-2 left-1/2 -translate-x-1/2 w-64 p-3 bg-foreground text-background text-xs rounded-xl opacity-0 invisible group-hover/tooltip:opacity-100 group-hover/tooltip:visible transition-all shadow-xl z-[99999] pointer-events-none">
-                  <p className="font-bold border-b border-background/20 pb-1 mb-2">Required Columns:</p>
-                  <p className="font-mono mb-2">origin_city, origin_state, destination_city, destination_state, equipment_type</p>
-                  <p className="font-bold border-b border-background/20 pb-1 mb-2">Optional Columns:</p>
-                  <p className="font-mono">frequency</p>
-                  <div className="absolute top-full left-1/2 -translate-x-1/2 border-4 border-transparent border-t-foreground" />
+                <div className="absolute top-full mt-2 left-1/2 -translate-x-1/2 sm:left-auto sm:right-0 sm:translate-x-0 w-64 p-4 bg-card text-card-foreground border border-border rounded-xl opacity-0 invisible group-hover/tooltip:opacity-100 group-hover/tooltip:visible transition-all shadow-2xl shadow-black/20 z-[99999] pointer-events-none text-left">
+                  <p className="font-black text-[10px] uppercase tracking-widest text-muted-foreground border-b border-border pb-2 mb-2">Required Columns</p>
+                  <p className="font-mono text-xs text-primary mb-3 leading-relaxed">origin_city, origin_state, destination_city, destination_state, equipment_type</p>
+                  <p className="font-black text-[10px] uppercase tracking-widest text-muted-foreground border-b border-border pb-2 mb-2">Optional</p>
+                  <p className="font-mono text-xs text-muted-foreground">frequency</p>
+
+                  {/* Triangle indicator */}
+                  <div className="absolute bottom-full left-1/2 -translate-x-1/2 sm:left-auto sm:right-4 sm:translate-x-0 border-4 border-transparent border-b-border" />
+                  <div className="absolute bottom-full left-1/2 -translate-x-1/2 sm:left-auto sm:right-4 sm:translate-x-0 border-[3px] border-transparent border-b-card translate-y-[1px]" />
                 </div>
               </div>
-            </p>
+            </div>
           </div>
         </div>
       </div>
