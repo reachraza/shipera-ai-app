@@ -111,76 +111,82 @@ export default function ActivityPage() {
     );
 
     return (
-        <div className="space-y-8 animate-in fade-in duration-700 max-w-4xl mx-auto">
-            <header className="flex items-center justify-between">
-                <div>
-                    <Link href="/dashboard" className="inline-flex items-center gap-2 text-sm font-bold text-muted-foreground hover:text-foreground transition-colors mb-2">
-                        <ArrowLeft size={16} /> Back to Dashboard
-                    </Link>
-                    <h1 className="text-3xl font-extrabold tracking-tight text-foreground">
-                        Activity Hub
-                    </h1>
-                    <p className="text-muted-foreground mt-1 font-medium">
-                        A complete log of everything happening across your network.
-                    </p>
-                </div>
-            </header>
-
-            {error && (
-                <div className="bg-red-500/10 border border-red-500/20 text-red-600 dark:text-red-400 p-6 rounded-3xl flex items-start gap-4">
-                    <AlertTriangle className="shrink-0 mt-0.5" size={24} />
-                    <p className="text-sm font-medium opacity-90">{error}</p>
-                </div>
-            )}
-
-            <div className="glass-panel rounded-3xl border border-border/50">
-                {loading ? (
-                    <div className="flex flex-col items-center justify-center py-32 gap-4 text-muted-foreground">
-                        <Loader2 className="animate-spin h-8 w-8 text-primary" />
-                        <p className="font-medium animate-pulse">Loading full history...</p>
-                    </div>
-                ) : activities.length === 0 ? (
-                    <div className="p-20 text-center text-muted-foreground">
-                        <Activity className="mx-auto h-16 w-16 opacity-20 mb-4" />
-                        <h3 className="text-xl font-bold text-foreground mb-2">No activity recorded</h3>
-                        <p className="font-medium opacity-80 max-w-sm mx-auto">Actions you take like creating RFPs, uploading lanes, or inviting carriers will appear here.</p>
-                    </div>
-                ) : (
+        <>
+            <div className="space-y-8 animate-in fade-in duration-700 max-w-4xl mx-auto">
+                <header className="flex items-center justify-between">
                     <div>
-                        <div className="divide-y divide-border/40">
-                            {paginatedActivities.map((activity) => {
-                                const { title, subtitle, Icon, color } = getActivityDisplay(activity.action_type, activity.entity_type);
-                                return (
-                                    <div key={activity.id} className="p-6 sm:px-8 flex items-center justify-between hover:bg-muted/30 transition-colors group">
-                                        <div className="flex items-center gap-5">
-                                            <div className={`w-14 h-14 rounded-2xl bg-muted flex items-center justify-center border border-border/50 group-hover:bg-card group-hover:shadow-md transition-all ${color}`}>
-                                                <Icon size={24} />
-                                            </div>
-                                            <div>
-                                                <p className="text-foreground font-bold text-lg">{title}</p>
-                                                <p className="text-sm text-muted-foreground font-medium">{subtitle}</p>
-                                            </div>
-                                        </div>
-                                        <div className="text-right flex flex-col items-end gap-1">
-                                            <p className="text-xs font-black text-foreground">{new Date(activity.created_at).toLocaleDateString()}</p>
-                                            <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-wider">{getRelativeTime(activity.created_at)}</p>
-                                        </div>
-                                    </div>
-                                );
-                            })}
-                        </div>
-                        <div className="p-6 sm:px-8 border-t border-border/50 bg-muted/10 rounded-b-3xl">
-                            <Pagination
-                                currentPage={currentPage}
-                                totalPages={totalPages}
-                                onPageChange={setCurrentPage}
-                                totalItems={activities.length}
-                                itemsPerPage={ITEMS_PER_PAGE}
-                            />
-                        </div>
+                        <Link href="/dashboard" className="inline-flex items-center gap-2 text-sm font-bold text-muted-foreground hover:text-foreground transition-colors mb-2">
+                            <ArrowLeft size={16} /> Back to Dashboard
+                        </Link>
+                        <h1 className="text-3xl font-extrabold tracking-tight text-foreground">
+                            Activity Hub
+                        </h1>
+                        <p className="text-muted-foreground mt-1 font-medium">
+                            A complete log of everything happening across your network.
+                        </p>
+                    </div>
+                </header>
+
+                {error && (
+                    <div className="bg-red-500/10 border border-red-500/20 text-red-600 dark:text-red-400 p-6 rounded-3xl flex items-start gap-4">
+                        <AlertTriangle className="shrink-0 mt-0.5" size={24} />
+                        <p className="text-sm font-medium opacity-90">{error}</p>
                     </div>
                 )}
+
+                <div className="glass-panel rounded-3xl border border-border/50">
+                    {loading ? (
+                        <div className="flex flex-col items-center justify-center py-32 gap-4 text-muted-foreground">
+                            <Loader2 className="animate-spin h-8 w-8 text-primary" />
+                            <p className="font-medium animate-pulse">Loading full history...</p>
+                        </div>
+                    ) : activities.length === 0 ? (
+                        <div className="p-20 text-center text-muted-foreground">
+                            <Activity className="mx-auto h-16 w-16 opacity-20 mb-4" />
+                            <h3 className="text-xl font-bold text-foreground mb-2">No activity recorded</h3>
+                            <p className="font-medium opacity-80 max-w-sm mx-auto">Actions you take like creating RFPs, uploading lanes, or inviting carriers will appear here.</p>
+                        </div>
+                    ) : (
+                        <div>
+                            <div className="divide-y divide-border/40">
+                                {paginatedActivities.map((activity) => {
+                                    const { title, subtitle, Icon, color } = getActivityDisplay(activity.action_type, activity.entity_type);
+                                    return (
+                                        <div key={activity.id} className="p-6 sm:px-8 flex items-center justify-between hover:bg-muted/30 transition-colors group">
+                                            <div className="flex items-center gap-5">
+                                                <div className={`w-14 h-14 rounded-2xl bg-muted flex items-center justify-center border border-border/50 group-hover:bg-card group-hover:shadow-md transition-all ${color}`}>
+                                                    <Icon size={24} />
+                                                </div>
+                                                <div>
+                                                    <p className="text-foreground font-bold text-lg">{title}</p>
+                                                    <p className="text-sm text-muted-foreground font-medium">{subtitle}</p>
+                                                </div>
+                                            </div>
+                                            <div className="text-right flex flex-col items-end gap-1">
+                                                <p className="text-xs font-black text-foreground">{new Date(activity.created_at).toLocaleDateString()}</p>
+                                                <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-wider">{getRelativeTime(activity.created_at)}</p>
+                                            </div>
+                                        </div>
+                                    );
+                                })}
+                            </div>
+                            <div className="p-6 sm:px-8 border-t border-border/50 bg-muted/10 rounded-b-3xl">
+                                <Pagination
+                                    currentPage={currentPage}
+                                    totalPages={totalPages}
+                                    onPageChange={setCurrentPage}
+                                    totalItems={activities.length}
+                                    itemsPerPage={ITEMS_PER_PAGE}
+                                />
+                            </div>
+                        </div>
+                    )}
+                </div>
             </div>
-        </div>
+
+            {/* Background Decors */}
+            <div className="fixed top-0 right-0 w-[500px] h-[500px] bg-primary/5 blur-[120px] rounded-full -translate-y-1/2 translate-x-1/2 pointer-events-none -z-10" />
+            <div className="fixed bottom-0 left-0 w-[500px] h-[500px] bg-accent/5 blur-[120px] rounded-full translate-y-1/2 -translate-x-1/2 pointer-events-none -z-10" />
+        </>
     );
 }
