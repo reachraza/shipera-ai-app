@@ -110,11 +110,8 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
             </div>
           )}
 
-          <div className="flex flex-col gap-4">
-            <div className={`flex items-center ${isSidebarOpen ? 'justify-between px-5' : 'justify-center'} w-full`}>
-              {isSidebarOpen && <span className="text-sm font-bold text-muted-foreground">Theme</span>}
-              <ThemeToggle />
-            </div>
+          <div className="flex flex-col gap-2">
+            <ThemeToggle isSidebarOpen={isSidebarOpen} />
 
             <div className="flex flex-col gap-2">
               <button
