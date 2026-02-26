@@ -10,7 +10,7 @@ import { useAuth } from '@/hooks/useAuth';
 import { Button } from '@/components/ui/Button';
 import { Input } from '@/components/ui/Input';
 import { Select } from '@/components/ui/Select';
-import { Search, Check, AlertCircle, Loader2, CheckCircle2 } from 'lucide-react';
+import { Search, Check, AlertCircle, Loader2 } from 'lucide-react';
 
 interface CarrierFormProps {
   carrier?: Carrier | null;
@@ -36,7 +36,7 @@ export default function CarrierForm({ carrier, onSaved, onCancel }: CarrierFormP
     status: carrier?.status || 'pending',
   });
 
-  async function handleVerify(type: 'mc' | 'dot', autoAdd: boolean = false) {
+  async function handleVerify(type: 'mc' | 'dot') {
     const value = type === 'mc' ? formData.mc_number : formData.dot_number;
     if (!value?.trim()) return;
 
@@ -50,26 +50,17 @@ export default function CarrierForm({ carrier, onSaved, onCancel }: CarrierFormP
         : await getCarrierByDot(value);
 
       if (data) {
-        const newCarrierData: CarrierFormData = {
-          ...formData,
-          name: data.legalName || formData.name,
-          phone: data.phoneNumber || formData.phone,
-          email: data.emailAddress && data.emailAddress !== 'NOT PROVIDED' ? data.emailAddress : formData.email,
-          status: data.allowedToOperate === 'Y' ? 'approved' : formData.status,
-          mc_number: data.mcNumber || formData.mc_number,
-          dot_number: data.dotNumber || formData.dot_number,
-        };
-
-        setFormData(newCarrierData);
+        setFormData(prev => ({
+          ...prev,
+          name: data.legalName || prev.name,
+          phone: data.phoneNumber || prev.phone,
+          // The API sometimes returns strings like "NOT PROVIDED"
+          email: data.emailAddress && data.emailAddress !== 'NOT PROVIDED' ? data.emailAddress : prev.email,
+          status: data.allowedToOperate === 'Y' ? 'approved' : prev.status,
+          mc_number: data.mcNumber || prev.mc_number,
+          dot_number: data.dotNumber || prev.dot_number,
+        }));
         setVerifySuccess(true);
-
-        if (autoAdd && orgId && !carrier) {
-          setLoading(true);
-          await createCarrier(orgId, newCarrierData);
-          onSaved();
-          return;
-        }
-
         setTimeout(() => setVerifySuccess(false), 3000);
       } else {
         setError(`❌ Verification Failed: No carrier found with ${type.toUpperCase()} ${value}. Please check the number.`);
@@ -78,7 +69,6 @@ export default function CarrierForm({ carrier, onSaved, onCancel }: CarrierFormP
       setError(`⚠️ FMCSA API Error: ${err instanceof Error ? err.message : 'Could not reach verification server'}`);
     } finally {
       setVerifying(null);
-      if (!autoAdd) setLoading(false);
     }
   }
 
@@ -161,33 +151,18 @@ export default function CarrierForm({ carrier, onSaved, onCancel }: CarrierFormP
           placeholder="MC-123456"
           title="Either MC Number or DOT Number is required"
           icon={
-            <div className="flex items-center gap-1 pr-1">
-              <button
-                type="button"
-                onClick={() => handleVerify('mc', false)}
-                disabled={!!verifying || !formData.mc_number?.trim()}
-                className="p-1.5 hover:bg-primary/10 rounded-lg transition-all text-primary disabled:opacity-30 flex items-center gap-1 group/verify"
-                title="Verify & Auto-fill"
-              >
-                {verifying === 'mc' ? <Loader2 size={16} className="animate-spin" /> :
-                  verifySuccess && formData.mc_number ? <Check size={16} className="text-green-500" /> :
-                    <Search size={16} />}
-                <span className="text-[10px] font-bold uppercase hidden group-hover/verify:inline">Check</span>
-              </button>
-
-              {!carrier && (
-                <button
-                  type="button"
-                  onClick={() => handleVerify('mc', true)}
-                  disabled={!!verifying || !formData.mc_number?.trim()}
-                  className="p-1.5 bg-primary/10 hover:bg-primary hover:text-white rounded-lg transition-all text-primary disabled:opacity-30 flex items-center gap-1 group/add"
-                  title="Verify & Add Instantly"
-                >
-                  <CheckCircle2 size={16} />
-                  <span className="text-[10px] font-bold uppercase hidden group-hover/add:inline">Verify & Add</span>
-                </button>
-              )}
-            </div>
+            <button
+              type="button"
+              onClick={() => handleVerify('mc')}
+              disabled={!!verifying || !formData.mc_number?.trim()}
+              className="p-1.5 hover:bg-primary/10 rounded-lg transition-all text-primary disabled:opacity-30 flex items-center gap-1 group/verify"
+              title="Verify & Auto-fill from FMCSA"
+            >
+              {verifying === 'mc' ? <Loader2 size={16} className="animate-spin" /> :
+                verifySuccess && formData.mc_number ? <Check size={16} className="text-green-500" /> :
+                  <Search size={16} />}
+              <span className="text-[10px] font-bold uppercase hidden group-hover/verify:inline">Verify</span>
+            </button>
           }
         />
 
@@ -201,33 +176,18 @@ export default function CarrierForm({ carrier, onSaved, onCancel }: CarrierFormP
           placeholder="DOT-789012"
           title="Either MC Number or DOT Number is required"
           icon={
-            <div className="flex items-center gap-1 pr-1">
-              <button
-                type="button"
-                onClick={() => handleVerify('dot', false)}
-                disabled={!!verifying || !formData.dot_number?.trim()}
-                className="p-1.5 hover:bg-accent/10 rounded-lg transition-all text-accent disabled:opacity-30 flex items-center gap-1 group/verify"
-                title="Verify & Auto-fill"
-              >
-                {verifying === 'dot' ? <Loader2 size={16} className="animate-spin" /> :
-                  verifySuccess && formData.dot_number ? <Check size={16} className="text-green-500" /> :
-                    <Search size={16} />}
-                <span className="text-[10px] font-bold uppercase hidden group-hover/verify:inline">Check</span>
-              </button>
-
-              {!carrier && (
-                <button
-                  type="button"
-                  onClick={() => handleVerify('dot', true)}
-                  disabled={!!verifying || !formData.dot_number?.trim()}
-                  className="p-1.5 bg-accent/10 hover:bg-accent hover:text-white rounded-lg transition-all text-accent disabled:opacity-30 flex items-center gap-1 group/add"
-                  title="Verify & Add Instantly"
-                >
-                  <CheckCircle2 size={16} />
-                  <span className="text-[10px] font-bold uppercase hidden group-hover/add:inline">Verify & Add</span>
-                </button>
-              )}
-            </div>
+            <button
+              type="button"
+              onClick={() => handleVerify('dot')}
+              disabled={!!verifying || !formData.dot_number?.trim()}
+              className="p-1.5 hover:bg-accent/10 rounded-lg transition-all text-accent disabled:opacity-30 flex items-center gap-1 group/verify"
+              title="Verify & Auto-fill from FMCSA"
+            >
+              {verifying === 'dot' ? <Loader2 size={16} className="animate-spin" /> :
+                verifySuccess && formData.dot_number ? <Check size={16} className="text-green-500" /> :
+                  <Search size={16} />}
+              <span className="text-[10px] font-bold uppercase hidden group-hover/verify:inline">Verify</span>
+            </button>
           }
         />
 
