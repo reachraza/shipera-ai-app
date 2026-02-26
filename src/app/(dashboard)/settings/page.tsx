@@ -436,7 +436,7 @@ export default function SettingsPage() {
                                     <p className="text-xs text-red-600/80 dark:text-red-400/80 mb-4">Logging out will terminate your current session immediately.</p>
                                     <Button
                                         variant="destructive"
-                                        onClick={signOut}
+                                        onClick={() => signOut('global')}
                                     >
                                         Log out of all devices
                                     </Button>

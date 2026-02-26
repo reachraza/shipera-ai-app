@@ -4,6 +4,7 @@ import { createContext, useContext, useEffect, useState, ReactNode } from 'react
 import { createClient } from '@/config/supabase';
 import { User as AppUser, UserRole } from '@/constants/types';
 import { Session, User as SupabaseUser } from '@supabase/supabase-js';
+import { useRouter } from 'next/navigation';
 
 interface AuthContextType {
   session: Session | null;
@@ -14,7 +15,7 @@ interface AuthContextType {
   loading: boolean;
   signIn: (email: string, password: string) => Promise<{ error: Error | null }>;
   signUp: (email: string, password: string, orgName: string, fullName: string, orgId?: string, role?: UserRole) => Promise<{ error: Error | null; needsConfirmation?: boolean }>;
-  signOut: () => Promise<void>;
+  signOut: (scope?: 'local' | 'global') => Promise<void>;
   updateProfile: (updates: Partial<AppUser>) => void;
 }
 
@@ -22,6 +23,7 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export function AuthProvider({ children }: { children: ReactNode }) {
   const supabase = createClient();
+  const router = useRouter();
   const [session, setSession] = useState<Session | null>(null);
   const [supabaseUser, setSupabaseUser] = useState<SupabaseUser | null>(null);
   const [appUser, setAppUser] = useState<AppUser | null>(null);
@@ -41,9 +43,17 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
     // Listen for auth changes
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
-      (_event, session) => {
+      (event, session) => {
         setSession(session);
         setSupabaseUser(session?.user ?? null);
+
+        if (event === 'SIGNED_OUT') {
+          setAppUser(null);
+          setLoading(false);
+          router.push('/login');
+          return;
+        }
+
         if (session?.user) {
           fetchAppUser(session.user.id);
         } else {
@@ -197,11 +207,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
   }
 
-  async function signOut() {
-    await supabase.auth.signOut();
+  async function signOut(scope: 'local' | 'global' = 'local') {
+    await supabase.auth.signOut({ scope });
     setSession(null);
     setSupabaseUser(null);
     setAppUser(null);
+    router.push('/login');
   }
 
   function updateProfile(updates: Partial<AppUser>) {
