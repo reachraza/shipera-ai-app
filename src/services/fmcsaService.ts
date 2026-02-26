@@ -30,8 +30,16 @@ export async function getCarrierByDot(dotNumber: string): Promise<FMCSACarrier |
         }
 
         const data = await response.json();
+        console.log('[FMCSA RAW DOT RESPONSE]', data);
+
         if (data.record) {
             return data.record;
+        }
+        if (data.content && data.content.carrier) {
+            return data.content.carrier;
+        }
+        if (Array.isArray(data.content) && data.content.length > 0) {
+            return data.content[0];
         }
         return null;
     } catch (error) {
