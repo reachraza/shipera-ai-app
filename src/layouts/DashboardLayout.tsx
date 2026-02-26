@@ -19,6 +19,7 @@ import {
 } from 'lucide-react';
 
 import ForcePasswordUpdate from '@/components/ForcePasswordUpdate';
+import { ThemeToggle } from '@/components/ThemeToggle';
 
 export default function DashboardLayout({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
@@ -110,23 +111,27 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
           )}
 
           <div className="flex flex-col gap-2">
-            <button
-              onClick={() => router.push('/settings')}
-              className={`w-full flex items-center ${isSidebarOpen ? 'px-5 justify-start' : 'justify-center'} py-3 rounded-xl text-sm font-bold transition-all group ${pathname.startsWith('/settings')
-                ? 'bg-primary/10 text-primary'
-                : 'text-muted-foreground hover:bg-muted hover:text-foreground'
-                }`}
-            >
-              <Settings size={20} className={`transition-transform ${pathname.startsWith('/settings') ? 'rotate-45' : 'group-hover:rotate-45'}`} />
-              {isSidebarOpen && <span className="ml-4">Settings</span>}
-            </button>
-            <button
-              onClick={handleSignOut}
-              className={`w-full flex items-center ${isSidebarOpen ? 'px-5 justify-start' : 'justify-center'} py-3 rounded-xl text-sm font-bold text-red-500/80 hover:bg-red-500/10 hover:text-red-500 transition-all group`}
-            >
-              <LogOut size={20} className="group-hover:-translate-x-1 transition-transform" />
-              {isSidebarOpen && <span className="ml-4">Logout</span>}
-            </button>
+            <ThemeToggle isSidebarOpen={isSidebarOpen} />
+
+            <div className="flex flex-col gap-2">
+              <button
+                onClick={() => router.push('/settings')}
+                className={`w-full flex items-center ${isSidebarOpen ? 'px-5 justify-start' : 'justify-center'} py-3 rounded-xl text-sm font-bold transition-all group ${pathname.startsWith('/settings')
+                  ? 'bg-primary/10 text-primary'
+                  : 'text-muted-foreground hover:bg-muted hover:text-foreground'
+                  }`}
+              >
+                <Settings size={20} className={`transition-transform ${pathname.startsWith('/settings') ? 'rotate-45' : 'group-hover:rotate-45'}`} />
+                {isSidebarOpen && <span className="ml-4">Settings</span>}
+              </button>
+              <button
+                onClick={handleSignOut}
+                className={`w-full flex items-center ${isSidebarOpen ? 'px-5 justify-start' : 'justify-center'} py-3 rounded-xl text-sm font-bold text-red-500/80 hover:bg-red-500/10 hover:text-red-500 transition-all group`}
+              >
+                <LogOut size={20} className="group-hover:-translate-x-1 transition-transform" />
+                {isSidebarOpen && <span className="ml-4">Logout</span>}
+              </button>
+            </div>
           </div>
         </div>
 

@@ -1,4 +1,5 @@
 @import "tailwindcss";
+@custom-variant dark (&:where(.dark, .dark *));
 
 @theme {
   --color-primary: var(--primary);
@@ -6,7 +7,7 @@
   --color-secondary: var(--secondary);
   --color-accent: var(--accent);
   --color-accent-hover: var(--accent-hover);
-  
+
   --color-background: var(--background);
   --color-foreground: var(--foreground);
   --color-card: var(--card);
@@ -21,51 +22,58 @@
 }
 
 :root {
-  /* Light Theme - Orange & White/Light Gray focused */
+  /* Light Theme - Yellow & White/Light Gray focused */
   --background: #f8fafc;
   --foreground: #09090b;
 
   --card: #ffffff;
   --card-foreground: #09090b;
-  
-  --primary: #ea580c; /* Orange 600 */
-  --primary-hover: #c2410c; /* Orange 700 */
-  
-  --secondary: #171717; /* Very Dark Gray/Black */
-  
-  --accent: #eab308; /* Yellow 500 */
-  --accent-hover: #ca8a04; /* Yellow 600 */
-  
+
+  --primary: #eab308;
+  /* Yellow 500 */
+  --primary-hover: #ca8a04;
+  /* Yellow 600 */
+
+  --secondary: #171717;
+  /* Very Dark Gray/Black */
+
+  --accent: #ea580c;
+  /* Orange 600 */
+  --accent-hover: #c2410c;
+  /* Orange 700 */
+
   --border: #e2e8f0;
   --input: #e2e8f0;
-  
+
   --muted: #f1f5f9;
   --muted-foreground: #64748b;
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    /* Dark Theme - Black & Yellow focused */
-    --background: #000000;
-    --foreground: #fafafa;
+.dark {
+  /* Dark Theme - Black & Yellow focused */
+  --background: #000000;
+  --foreground: #fafafa;
 
-    --card: #0a0a0a;
-    --card-foreground: #fafafa;
-    
-    --primary: #eab308; /* Yellow 500 */
-    --primary-hover: #facc15; /* Yellow 400 */
-    
-    --secondary: #ffffff;
-    
-    --accent: #ea580c; /* Orange 600 */
-    --accent-hover: #f97316; /* Orange 500 */
-    
-    --border: #27272a;
-    --input: #27272a;
-    
-    --muted: #18181b;
-    --muted-foreground: #a1a1aa;
-  }
+  --card: #0a0a0a;
+  --card-foreground: #fafafa;
+
+  --primary: #eab308;
+  /* Yellow 500 */
+  --primary-hover: #facc15;
+  /* Yellow 400 */
+
+  --secondary: #ffffff;
+
+  --accent: #ea580c;
+  /* Orange 600 */
+  --accent-hover: #f97316;
+  /* Orange 500 */
+
+  --border: #27272a;
+  --input: #27272a;
+
+  --muted: #18181b;
+  --muted-foreground: #a1a1aa;
 }
 
 body {
@@ -80,7 +88,7 @@ body {
   .glass-panel {
     @apply bg-card/80 backdrop-blur-md border border-border shadow-sm;
   }
-  
+
   .glass-header {
     @apply bg-background/80 backdrop-blur-md border-b border-border;
   }
