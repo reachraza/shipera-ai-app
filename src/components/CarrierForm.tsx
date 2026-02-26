@@ -105,10 +105,11 @@ export default function CarrierForm({ carrier, onSaved, onCancel }: CarrierFormP
     setError('');
 
     try {
+      // Force official FMCSA data to overwrite any user input
       const finalData: CarrierFormData = {
         ...formData,
-        name: formData.name || fmcsaData.legalName || '',
-        phone: formData.phone || fmcsaData.phoneNumber || '',
+        name: fmcsaData.legalName || formData.name || '',
+        phone: fmcsaData.phoneNumber || formData.phone || '', // Official phone if available
         status: fmcsaData.allowedToOperate === 'Y' ? 'approved' : formData.status,
         mc_number: fmcsaData.mcNumber || formData.mc_number,
         dot_number: fmcsaData.dotNumber || formData.dot_number,
