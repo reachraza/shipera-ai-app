@@ -121,7 +121,7 @@ export default function CSVUpload({ rfpId, onUploaded }: CSVUploadProps) {
               {loading ? 'Processing File...' : 'Click or Drag & Drop Network CSV or XLSX'}
               <div className="relative group/tooltip flex items-center justify-center">
                 <Info size={16} className="text-muted-foreground hover:text-primary cursor-help transition-colors" />
-                <div className="absolute bottom-full mb-2 left-1/2 -translate-x-1/2 w-64 p-3 bg-foreground text-background text-xs rounded-xl opacity-0 invisible group-hover/tooltip:opacity-100 group-hover/tooltip:visible transition-all shadow-xl z-50 pointer-events-none">
+                <div className="absolute bottom-full mb-2 left-1/2 -translate-x-1/2 w-64 p-3 bg-foreground text-background text-xs rounded-xl opacity-0 invisible group-hover/tooltip:opacity-100 group-hover/tooltip:visible transition-all shadow-xl z-[99999] pointer-events-none">
                   <p className="font-bold border-b border-background/20 pb-1 mb-2">Required Columns:</p>
                   <p className="font-mono mb-2">origin_city, origin_state, destination_city, destination_state, equipment_type</p>
                   <p className="font-bold border-b border-background/20 pb-1 mb-2">Optional Columns:</p>
