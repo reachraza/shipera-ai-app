@@ -4,6 +4,7 @@ import React, { useState } from 'react';
 import { Truck, Plus, Search, Filter } from 'lucide-react';
 import CarrierTable from '@/components/CarrierTable';
 import CarrierForm from '@/components/CarrierForm';
+import CarrierViewModal from '@/components/CarrierViewModal';
 import { Carrier } from '@/constants/types';
 import { useAuthContext } from '@/context/AuthProvider';
 import { Button } from '@/components/ui/Button';
@@ -12,6 +13,7 @@ import { Input } from '@/components/ui/Input';
 export default function CarriersPage() {
   const [showForm, setShowForm] = useState(false);
   const [editingCarrier, setEditingCarrier] = useState<Carrier | null>(null);
+  const [viewingCarrier, setViewingCarrier] = useState<Carrier | null>(null);
   const [refreshKey, setRefreshKey] = useState(0);
   const [searchQuery, setSearchQuery] = useState('');
   const [statusFilter, setStatusFilter] = useState<string>('all');
@@ -27,6 +29,10 @@ export default function CarriersPage() {
   function handleEdit(carrier: Carrier) {
     setEditingCarrier(carrier);
     setShowForm(true);
+  }
+
+  function handleView(carrier: Carrier) {
+    setViewingCarrier(carrier);
   }
 
   function handleSaved() {
@@ -109,12 +115,20 @@ export default function CarriersPage() {
       <div className="glass-panel rounded-2xl overflow-hidden shadow-sm">
         <CarrierTable
           onEdit={handleEdit}
+          onView={handleView}
           onRefresh={() => setRefreshKey((prev: number) => prev + 1)}
           searchQuery={searchQuery}
           statusFilter={statusFilter}
           refreshKey={refreshKey}
         />
       </div>
+
+      {viewingCarrier && (
+        <CarrierViewModal
+          carrier={viewingCarrier}
+          onClose={() => setViewingCarrier(null)}
+        />
+      )}
 
     </div>
   );

@@ -15,7 +15,8 @@ import {
   ShieldCheck,
   AlertCircle,
   Clock,
-  MoreVertical
+  MoreVertical,
+  Eye
 } from 'lucide-react';
 import { Button } from '@/components/ui/Button';
 import Pagination from '@/components/ui/Pagination';
@@ -24,13 +25,14 @@ const ITEMS_PER_PAGE = 10;
 
 interface CarrierTableProps {
   onEdit: (carrier: Carrier) => void;
+  onView: (carrier: Carrier) => void;
   onRefresh: () => void;
   searchQuery?: string;
   statusFilter?: string;
   refreshKey?: number;
 }
 
-export default function CarrierTable({ onEdit, onRefresh, searchQuery = '', statusFilter = 'all', refreshKey = 0 }: CarrierTableProps) {
+export default function CarrierTable({ onEdit, onView, onRefresh, searchQuery = '', statusFilter = 'all', refreshKey = 0 }: CarrierTableProps) {
 
   const { orgId, role, loading: authLoading } = useAuth();
   const [carriers, setCarriers] = useState<Carrier[]>([]);
@@ -200,6 +202,15 @@ export default function CarrierTable({ onEdit, onRefresh, searchQuery = '', stat
                 {role === 'admin' && (
                   <td className="px-6 py-5 text-right">
                     <div className="flex justify-end gap-2 opacity-0 group-hover:opacity-100 transition-all transform translate-x-2 group-hover:translate-x-0">
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        onClick={() => onView(carrier)}
+                        className="h-10 w-10 bg-card hover:bg-primary hover:text-primary-foreground border-border rounded-xl"
+                        title="View"
+                      >
+                        <Eye size={16} />
+                      </Button>
                       <Button
                         variant="ghost"
                         size="icon"
