@@ -1,0 +1,67 @@
+const FMCSA_BASE_URL = 'https://mobile.fmcsa.dot.gov/qc/services';
+const WEB_KEY = process.env.NEXT_PUBLIC_FMCSA_WEB_KEY || 'd6037fd9d684ef028874dd9e14b69ca3e0d0b9bd';
+
+export interface FMCSACarrier {
+    legalName: string;
+    dotNumber: string;
+    mcNumber?: string;
+    phoneNumber?: string;
+    emailAddress?: string;
+    carrierOperationDesc?: string;
+    physCity?: string;
+    physState?: string;
+    physZip?: string;
+    physStreet?: string;
+    allowedToOperate?: string;
+}
+
+export async function getCarrierByDot(dotNumber: string): Promise<FMCSACarrier | null> {
+    try {
+        const response = await fetch(`${FMCSA_BASE_URL}/carriers/${dotNumber}?webKey=${WEB_KEY}`);
+        if (!response.ok) throw new Error('Failed to fetch from FMCSA');
+
+        const data = await response.json();
+        if (data.record) {
+            return data.record;
+        }
+        return null;
+    } catch (error) {
+        console.error('FMCSA API Error:', error);
+        throw error;
+    }
+}
+
+export async function getCarrierByMc(mcNumber: string): Promise<FMCSACarrier | null> {
+    try {
+        // Remove MC- prefix if present
+        const cleanMc = mcNumber.toUpperCase().replace('MC-', '').replace('MC', '').trim();
+        const response = await fetch(`${FMCSA_BASE_URL}/carriers/docket-number/${cleanMc}?webKey=${WEB_KEY}`);
+        if (!response.ok) throw new Error('Failed to fetch from FMCSA');
+
+        const data = await response.json();
+        // The API might return multiple or wrapped in a list, based on the endpoint
+        if (data.record) {
+            return data.record;
+        }
+        if (Array.isArray(data.content) && data.content.length > 0) {
+            return data.content[0];
+        }
+        return null;
+    } catch (error) {
+        console.error('FMCSA API Error:', error);
+        throw error;
+    }
+}
+
+export async function getCarrierByName(name: string): Promise<FMCSACarrier[]> {
+    try {
+        const response = await fetch(`${FMCSA_BASE_URL}/carriers/name/${encodeURIComponent(name)}?webKey=${WEB_KEY}`);
+        if (!response.ok) throw new Error('Failed to fetch from FMCSA');
+
+        const data = await response.json();
+        return Array.isArray(data.content) ? data.content : [];
+    } catch (error) {
+        console.error('FMCSA API Error:', error);
+        throw error;
+    }
+}
