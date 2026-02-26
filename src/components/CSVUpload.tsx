@@ -1,7 +1,8 @@
 'use client';
 
 import { useState, useRef } from 'react';
-import { parseCSV, readFileAsText } from '@/utils/csvParser';
+import { processFile } from '@/utils/csvParser';
+import { Info } from 'lucide-react';
 import { createLanes } from '@/services/laneService';
 
 interface CSVUploadProps {
@@ -42,16 +43,20 @@ export default function CSVUpload({ rfpId, onUploaded }: CSVUploadProps) {
     setSuccess(null);
     setLoading(true);
 
-    if (file.type !== 'text/csv' && !file.name.endsWith('.csv')) {
-      setError('Please upload a valid CSV file.');
+    if (
+      file.type !== 'text/csv' &&
+      !file.name.endsWith('.csv') &&
+      !file.name.endsWith('.xlsx') &&
+      !file.type.includes('spreadsheetml')
+    ) {
+      setError('Please upload a valid CSV or XLSX file.');
       setLoading(false);
       return;
     }
 
     try {
-      const text = await readFileAsText(file);
-      const result = parseCSV(text);
-      
+      const result = await processFile(file);
+
       if (result.errors.length > 0) {
         setError(result.errors.join('\n'));
         setLoading(false);
@@ -65,10 +70,10 @@ export default function CSVUpload({ rfpId, onUploaded }: CSVUploadProps) {
       }
 
       await createLanes(rfpId, result.lanes);
-      
+
       setSuccess(`Successfully added ${result.lanes.length} lanes.`);
       onUploaded();
-      
+
       if (fileInputRef.current) {
         fileInputRef.current.value = '';
       }
@@ -86,23 +91,22 @@ export default function CSVUpload({ rfpId, onUploaded }: CSVUploadProps) {
         onDragLeave={handleDragLeave}
         onDrop={handleDrop}
         onClick={() => fileInputRef.current?.click()}
-        className={`border-2 border-dashed rounded-2xl p-8 text-center cursor-pointer transition-all duration-300 relative overflow-hidden group ${
-          isDragging
-            ? 'border-primary bg-primary/5 scale-[1.02]'
-            : 'border-border bg-muted/30 hover:bg-muted/50 hover:border-primary/50'
-        }`}
+        className={`border-2 border-dashed rounded-2xl p-8 text-center cursor-pointer transition-all duration-300 relative overflow-hidden group ${isDragging
+          ? 'border-primary bg-primary/5 scale-[1.02]'
+          : 'border-border bg-muted/30 hover:bg-muted/50 hover:border-primary/50'
+          }`}
       >
         <input
           type="file"
           ref={fileInputRef}
           onChange={handleFileSelect}
-          accept=".csv"
+          accept=".csv, .xlsx, application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
           className="hidden"
           disabled={loading}
         />
-        
+
         <div className="absolute inset-0 bg-gradient-to-b from-transparent to-primary/5 opacity-0 group-hover:opacity-100 transition-opacity" />
-        
+
         <div className="relative z-10 flex flex-col items-center justify-center space-y-4">
           <div className={`p-4 rounded-full transition-colors duration-300 ${isDragging ? 'bg-primary text-primary-foreground shadow-lg shadow-primary/25' : 'bg-background border border-border text-primary shadow-sm group-hover:bg-primary/10'}`}>
             {loading ? (
@@ -111,13 +115,20 @@ export default function CSVUpload({ rfpId, onUploaded }: CSVUploadProps) {
               <svg xmlns="http://www.w3.org/2000/svg" className="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" /></svg>
             )}
           </div>
-          
+
           <div>
-            <p className="text-foreground font-bold text-lg mb-1">
-              {loading ? 'Processing CSV...' : 'Click or Drag & Drop Network CSV'}
-            </p>
-            <p className="text-muted-foreground text-sm font-medium">
-               Supports origin, destination, and equipment columns
+            <p className="text-foreground font-bold text-lg mb-1 flex items-center justify-center gap-2">
+              {loading ? 'Processing File...' : 'Click or Drag & Drop Network CSV or XLSX'}
+              <div className="relative group/tooltip flex items-center justify-center">
+                <Info size={16} className="text-muted-foreground hover:text-primary cursor-help transition-colors" />
+                <div className="absolute bottom-full mb-2 left-1/2 -translate-x-1/2 w-64 p-3 bg-foreground text-background text-xs rounded-xl opacity-0 invisible group-hover/tooltip:opacity-100 group-hover/tooltip:visible transition-all shadow-xl z-50 pointer-events-none">
+                  <p className="font-bold border-b border-background/20 pb-1 mb-2">Required Columns:</p>
+                  <p className="font-mono mb-2">origin_city, origin_state, destination_city, destination_state, equipment_type</p>
+                  <p className="font-bold border-b border-background/20 pb-1 mb-2">Optional Columns:</p>
+                  <p className="font-mono">frequency</p>
+                  <div className="absolute top-full left-1/2 -translate-x-1/2 border-4 border-transparent border-t-foreground" />
+                </div>
+              </div>
             </p>
           </div>
         </div>

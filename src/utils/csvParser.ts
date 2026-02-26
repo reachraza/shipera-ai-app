@@ -1,4 +1,5 @@
 import { RFPLaneCSVRow } from '@/constants/types';
+import * as XLSX from 'xlsx';
 
 const REQUIRED_COLUMNS = [
   'origin_city',
@@ -72,7 +73,39 @@ export function readFileAsText(file: File): Promise<string> {
   return new Promise((resolve, reject) => {
     const reader = new FileReader();
     reader.onload = () => resolve(reader.result as string);
-    reader.onerror = () => reject(new Error('Failed to read file'));
+    reader.onerror = () => reject(new Error('Failed to read file as text'));
     reader.readAsText(file);
   });
+}
+
+export function readFileAsArrayBuffer(file: File): Promise<ArrayBuffer> {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = () => resolve(reader.result as ArrayBuffer);
+    reader.onerror = () => reject(new Error('Failed to read file as array buffer'));
+    reader.readAsArrayBuffer(file);
+  });
+}
+
+export async function processFile(file: File): Promise<CSVParseResult> {
+  const isExcel = file.name.endsWith('.xlsx') || file.type.includes('spreadsheetml');
+
+  if (isExcel) {
+    try {
+      const buffer = await readFileAsArrayBuffer(file);
+      const workbook = XLSX.read(buffer, { type: 'array' });
+      const firstSheetName = workbook.SheetNames[0];
+      const worksheet = workbook.Sheets[firstSheetName];
+      // Convert Excel worksheet to CSV string format so we can reuse our existing parser
+      const csvText = XLSX.utils.sheet_to_csv(worksheet);
+      return parseCSV(csvText);
+    } catch (err) {
+      console.error('XLSX Load Error:', err);
+      return { lanes: [], errors: ['Failed to parse Excel file. Ensure it is not corrupted and uses standard column formatting.'], totalRows: 0 };
+    }
+  }
+
+  // Fallback to standard CSV
+  const text = await readFileAsText(file);
+  return parseCSV(text);
 }
