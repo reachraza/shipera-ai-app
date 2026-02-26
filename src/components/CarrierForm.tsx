@@ -65,27 +65,34 @@ export default function CarrierForm({ carrier, onSaved, onCancel }: CarrierFormP
 
     setError('');
     setLoading(true);
+    const identifier = formData.dot_number || formData.mc_number;
+    console.log(`[FMCSA] Starting background verification for ${identifier}...`);
 
     try {
       // 1. Automatic Verification
-      const identifier = formData.dot_number || formData.mc_number;
       const verifyType = formData.dot_number ? 'dot' : 'mc';
+      console.log(`[FMCSA] Fetching details via ${verifyType.toUpperCase()}...`);
 
       const data = verifyType === 'dot'
         ? await getCarrierByDot(formData.dot_number)
         : await getCarrierByMc(formData.mc_number);
 
       if (!data) {
+        console.error(`[FMCSA] No record found for ${identifier}.`);
         throw new Error(`FMCSA Verification Failed: No carrier found with this ${verifyType.toUpperCase()} number.`);
       }
 
+      console.log(`[FMCSA] Success! Found: ${data.legalName} (${data.allowedToOperate})`);
+
       if (data.allowedToOperate === 'N') {
+        console.warn(`[FMCSA] Carrier ${data.legalName} is not authorized to operate.`);
         throw new Error('This carrier is NOT authorized to operate according to FMCSA records.');
       }
 
       setFmcsaData(data);
       setIsConfirming(true);
     } catch (err) {
+      console.error('[FMCSA] Verification logic error:', err);
       setError(err instanceof Error ? err.message : 'An error occurred during verification');
     } finally {
       setLoading(false);

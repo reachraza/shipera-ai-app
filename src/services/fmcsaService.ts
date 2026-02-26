@@ -18,7 +18,16 @@ export interface FMCSACarrier {
 export async function getCarrierByDot(dotNumber: string): Promise<FMCSACarrier | null> {
     try {
         const response = await fetch(`${FMCSA_BASE_URL}/carriers/${dotNumber}?webKey=${WEB_KEY}`);
-        if (!response.ok) throw new Error('Failed to fetch from FMCSA');
+
+        if (response.status === 403) {
+            console.error('FMCSA API Access Denied (403). Ensure your VPN is connected to a supported region (e.g., USA).');
+            throw new Error('Verification access denied.');
+        }
+
+        if (!response.ok) {
+            console.error(`FMCSA API Error: ${response.status} ${response.statusText}`);
+            throw new Error('Failed to fetch from FMCSA');
+        }
 
         const data = await response.json();
         if (data.record) {
@@ -36,7 +45,16 @@ export async function getCarrierByMc(mcNumber: string): Promise<FMCSACarrier | n
         // Remove MC- prefix if present
         const cleanMc = mcNumber.toUpperCase().replace('MC-', '').replace('MC', '').trim();
         const response = await fetch(`${FMCSA_BASE_URL}/carriers/docket-number/${cleanMc}?webKey=${WEB_KEY}`);
-        if (!response.ok) throw new Error('Failed to fetch from FMCSA');
+
+        if (response.status === 403) {
+            console.error('FMCSA API Access Denied (403). Ensure your VPN is connected to a supported region (e.g., USA).');
+            throw new Error('Verification access denied. Please ensure your VPN is connected.');
+        }
+
+        if (!response.ok) {
+            console.error(`FMCSA API Error: ${response.status} ${response.statusText}`);
+            throw new Error('Failed to fetch from FMCSA');
+        }
 
         const data = await response.json();
         // The API might return multiple or wrapped in a list, based on the endpoint
