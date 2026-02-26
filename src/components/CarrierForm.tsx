@@ -36,41 +36,7 @@ export default function CarrierForm({ carrier, onSaved, onCancel }: CarrierFormP
     status: carrier?.status || 'pending',
   });
 
-  async function handleVerify(type: 'mc' | 'dot') {
-    const value = type === 'mc' ? formData.mc_number : formData.dot_number;
-    if (!value?.trim()) return;
 
-    setVerifying(type);
-    setError('');
-    setVerifySuccess(false);
-
-    try {
-      const data = type === 'mc'
-        ? await getCarrierByMc(value)
-        : await getCarrierByDot(value);
-
-      if (data) {
-        setFormData(prev => ({
-          ...prev,
-          name: data.legalName || prev.name,
-          phone: data.phoneNumber || prev.phone,
-          // The API sometimes returns strings like "NOT PROVIDED"
-          email: data.emailAddress && data.emailAddress !== 'NOT PROVIDED' ? data.emailAddress : prev.email,
-          status: data.allowedToOperate === 'Y' ? 'approved' : prev.status,
-          mc_number: data.mcNumber || prev.mc_number,
-          dot_number: data.dotNumber || prev.dot_number,
-        }));
-        setVerifySuccess(true);
-        setTimeout(() => setVerifySuccess(false), 3000);
-      } else {
-        setError(`❌ Verification Failed: No carrier found with ${type.toUpperCase()} ${value}. Please check the number.`);
-      }
-    } catch (err) {
-      setError(`⚠️ FMCSA API Error: ${err instanceof Error ? err.message : 'Could not reach verification server'}`);
-    } finally {
-      setVerifying(null);
-    }
-  }
 
   function handleChange(e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) {
     const { name, value } = e.target;
@@ -100,14 +66,44 @@ export default function CarrierForm({ carrier, onSaved, onCancel }: CarrierFormP
     setLoading(true);
 
     try {
+      let finalData = { ...formData };
+
+      // Background verify before adding to DB
+      const identifier = formData.dot_number || formData.mc_number;
+      if (identifier) {
+        const verifyType = formData.dot_number ? 'dot' : 'mc';
+        const fmcsaData = verifyType === 'dot'
+          ? await getCarrierByDot(formData.dot_number)
+          : await getCarrierByMc(formData.mc_number);
+
+        if (!fmcsaData) {
+          throw new Error(`FMCSA Verification Failed: No carrier found with this ${verifyType.toUpperCase()} number.`);
+        }
+
+        // Auto-enforce Operational status
+        if (fmcsaData.allowedToOperate === 'N') {
+          throw new Error('Carrier is not authorized to operate according to FMCSA records.');
+        }
+
+        // Merge with official data if missing on UI
+        finalData = {
+          ...finalData,
+          name: finalData.name || fmcsaData.legalName || '',
+          phone: finalData.phone || fmcsaData.phoneNumber || '',
+          status: fmcsaData.allowedToOperate === 'Y' ? 'approved' : finalData.status,
+          mc_number: fmcsaData.mcNumber || finalData.mc_number,
+          dot_number: fmcsaData.dotNumber || finalData.dot_number,
+        };
+      }
+
       if (carrier) {
-        await updateCarrier(carrier.id, formData);
+        await updateCarrier(carrier.id, finalData);
       } else {
-        await createCarrier(orgId, formData);
+        await createCarrier(orgId, finalData);
       }
       onSaved();
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'An error occurred');
+      setError(err instanceof Error ? err.message : 'An error occurred during registration');
     } finally {
       setLoading(false);
     }
@@ -150,20 +146,6 @@ export default function CarrierForm({ carrier, onSaved, onCancel }: CarrierFormP
           onChange={handleChange}
           placeholder="MC-123456"
           title="Either MC Number or DOT Number is required"
-          icon={
-            <button
-              type="button"
-              onClick={() => handleVerify('mc')}
-              disabled={!!verifying || !formData.mc_number?.trim()}
-              className="p-1.5 hover:bg-primary/10 rounded-lg transition-all text-primary disabled:opacity-30 flex items-center gap-1 group/verify"
-              title="Verify & Auto-fill from FMCSA"
-            >
-              {verifying === 'mc' ? <Loader2 size={16} className="animate-spin" /> :
-                verifySuccess && formData.mc_number ? <Check size={16} className="text-green-500" /> :
-                  <Search size={16} />}
-              <span className="text-[10px] font-bold uppercase hidden group-hover/verify:inline">Verify</span>
-            </button>
-          }
         />
 
         <Input
@@ -175,20 +157,6 @@ export default function CarrierForm({ carrier, onSaved, onCancel }: CarrierFormP
           onChange={handleChange}
           placeholder="DOT-789012"
           title="Either MC Number or DOT Number is required"
-          icon={
-            <button
-              type="button"
-              onClick={() => handleVerify('dot')}
-              disabled={!!verifying || !formData.dot_number?.trim()}
-              className="p-1.5 hover:bg-accent/10 rounded-lg transition-all text-accent disabled:opacity-30 flex items-center gap-1 group/verify"
-              title="Verify & Auto-fill from FMCSA"
-            >
-              {verifying === 'dot' ? <Loader2 size={16} className="animate-spin" /> :
-                verifySuccess && formData.dot_number ? <Check size={16} className="text-green-500" /> :
-                  <Search size={16} />}
-              <span className="text-[10px] font-bold uppercase hidden group-hover/verify:inline">Verify</span>
-            </button>
-          }
         />
 
         <Input
