@@ -22,25 +22,25 @@
 }
 
 :root {
-  /* Light Theme - Orange & White/Light Gray focused */
+  /* Light Theme - Yellow & White/Light Gray focused */
   --background: #f8fafc;
   --foreground: #09090b;
 
   --card: #ffffff;
   --card-foreground: #09090b;
 
-  --primary: #ea580c;
-  /* Orange 600 */
-  --primary-hover: #c2410c;
-  /* Orange 700 */
+  --primary: #eab308;
+  /* Yellow 500 */
+  --primary-hover: #ca8a04;
+  /* Yellow 600 */
 
   --secondary: #171717;
   /* Very Dark Gray/Black */
 
-  --accent: #eab308;
-  /* Yellow 500 */
-  --accent-hover: #ca8a04;
-  /* Yellow 600 */
+  --accent: #ea580c;
+  /* Orange 600 */
+  --accent-hover: #c2410c;
+  /* Orange 700 */
 
   --border: #e2e8f0;
   --input: #e2e8f0;
