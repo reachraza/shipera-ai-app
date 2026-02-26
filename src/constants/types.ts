@@ -34,6 +34,16 @@ export interface Carrier {
   status: CarrierStatus;
   is_deleted: boolean;
   created_at: string;
+  // FMCSA Extended Data
+  fmcsa_street?: string | null;
+  fmcsa_city?: string | null;
+  fmcsa_state?: string | null;
+  fmcsa_zip?: string | null;
+  common_authority?: string | null;
+  contract_authority?: string | null;
+  broker_authority?: string | null;
+  vehicle_oos_rate?: number | null;
+  driver_oos_rate?: number | null;
 }
 
 export interface CarrierFormData {
@@ -45,6 +55,16 @@ export interface CarrierFormData {
   phone: string;
   insurance_expiration: string | null;
   status: CarrierStatus;
+  // FMCSA Extended Data
+  fmcsa_street?: string | null;
+  fmcsa_city?: string | null;
+  fmcsa_state?: string | null;
+  fmcsa_zip?: string | null;
+  common_authority?: string | null;
+  contract_authority?: string | null;
+  broker_authority?: string | null;
+  vehicle_oos_rate?: number | null;
+  driver_oos_rate?: number | null;
 }
 
 // ─── RFP ─────────────────────────────────────────────────────
