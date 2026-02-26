@@ -54,7 +54,7 @@ export default function ActivityPage() {
     }
 
     // Reuse the exact same dashboard logic for generating icons/labels
-    function getActivityDisplay(action: string, entity: string) {
+    function getActivityDisplay(action: string, entity: string, metadata: Record<string, unknown> = {}) {
         let title = 'Action Logged';
         let subtitle = `A ${entity} was ${action}d.`;
         let Icon = Activity;
@@ -72,6 +72,11 @@ export default function ActivityPage() {
             } else if (entity === 'rfp_lane') {
                 title = 'Lanes Added';
                 subtitle = `New lanes were added to a tender.`;
+            } else if (entity === 'bid') {
+                title = 'Bid Submitted';
+                subtitle = `A bid was received from ${(metadata?.carrier_name as string) || 'a carrier'}.`;
+                color = 'text-indigo-500';
+                Icon = Activity;
             }
         } else if (action === 'invite') {
             Icon = Mail;
@@ -88,6 +93,25 @@ export default function ActivityPage() {
             color = 'text-indigo-500';
             title = 'Record Updated';
             subtitle = `A ${entity.replace('_', ' ')} profile was modified.`;
+
+            if (entity === 'rfp' && metadata?.new_status) {
+                if (metadata.new_status === 'active') {
+                    title = 'RFP Activated';
+                    subtitle = 'The RFP is now open for bidding.';
+                    color = 'text-green-500';
+                    Icon = Activity;
+                } else if (metadata.new_status === 'closed') {
+                    title = 'RFP Closed';
+                    subtitle = 'The RFP is no longer accepting bids.';
+                    color = 'text-red-500';
+                    Icon = Activity;
+                } else if (metadata.new_status === 'draft') {
+                    title = 'RFP Reopened';
+                    subtitle = 'The RFP was moved back to draft status.';
+                    color = 'text-primary'; // Yellow
+                    Icon = Activity;
+                }
+            }
         }
 
         return { title, subtitle, Icon, color };

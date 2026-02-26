@@ -64,6 +64,38 @@ export async function submitBids(
         console.error('Failed to update invite status:', inviteError);
     }
 
+    // 3. Fetch org_id and rfp_id from invite to log activity
+    const { data: inviteData } = await supabase
+        .from('rfp_invites')
+        .select('rfp_id, rfps(org_id, title), carrier:carriers(name)')
+        .eq('id', inviteId)
+        .single();
+
+    if (inviteData && inviteData.rfps && inviteData.carrier) {
+        try {
+            const { logActivity } = await import('./activityService');
+            // Since this is a public endpoint, we don't have a user_id.
+            // We'll pass the carrier_id as the user_id for tracking, or a system placeholder.
+            // But logActivity might require a valid UUID matching a user. 
+            // In Shipera, activity_log user_id might be nullable or we can just pass the carrier ID
+            // Let's pass the carrier_ids since it's a UUID, it will just not resolve to an admin user in UI.
+            await logActivity(
+                (inviteData.rfps as any).org_id,
+                carrierId,
+                'create',
+                'bid',
+                bids[0].rfp_lane_id, // entity_id
+                {
+                    rfp_id: inviteData.rfp_id,
+                    rfp_title: (inviteData.rfps as any).title,
+                    carrier_name: (inviteData.carrier as any).name
+                }
+            );
+        } catch (err) {
+            console.error('Failed to log bid submission activity:', err);
+        }
+    }
+
     return true;
 }
 
