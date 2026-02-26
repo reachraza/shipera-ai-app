@@ -1,12 +1,15 @@
 import { Carrier } from '@/constants/types';
-import { X, Mail, Phone, MapPin, Hash, ShieldCheck, Truck } from 'lucide-react';
+import { X, Mail, Phone, MapPin, Hash, ShieldCheck, Truck, CheckCircle2, Circle } from 'lucide-react';
+import { Button } from '@/components/ui/Button';
 
 interface CarrierDetailsModalProps {
     carrier: Carrier;
     onClose: () => void;
+    isSelected?: boolean;
+    onToggleSelection?: () => void;
 }
 
-export default function CarrierDetailsModal({ carrier, onClose }: CarrierDetailsModalProps) {
+export default function CarrierDetailsModal({ carrier, onClose, isSelected = false, onToggleSelection }: CarrierDetailsModalProps) {
     return (
         <div className="fixed inset-0 z-[99999] flex items-center justify-center p-4 bg-background/80 backdrop-blur-sm animate-in fade-in duration-200">
             <div className="relative w-full max-w-lg bg-card border border-border shadow-2xl rounded-3xl overflow-hidden animate-in zoom-in-95 duration-200">
@@ -17,8 +20,8 @@ export default function CarrierDetailsModal({ carrier, onClose }: CarrierDetails
                         <h2 className="text-xl font-black text-foreground">{carrier.name}</h2>
                         <div className="flex items-center gap-2 mt-1">
                             <span className={`inline-flex items-center px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-widest ${carrier.status === 'approved' ? 'bg-primary/20 text-primary' :
-                                    carrier.status === 'suspended' ? 'bg-red-500/20 text-red-500' :
-                                        'bg-accent/20 text-accent'
+                                carrier.status === 'suspended' ? 'bg-red-500/20 text-red-500' :
+                                    'bg-accent/20 text-accent'
                                 }`}>
                                 {carrier.status}
                             </span>
@@ -88,6 +91,32 @@ export default function CarrierDetailsModal({ carrier, onClose }: CarrierDetails
                     </div>
 
                 </div>
+
+                {/* Footer (Optional Selection Action) */}
+                {onToggleSelection && (
+                    <div className="p-6 border-t border-border bg-muted/10">
+                        <Button
+                            className="w-full font-bold uppercase tracking-widest text-xs py-6"
+                            variant={isSelected ? "outline" : "primary"}
+                            onClick={() => {
+                                onToggleSelection();
+                                onClose(); // Optionally auto-close the modal after selecting
+                            }}
+                        >
+                            {isSelected ? (
+                                <>
+                                    <CheckCircle2 size={16} className="mr-2 text-primary" />
+                                    Carrier Selected (Click to Remove)
+                                </>
+                            ) : (
+                                <>
+                                    <Circle size={16} className="mr-2 opacity-50" />
+                                    Select Carrier for Invite
+                                </>
+                            )}
+                        </Button>
+                    </div>
+                )}
             </div>
         </div>
     );

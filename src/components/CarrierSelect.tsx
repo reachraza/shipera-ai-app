@@ -165,6 +165,8 @@ export default function CarrierSelect({ rfpId, existingInvites, onInvited }: Car
         <CarrierDetailsModal
           onClose={() => setSelectedCarrierView(null)}
           carrier={selectedCarrierView}
+          isSelected={selectedIds.has(selectedCarrierView.id)}
+          onToggleSelection={() => toggleCarrier(selectedCarrierView.id)}
         />
       )}
     </div>
