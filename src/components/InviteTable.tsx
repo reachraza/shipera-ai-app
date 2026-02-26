@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { RFPInvite } from '@/constants/types';
+import { RFPInvite, Carrier } from '@/constants/types';
 import { INVITE_STATUSES } from '@/constants/statuses';
 import {
   UserPlus,
@@ -8,15 +8,18 @@ import {
   Mail,
   Clock,
   Trash2,
-  ExternalLink
+  ExternalLink,
+  Eye
 } from 'lucide-react';
 import { Button } from '@/components/ui/Button';
 import Pagination from '@/components/ui/Pagination';
+import CarrierDetailsModal from '@/components/CarrierDetailsModal';
 
 const ITEMS_PER_PAGE = 10;
 
 export default function InviteTable({ invites }: { invites: RFPInvite[] }) {
   const [currentPage, setCurrentPage] = useState(1);
+  const [selectedCarrier, setSelectedCarrier] = useState<Carrier | null>(null);
 
   if (invites.length === 0) {
     return (
@@ -87,6 +90,19 @@ export default function InviteTable({ invites }: { invites: RFPInvite[] }) {
                       variant="outline"
                       size="sm"
                       onClick={() => {
+                        if (invite.carrier) {
+                          setSelectedCarrier(invite.carrier as Carrier);
+                        }
+                      }}
+                      className="text-[10px] uppercase tracking-widest"
+                    >
+                      <Eye size={12} className="mr-1.5" />
+                      View
+                    </Button>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => {
                         const url = `${window.location.origin}/bid/${invite.access_token}`;
                         navigator.clipboard.writeText(url);
                         alert('Copied secure bidding link to clipboard!');
@@ -117,6 +133,13 @@ export default function InviteTable({ invites }: { invites: RFPInvite[] }) {
         totalItems={invites.length}
         itemsPerPage={ITEMS_PER_PAGE}
       />
+
+      {selectedCarrier && (
+        <CarrierDetailsModal
+          onClose={() => setSelectedCarrier(null)}
+          carrier={selectedCarrier}
+        />
+      )}
     </div>
   );
 }
