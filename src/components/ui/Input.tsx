@@ -1,4 +1,5 @@
-import React from 'react';
+import React, { useState } from 'react';
+import { Eye, EyeOff } from 'lucide-react';
 
 export interface InputProps extends React.InputHTMLAttributes<HTMLInputElement> {
     label?: string;
@@ -7,7 +8,11 @@ export interface InputProps extends React.InputHTMLAttributes<HTMLInputElement> 
 }
 
 export const Input = React.forwardRef<HTMLInputElement, InputProps>(
-    ({ className = '', label, error, icon, ...props }, ref) => {
+    ({ className = '', label, error, icon, type, ...props }, ref) => {
+        const [showPassword, setShowPassword] = useState(false);
+        const isPassword = type === 'password';
+        const inputType = isPassword ? (showPassword ? 'text' : 'password') : type;
+
         return (
             <div className="space-y-1.5 w-full">
                 {label && (
@@ -23,17 +28,29 @@ export const Input = React.forwardRef<HTMLInputElement, InputProps>(
                     )}
                     <input
                         ref={ref}
+                        type={inputType}
                         className={`
               w-full px-4 py-3 bg-muted border rounded-xl 
               focus:ring-2 focus:ring-primary focus:bg-background outline-none transition-all 
               text-sm font-medium text-foreground 
               placeholder-muted-foreground disabled:opacity-50 disabled:cursor-not-allowed
               ${icon ? 'pl-12' : ''}
+              ${isPassword ? 'pr-12' : ''}
               ${error ? 'border-red-500 focus:border-red-500 focus:ring-red-500/20' : 'border-border focus:border-primary'}
               ${className}
             `}
                         {...props}
                     />
+                    {isPassword && (
+                        <button
+                            type="button"
+                            onClick={() => setShowPassword(!showPassword)}
+                            className="absolute right-4 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors p-1"
+                            tabIndex={-1}
+                        >
+                            {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+                        </button>
+                    )}
                 </div>
                 {error && (
                     <p className="text-xs font-medium text-red-500 mt-1">{error}</p>
