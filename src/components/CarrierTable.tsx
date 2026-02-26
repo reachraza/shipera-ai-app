@@ -24,9 +24,10 @@ interface CarrierTableProps {
   onRefresh: () => void;
   searchQuery?: string;
   statusFilter?: string;
+  refreshKey?: number;
 }
 
-export default function CarrierTable({ onEdit, onRefresh, searchQuery = '', statusFilter = 'all' }: CarrierTableProps) {
+export default function CarrierTable({ onEdit, onRefresh, searchQuery = '', statusFilter = 'all', refreshKey = 0 }: CarrierTableProps) {
 
   const { orgId, role, loading: authLoading } = useAuth();
   const [carriers, setCarriers] = useState<Carrier[]>([]);
@@ -41,7 +42,7 @@ export default function CarrierTable({ onEdit, onRefresh, searchQuery = '', stat
       }
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [orgId, authLoading]);
+  }, [orgId, authLoading, refreshKey]);
 
   async function loadCarriers() {
     if (!orgId) return;

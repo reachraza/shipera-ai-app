@@ -112,6 +112,7 @@ export default function CarriersPage() {
           onRefresh={() => setRefreshKey((prev: number) => prev + 1)}
           searchQuery={searchQuery}
           statusFilter={statusFilter}
+          refreshKey={refreshKey}
         />
       </div>
 
