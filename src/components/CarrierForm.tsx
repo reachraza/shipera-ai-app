@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { Carrier, CarrierFormData } from '@/constants/types';
+import { Carrier, CarrierFormData, CarrierStatus } from '@/constants/types';
 import { CARRIER_STATUSES } from '@/constants/statuses';
 import { EQUIPMENT_TYPES } from '@/constants/equipmentTypes';
 import { createCarrier, updateCarrier } from '@/services/carrierService';
@@ -25,6 +25,7 @@ export default function CarrierForm({ carrier, onSaved, onCancel }: CarrierFormP
   const [error, setError] = useState('');
   const [isConfirming, setIsConfirming] = useState(false);
   const [fmcsaData, setFmcsaData] = useState<FMCSACarrier | null>(null);
+  const [computedStatus, setComputedStatus] = useState<{ status: CarrierStatus, message: string } | null>(null);
 
   const [formData, setFormData] = useState<CarrierFormData>({
     name: carrier?.name || '',
@@ -89,6 +90,32 @@ export default function CarrierForm({ carrier, onSaved, onCancel }: CarrierFormP
         throw new Error('This carrier is NOT authorized to operate according to FMCSA records.');
       }
 
+      const commonStatus = data.commonAuthorityStatus || 'N';
+      const contractStatus = data.contractAuthorityStatus || 'N';
+      const brokerStatus = data.brokerAuthorityStatus || 'N';
+
+      // Let carriers through if they have ANY active authority (Common, Contract, or Broker)
+      if (commonStatus !== 'A' && contractStatus !== 'A' && brokerStatus !== 'A') {
+        console.warn(`[FMCSA] Carrier ${data.legalName} has no active authority.`);
+        throw new Error('Carrier does not have active operating authority.');
+      }
+
+      // Safety checks
+      const vehicleOos = data.vehicleOosRate || 0;
+      const vehicleNatAvg = parseFloat(String(data.vehicleOosRateNationalAverage || '0')) || 0;
+      const driverOos = data.driverOosRate || 0;
+      const driverNatAvg = parseFloat(String(data.driverOosRateNationalAverage || '0')) || 0;
+
+      let computed: CarrierStatus = 'approved';
+      let message = 'Authorized to Operate';
+
+      if ((vehicleNatAvg > 0 && vehicleOos > vehicleNatAvg) || (driverNatAvg > 0 && driverOos > driverNatAvg)) {
+        computed = 'pending';
+        message = 'Safety Review Required (High OOS Rate)';
+        console.warn(`[FMCSA] Carrier flagged for safety review. Vehicle: ${vehicleOos}/${vehicleNatAvg}, Driver: ${driverOos}/${driverNatAvg}`);
+      }
+
+      setComputedStatus({ status: computed, message });
       setFmcsaData(data);
       setIsConfirming(true);
     } catch (err) {
@@ -110,7 +137,7 @@ export default function CarrierForm({ carrier, onSaved, onCancel }: CarrierFormP
         ...formData,
         name: fmcsaData.legalName || formData.name || '',
         phone: fmcsaData.phoneNumber || formData.phone || '', // Official phone if available
-        status: fmcsaData.allowedToOperate === 'Y' ? 'approved' : formData.status,
+        status: computedStatus ? computedStatus.status : (fmcsaData.allowedToOperate === 'Y' ? 'approved' : formData.status),
         mc_number: fmcsaData.mcNumber || formData.mc_number,
         dot_number: fmcsaData.dotNumber || formData.dot_number,
       };
@@ -169,8 +196,10 @@ export default function CarrierForm({ carrier, onSaved, onCancel }: CarrierFormP
             <div className="p-4 rounded-xl border border-border bg-muted/20">
               <p className="text-[10px] uppercase font-bold text-muted-foreground tracking-widest mb-1">Status</p>
               <div className="flex items-center gap-2">
-                <div className="w-2 h-2 rounded-full bg-green-500 animate-pulse" />
-                <span className="font-bold text-green-600 dark:text-green-400">Authorized to Operate</span>
+                <div className={`w-2 h-2 rounded-full animate-pulse ${computedStatus?.status === 'approved' ? 'bg-green-500' : 'bg-yellow-500'}`} />
+                <span className={`font-bold ${computedStatus?.status === 'approved' ? 'text-green-600 dark:text-green-400' : 'text-yellow-600 dark:text-yellow-400'}`}>
+                  {computedStatus?.message || 'Authorized to Operate'}
+                </span>
               </div>
             </div>
           </div>

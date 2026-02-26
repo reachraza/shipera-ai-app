@@ -13,6 +13,13 @@ export interface FMCSACarrier {
     physZip?: string;
     physStreet?: string;
     allowedToOperate?: string;
+    commonAuthorityStatus?: string;
+    contractAuthorityStatus?: string;
+    brokerAuthorityStatus?: string;
+    vehicleOosRate?: number;
+    vehicleOosRateNationalAverage?: string | number;
+    driverOosRate?: number;
+    driverOosRateNationalAverage?: string | number;
 }
 
 export async function getCarrierByDot(dotNumber: string): Promise<FMCSACarrier | null> {
