@@ -18,6 +18,9 @@ import {
   MoreVertical
 } from 'lucide-react';
 import { Button } from '@/components/ui/Button';
+import Pagination from '@/components/ui/Pagination';
+
+const ITEMS_PER_PAGE = 10;
 
 interface CarrierTableProps {
   onEdit: (carrier: Carrier) => void;
@@ -32,6 +35,7 @@ export default function CarrierTable({ onEdit, onRefresh, searchQuery = '', stat
   const { orgId, role, loading: authLoading } = useAuth();
   const [carriers, setCarriers] = useState<Carrier[]>([]);
   const [loading, setLoading] = useState(true);
+  const [currentPage, setCurrentPage] = useState(1);
 
   useEffect(() => {
     if (!authLoading) {
@@ -78,6 +82,11 @@ export default function CarrierTable({ onEdit, onRefresh, searchQuery = '', stat
     );
   }
 
+  // Reset to page 1 when filters change
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [searchQuery, statusFilter]);
+
   const filteredCarriers = carriers.filter((carrier) => {
     const matchesSearch =
       carrier.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -88,6 +97,12 @@ export default function CarrierTable({ onEdit, onRefresh, searchQuery = '', stat
 
     return matchesSearch && matchesStatus;
   });
+
+  const totalPages = Math.ceil(filteredCarriers.length / ITEMS_PER_PAGE);
+  const paginatedCarriers = filteredCarriers.slice(
+    (currentPage - 1) * ITEMS_PER_PAGE,
+    currentPage * ITEMS_PER_PAGE
+  );
 
   if (carriers.length === 0) {
 
@@ -124,7 +139,7 @@ export default function CarrierTable({ onEdit, onRefresh, searchQuery = '', stat
               </td>
             </tr>
           )}
-          {filteredCarriers.map((carrier) => {
+          {paginatedCarriers.map((carrier) => {
 
             const statusInfo = CARRIER_STATUSES.find((s) => s.value === carrier.status);
 
@@ -211,6 +226,13 @@ export default function CarrierTable({ onEdit, onRefresh, searchQuery = '', stat
           })}
         </tbody>
       </table>
+      <Pagination
+        currentPage={currentPage}
+        totalPages={totalPages}
+        onPageChange={setCurrentPage}
+        totalItems={filteredCarriers.length}
+        itemsPerPage={ITEMS_PER_PAGE}
+      />
     </div>
   );
 }

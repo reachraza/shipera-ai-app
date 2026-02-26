@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import { RFPInvite } from '@/constants/types';
 import { INVITE_STATUSES } from '@/constants/statuses';
 import {
@@ -10,8 +11,13 @@ import {
   ExternalLink
 } from 'lucide-react';
 import { Button } from '@/components/ui/Button';
+import Pagination from '@/components/ui/Pagination';
+
+const ITEMS_PER_PAGE = 10;
 
 export default function InviteTable({ invites }: { invites: RFPInvite[] }) {
+  const [currentPage, setCurrentPage] = useState(1);
+
   if (invites.length === 0) {
     return (
       <div className="text-center py-20 px-4 bg-muted/20">
@@ -23,6 +29,12 @@ export default function InviteTable({ invites }: { invites: RFPInvite[] }) {
       </div>
     );
   }
+
+  const totalPages = Math.ceil(invites.length / ITEMS_PER_PAGE);
+  const paginatedInvites = invites.slice(
+    (currentPage - 1) * ITEMS_PER_PAGE,
+    currentPage * ITEMS_PER_PAGE
+  );
 
   return (
     <div className="overflow-x-auto w-full">
@@ -36,7 +48,7 @@ export default function InviteTable({ invites }: { invites: RFPInvite[] }) {
           </tr>
         </thead>
         <tbody className="divide-y divide-border/50">
-          {invites.map((invite) => {
+          {paginatedInvites.map((invite) => {
             const statusInfo = INVITE_STATUSES.find((s) => s.value === invite.status);
 
             const StatusIcon = invite.status === 'submitted' ? ShieldCheck :
@@ -98,6 +110,13 @@ export default function InviteTable({ invites }: { invites: RFPInvite[] }) {
           })}
         </tbody>
       </table>
+      <Pagination
+        currentPage={currentPage}
+        totalPages={totalPages}
+        onPageChange={setCurrentPage}
+        totalItems={invites.length}
+        itemsPerPage={ITEMS_PER_PAGE}
+      />
     </div>
   );
 }

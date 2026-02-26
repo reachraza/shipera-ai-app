@@ -1,7 +1,13 @@
+import { useState } from 'react';
 import { RFPLane } from '@/constants/types';
 import { MapPin, MoveRight, Truck, Box, Layers } from 'lucide-react';
+import Pagination from '@/components/ui/Pagination';
+
+const ITEMS_PER_PAGE = 10;
 
 export default function LaneTable({ lanes }: { lanes: RFPLane[] }) {
+  const [currentPage, setCurrentPage] = useState(1);
+
   if (lanes.length === 0) {
     return (
       <div className="text-center py-20 px-4 bg-muted/20">
@@ -13,6 +19,12 @@ export default function LaneTable({ lanes }: { lanes: RFPLane[] }) {
       </div>
     );
   }
+
+  const totalPages = Math.ceil(lanes.length / ITEMS_PER_PAGE);
+  const paginatedLanes = lanes.slice(
+    (currentPage - 1) * ITEMS_PER_PAGE,
+    currentPage * ITEMS_PER_PAGE
+  );
 
   return (
     <div className="overflow-x-auto w-full">
@@ -26,7 +38,7 @@ export default function LaneTable({ lanes }: { lanes: RFPLane[] }) {
           </tr>
         </thead>
         <tbody className="divide-y divide-border/50">
-          {lanes.map((lane) => (
+          {paginatedLanes.map((lane) => (
             <tr key={lane.id} className="hover:bg-muted/30 transition-colors group">
               <td className="px-6 py-5">
                 <div className="flex items-center gap-2.5">
@@ -67,6 +79,13 @@ export default function LaneTable({ lanes }: { lanes: RFPLane[] }) {
           ))}
         </tbody>
       </table>
+      <Pagination
+        currentPage={currentPage}
+        totalPages={totalPages}
+        onPageChange={setCurrentPage}
+        totalItems={lanes.length}
+        itemsPerPage={ITEMS_PER_PAGE}
+      />
     </div>
   );
 }
