@@ -63,8 +63,15 @@ export default function InviteTable({ invites }: { invites: RFPInvite[] }) {
 
             return (
               <tr key={invite.id} className="hover:bg-muted/30 transition-colors group">
-                <td className="px-6 py-5">
-                  <div className="font-bold text-foreground flex items-center gap-2">
+                <td
+                  className="px-6 py-5 cursor-pointer hover:bg-muted/40 transition-colors"
+                  onClick={() => {
+                    if (invite.carrier) {
+                      setSelectedCarrier(invite.carrier as Carrier);
+                    }
+                  }}
+                >
+                  <div className="font-bold text-foreground flex items-center gap-2 group-hover:text-primary transition-colors">
                     {invite.carrier?.name}
                   </div>
                   <div className="text-xs text-muted-foreground mt-1.5 flex items-center gap-1.5 font-medium">
