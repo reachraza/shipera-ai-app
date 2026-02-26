@@ -49,6 +49,13 @@ export default function CarrierForm({ carrier, onSaved, onCancel }: CarrierFormP
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     if (!orgId) return;
+
+    // Require at least one identifier
+    if (!formData.mc_number?.trim() && !formData.dot_number?.trim()) {
+      setError('Either an MC Number or DOT Number is compulsory as an identifier.');
+      return;
+    }
+
     setError('');
     setLoading(true);
 
@@ -98,18 +105,22 @@ export default function CarrierForm({ carrier, onSaved, onCancel }: CarrierFormP
           label="MC Number"
           name="mc_number"
           type="text"
+          required={!formData.dot_number?.trim()}
           value={formData.mc_number}
           onChange={handleChange}
           placeholder="MC-123456"
+          title="Either MC Number or DOT Number is required"
         />
 
         <Input
           label="DOT Number"
           name="dot_number"
           type="text"
+          required={!formData.mc_number?.trim()}
           value={formData.dot_number}
           onChange={handleChange}
           placeholder="DOT-789012"
+          title="Either MC Number or DOT Number is required"
         />
 
         <Input
