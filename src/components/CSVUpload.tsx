@@ -91,7 +91,7 @@ export default function CSVUpload({ rfpId, onUploaded }: CSVUploadProps) {
         onDragLeave={handleDragLeave}
         onDrop={handleDrop}
         onClick={() => fileInputRef.current?.click()}
-        className={`border-2 border-dashed rounded-2xl p-8 text-center cursor-pointer transition-all duration-300 relative overflow-hidden group ${isDragging
+        className={`border-2 border-dashed rounded-2xl p-8 text-center cursor-pointer transition-all duration-300 relative group ${isDragging
           ? 'border-primary bg-primary/5 scale-[1.02]'
           : 'border-border bg-muted/30 hover:bg-muted/50 hover:border-primary/50'
           }`}
@@ -105,7 +105,7 @@ export default function CSVUpload({ rfpId, onUploaded }: CSVUploadProps) {
           disabled={loading}
         />
 
-        <div className="absolute inset-0 bg-gradient-to-b from-transparent to-primary/5 opacity-0 group-hover:opacity-100 transition-opacity" />
+        <div className="absolute inset-0 rounded-2xl bg-gradient-to-b from-transparent to-primary/5 opacity-0 group-hover:opacity-100 transition-opacity" />
 
         <div className="relative z-10 flex flex-col items-center justify-center space-y-4">
           <div className={`p-4 rounded-full transition-colors duration-300 ${isDragging ? 'bg-primary text-primary-foreground shadow-lg shadow-primary/25' : 'bg-background border border-border text-primary shadow-sm group-hover:bg-primary/10'}`}>
