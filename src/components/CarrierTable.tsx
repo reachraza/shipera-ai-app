@@ -48,6 +48,11 @@ export default function CarrierTable({ onEdit, onRefresh, searchQuery = '', stat
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [orgId, authLoading, refreshKey]);
 
+  // Reset to page 1 when filters change
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [searchQuery, statusFilter]);
+
   async function loadCarriers() {
     if (!orgId) return;
     try {
@@ -81,11 +86,6 @@ export default function CarrierTable({ onEdit, onRefresh, searchQuery = '', stat
       </div>
     );
   }
-
-  // Reset to page 1 when filters change
-  useEffect(() => {
-    setCurrentPage(1);
-  }, [searchQuery, statusFilter]);
 
   const filteredCarriers = carriers.filter((carrier) => {
     const matchesSearch =

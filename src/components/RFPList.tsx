@@ -39,6 +39,11 @@ export default function RFPList({ searchQuery = '', statusFilter = 'all' }: { se
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [orgId, authLoading]);
 
+  // Reset to page 1 when filters change
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [searchQuery, statusFilter]);
+
   async function loadRFPs() {
     if (!orgId) return;
     try {
@@ -61,11 +66,6 @@ export default function RFPList({ searchQuery = '', statusFilter = 'all' }: { se
       </div>
     );
   }
-
-  // Reset to page 1 when filters change
-  useEffect(() => {
-    setCurrentPage(1);
-  }, [searchQuery, statusFilter]);
 
   const filteredRFPs = rfps.filter((rfp) => {
     const matchesSearch =
