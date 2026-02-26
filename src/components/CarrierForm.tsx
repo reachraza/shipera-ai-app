@@ -85,34 +85,36 @@ export default function CarrierForm({ carrier, onSaved, onCancel }: CarrierFormP
 
       console.log(`[FMCSA] Success! Found: ${data.legalName} (${data.allowedToOperate})`);
 
-      if (data.allowedToOperate === 'N') {
-        console.warn(`[FMCSA] Carrier ${data.legalName} is not authorized to operate.`);
-        throw new Error('This carrier is NOT authorized to operate according to FMCSA records.');
-      }
-
-      const commonStatus = data.commonAuthorityStatus || 'N';
-      const contractStatus = data.contractAuthorityStatus || 'N';
-      const brokerStatus = data.brokerAuthorityStatus || 'N';
-
-      // Let carriers through if they have ANY active authority (Common, Contract, or Broker)
-      if (commonStatus !== 'A' && contractStatus !== 'A' && brokerStatus !== 'A') {
-        console.warn(`[FMCSA] Carrier ${data.legalName} has no active authority.`);
-        throw new Error('Carrier does not have active operating authority.');
-      }
-
-      // Safety checks
-      const vehicleOos = data.vehicleOosRate || 0;
-      const vehicleNatAvg = parseFloat(String(data.vehicleOosRateNationalAverage || '0')) || 0;
-      const driverOos = data.driverOosRate || 0;
-      const driverNatAvg = parseFloat(String(data.driverOosRateNationalAverage || '0')) || 0;
-
       let computed: CarrierStatus = 'approved';
       let message = 'Authorized to Operate';
 
-      if ((vehicleNatAvg > 0 && vehicleOos > vehicleNatAvg) || (driverNatAvg > 0 && driverOos > driverNatAvg)) {
-        computed = 'pending';
-        message = 'Safety Review Required (High OOS Rate)';
-        console.warn(`[FMCSA] Carrier flagged for safety review. Vehicle: ${vehicleOos}/${vehicleNatAvg}, Driver: ${driverOos}/${driverNatAvg}`);
+      if (data.allowedToOperate === 'N') {
+        console.warn(`[FMCSA] Carrier ${data.legalName} is not authorized to operate.`);
+        computed = 'suspended';
+        message = 'Not Authorized to Operate';
+      } else {
+        const commonStatus = data.commonAuthorityStatus || 'N';
+        const contractStatus = data.contractAuthorityStatus || 'N';
+        const brokerStatus = data.brokerAuthorityStatus || 'N';
+
+        // Let carriers through if they have ANY active authority (Common, Contract, or Broker)
+        if (commonStatus !== 'A' && contractStatus !== 'A' && brokerStatus !== 'A') {
+          console.warn(`[FMCSA] Carrier ${data.legalName} has no active authority.`);
+          computed = 'suspended';
+          message = 'No Active Operating Authority';
+        } else {
+          // Safety checks
+          const vehicleOos = data.vehicleOosRate || 0;
+          const vehicleNatAvg = parseFloat(String(data.vehicleOosRateNationalAverage || '0')) || 0;
+          const driverOos = data.driverOosRate || 0;
+          const driverNatAvg = parseFloat(String(data.driverOosRateNationalAverage || '0')) || 0;
+
+          if ((vehicleNatAvg > 0 && vehicleOos > vehicleNatAvg) || (driverNatAvg > 0 && driverOos > driverNatAvg)) {
+            computed = 'pending';
+            message = 'Safety Review Required (High OOS Rate)';
+            console.warn(`[FMCSA] Carrier flagged for safety review. Vehicle: ${vehicleOos}/${vehicleNatAvg}, Driver: ${driverOos}/${driverNatAvg}`);
+          }
+        }
       }
 
       setComputedStatus({ status: computed, message });
@@ -196,8 +198,8 @@ export default function CarrierForm({ carrier, onSaved, onCancel }: CarrierFormP
             <div className="p-4 rounded-xl border border-border bg-muted/20">
               <p className="text-[10px] uppercase font-bold text-muted-foreground tracking-widest mb-1">Status</p>
               <div className="flex items-center gap-2">
-                <div className={`w-2 h-2 rounded-full animate-pulse ${computedStatus?.status === 'approved' ? 'bg-green-500' : 'bg-yellow-500'}`} />
-                <span className={`font-bold ${computedStatus?.status === 'approved' ? 'text-green-600 dark:text-green-400' : 'text-yellow-600 dark:text-yellow-400'}`}>
+                <div className={`w-2 h-2 rounded-full ${computedStatus?.status === 'approved' ? 'bg-green-500 animate-pulse' : computedStatus?.status === 'pending' ? 'bg-yellow-500 animate-pulse' : 'bg-red-500'}`} />
+                <span className={`font-bold ${computedStatus?.status === 'approved' ? 'text-green-600 dark:text-green-400' : computedStatus?.status === 'pending' ? 'text-yellow-600 dark:text-yellow-400' : 'text-red-600 dark:text-red-400'}`}>
                   {computedStatus?.message || 'Authorized to Operate'}
                 </span>
               </div>
