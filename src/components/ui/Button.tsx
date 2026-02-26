@@ -37,11 +37,9 @@ export const Button = React.forwardRef<HTMLButtonElement | HTMLAnchorElement, Bu
 
         if (href) {
             return (
-                <Link href={href} className={combinedClassName} passHref legacyBehavior>
-                    <a ref={ref as React.Ref<HTMLAnchorElement>} className={combinedClassName} {...(props as React.AnchorHTMLAttributes<HTMLAnchorElement>)}>
-                        {isLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-                        {children}
-                    </a>
+                <Link href={href} ref={ref as React.Ref<HTMLAnchorElement>} className={combinedClassName} {...(props as React.AnchorHTMLAttributes<HTMLAnchorElement>)}>
+                    {isLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+                    {children}
                 </Link>
             );
         }
