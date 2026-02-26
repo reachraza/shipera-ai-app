@@ -6,7 +6,7 @@ import { Sun, Moon } from 'lucide-react';
 import { Button } from '@/components/ui/Button';
 
 export function ThemeToggle({ isSidebarOpen = true }: { isSidebarOpen?: boolean }) {
-    const { theme, setTheme } = useTheme();
+    const { theme, setTheme, resolvedTheme } = useTheme();
     const [mounted, setMounted] = useState(false);
 
     useEffect(() => {
@@ -22,7 +22,7 @@ export function ThemeToggle({ isSidebarOpen = true }: { isSidebarOpen?: boolean 
         );
     }
 
-    const isDark = theme === 'dark' || (theme === 'system' && window.matchMedia('(prefers-color-scheme: dark)').matches);
+    const isDark = resolvedTheme === 'dark';
 
     return (
         <button
@@ -30,7 +30,7 @@ export function ThemeToggle({ isSidebarOpen = true }: { isSidebarOpen?: boolean 
             className={`w-full flex items-center ${isSidebarOpen ? 'px-5 justify-start' : 'justify-center'} py-3 rounded-xl text-sm font-bold transition-all group text-muted-foreground hover:bg-muted hover:text-foreground`}
             title={`Switch to ${isDark ? 'light' : 'dark'} mode`}
         >
-            <div className="flex-shrink-0 transition-transform group-hover:rotate-12">
+            <div className="flex-shrink-0 transition-all duration-300 group-hover:rotate-12 group-hover:scale-110">
                 {isDark ? <Sun size={20} /> : <Moon size={20} />}
             </div>
             {isSidebarOpen && <span className="ml-4">Theme: {isDark ? 'Dark' : 'Light'}</span>}
