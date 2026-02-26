@@ -174,7 +174,7 @@ export default function ActivityPage() {
                         <div>
                             <div className="divide-y divide-border/40">
                                 {paginatedActivities.map((activity) => {
-                                    const { title, subtitle, Icon, color } = getActivityDisplay(activity.action_type, activity.entity_type);
+                                    const { title, subtitle, Icon, color } = getActivityDisplay(activity.action_type, activity.entity_type, activity.metadata);
                                     return (
                                         <div key={activity.id} className="p-6 sm:px-8 flex items-center justify-between hover:bg-muted/30 transition-colors group">
                                             <div className="flex items-center gap-5">

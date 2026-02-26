@@ -233,7 +233,7 @@ export default function DashboardPage() {
               <p className="text-sm font-medium opacity-80 mt-1">Actions you take like creating RFPs or inviting carriers will appear here.</p>
             </div>
           ) : (
-            activities.map((activity) => {
+            activities.slice(0, 5).map((activity) => {
               const { title, subtitle, Icon, color } = getActivityDisplay(activity.action_type, activity.entity_type, activity.metadata);
               return (
                 <div key={activity.id} className="p-6 flex items-center justify-between border-b border-border/40 last:border-0 hover:bg-muted/30 transition-colors group">
