@@ -4,7 +4,7 @@ import { useState } from 'react';
 import { Carrier, CarrierFormData, CarrierStatus } from '@/constants/types';
 import { CARRIER_STATUSES } from '@/constants/statuses';
 import { EQUIPMENT_TYPES } from '@/constants/equipmentTypes';
-import { createCarrier, updateCarrier } from '@/services/carrierService';
+import { createCarrier, updateCarrier, getExistingFMCSA } from '@/services/carrierService';
 import { getCarrierByDot, getCarrierByMc } from '@/services/fmcsaService';
 import { useAuth } from '@/hooks/useAuth';
 import { Button } from '@/components/ui/Button';
@@ -70,17 +70,27 @@ export default function CarrierForm({ carrier, onSaved, onCancel }: CarrierFormP
     console.log(`[FMCSA] Starting background verification for ${identifier}...`);
 
     try {
-      // 1. Automatic Verification
-      const verifyType = formData.dot_number ? 'dot' : 'mc';
-      console.log(`[FMCSA] Fetching details via ${verifyType.toUpperCase()}...`);
+      // 1. Check local DB first for existing FMCSA data
+      console.log(`[FMCSA] Checking local database for ${identifier}...`);
+      let data = await getExistingFMCSA(formData.dot_number, formData.mc_number);
 
-      const data = verifyType === 'dot'
-        ? await getCarrierByDot(formData.dot_number)
-        : await getCarrierByMc(formData.mc_number);
+      let verifyType: 'dot' | 'mc' | undefined;
+
+      if (data) {
+        console.log(`[FMCSA] Found cached data in DB for ${data.legalName}`);
+      } else {
+        // 2. Fallback to FMCSA API
+        verifyType = formData.dot_number ? 'dot' : 'mc';
+        console.log(`[FMCSA] Not in DB. Fetching from FMCSA API via ${verifyType.toUpperCase()}...`);
+
+        data = verifyType === 'dot'
+          ? await getCarrierByDot(formData.dot_number)
+          : await getCarrierByMc(formData.mc_number);
+      }
 
       if (!data) {
         console.error(`[FMCSA] No record found for ${identifier}.`);
-        throw new Error(`FMCSA Verification Failed: No carrier found with this ${verifyType.toUpperCase()} number.`);
+        throw new Error(`FMCSA Verification Failed: No carrier found with this ${verifyType?.toUpperCase() || 'MC/DOT'} number.`);
       }
 
       console.log(`[FMCSA] Success! Found: ${data.legalName} (${data.allowedToOperate})`);
@@ -138,24 +148,32 @@ export default function CarrierForm({ carrier, onSaved, onCancel }: CarrierFormP
     setError('');
 
     try {
-      // Force official FMCSA data to overwrite any user input
+      // Structure the data according to the new schema
+      // We NO LONGER overwrite the name with the FMCSA legal name here
       const finalData: CarrierFormData = {
         ...formData,
-        name: fmcsaData.legalName || formData.name || '',
-        phone: fmcsaData.phoneNumber || formData.phone || '', // Official phone if available
+        // Ensure name is what the user entered, unless they left it blank (though it's required)
+        name: formData.name || fmcsaData.legalName || '',
+        phone: formData.phone || fmcsaData.phoneNumber || '',
         status: computedStatus ? computedStatus.status : (fmcsaData.allowedToOperate === 'Y' ? 'approved' : formData.status),
         mc_number: fmcsaData.mcNumber || formData.mc_number,
         dot_number: fmcsaData.dotNumber || formData.dot_number,
-        // Extended FMCSA Data
-        fmcsa_street: fmcsaData.phyStreet || null,
-        fmcsa_city: fmcsaData.phyCity || null,
-        fmcsa_state: fmcsaData.phyState || null,
-        fmcsa_zip: fmcsaData.phyZipcode || null,
-        common_authority: fmcsaData.commonAuthorityStatus || null,
-        contract_authority: fmcsaData.contractAuthorityStatus || null,
-        broker_authority: fmcsaData.brokerAuthorityStatus || null,
-        vehicle_oos_rate: fmcsaData.vehicleOosRate || null,
-        driver_oos_rate: fmcsaData.driverOosRate || null,
+        // Move extended FMCSA data to its own nested object
+        fmcsa_data: {
+          legal_name: fmcsaData.legalName ?? null,
+          phone: fmcsaData.phoneNumber ?? null,
+          street: fmcsaData.phyStreet ?? null,
+          city: fmcsaData.phyCity ?? null,
+          state: fmcsaData.phyState ?? null,
+          zip: fmcsaData.phyZipcode ?? null,
+          common_authority: fmcsaData.commonAuthorityStatus ?? null,
+          contract_authority: fmcsaData.contractAuthorityStatus ?? null,
+          broker_authority: fmcsaData.brokerAuthorityStatus ?? null,
+          vehicle_oos_rate: fmcsaData.vehicleOosRate ?? null,
+          driver_oos_rate: fmcsaData.driverOosRate ?? null,
+          allowed_to_operate: fmcsaData.allowedToOperate ?? null,
+          raw_data: fmcsaData,
+        }
       };
 
       if (carrier) {
@@ -184,82 +202,144 @@ export default function CarrierForm({ carrier, onSaved, onCancel }: CarrierFormP
         </div>
 
         <div className="grid grid-cols-1 gap-4">
-          <div className="bg-muted/30 border border-border rounded-2xl overflow-hidden">
-            <div className="p-4 border-b border-border bg-muted/50 flex items-center gap-2">
-              <Info size={16} className="text-primary" />
-              <span className="text-xs font-bold uppercase tracking-widest text-muted-foreground">Legal Name Verification</span>
-            </div>
-            <div className="p-6 grid grid-cols-1 md:grid-cols-[1fr,auto,1fr] items-center gap-6">
-              <div className="space-y-1">
-                <p className="text-[10px] uppercase font-bold text-muted-foreground tracking-widest">You Entered</p>
-                <p className="text-lg font-bold text-foreground/70">{formData.name || 'Anonymous'}</p>
-              </div>
-              <div className="hidden md:block">
-                <ArrowRight className="text-muted-foreground/30" size={24} />
-              </div>
-              <div className="space-y-1 p-4 bg-primary/5 rounded-xl border border-primary/20">
-                <p className="text-[10px] uppercase font-bold text-primary tracking-widest">Official Record</p>
-                <p className="text-lg font-black text-foreground">{fmcsaData.legalName}</p>
-              </div>
-            </div>
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-            <div className="p-4 rounded-xl border border-border bg-muted/20">
-              <p className="text-[10px] uppercase font-bold text-muted-foreground tracking-widest mb-1 flex items-center gap-1"><FileText size={12} /> Identifiers</p>
-              <p className="font-mono font-bold text-primary text-sm">DOT-{fmcsaData.dotNumber}</p>
-              {fmcsaData.mcNumber && <p className="font-mono font-bold text-primary/70 text-xs">MC-{fmcsaData.mcNumber}</p>}
+          <div className="bg-muted/10 border border-border/50 rounded-[40px] overflow-hidden relative">
+            <div className="absolute top-0 right-0 p-8 opacity-5">
+              <ShieldCheck size={200} />
             </div>
 
-            <div className="p-4 rounded-xl border border-border bg-muted/20">
-              <p className="text-[10px] uppercase font-bold text-muted-foreground tracking-widest mb-1 flex items-center gap-1"><MapPin size={12} /> Base Location</p>
-              <p className="text-sm font-semibold text-foreground truncate">{fmcsaData.phyCity}, {fmcsaData.phyState}</p>
-              <p className="text-xs text-muted-foreground truncate">{fmcsaData.phyStreet || 'Address N/A'}</p>
-            </div>
-
-            <div className="p-4 rounded-xl border border-border bg-muted/20">
-              <p className="text-[10px] uppercase font-bold text-muted-foreground tracking-widest mb-1 flex items-center gap-1"><ShieldAlert size={12} /> Safety & OOS</p>
-              <div className="flex flex-col gap-0.5 mt-1">
-                <div className="flex justify-between text-xs">
-                  <span className="text-muted-foreground">Vehicle OOS:</span>
-                  <span className={`font-mono font-bold ${(fmcsaData.vehicleOosRate || 0) > parseFloat(String(fmcsaData.vehicleOosRateNationalAverage || 0)) ? 'text-red-500' : 'text-green-500'}`}>{fmcsaData.vehicleOosRate || 0}%</span>
+            <div className="p-6 border-b border-border/50 bg-muted/30 flex items-center justify-between">
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 rounded-2xl bg-primary/10 flex items-center justify-center text-primary shadow-inner">
+                  <ShieldCheck size={22} />
                 </div>
-                <div className="flex justify-between text-xs">
-                  <span className="text-muted-foreground">Driver OOS:</span>
-                  <span className={`font-mono font-bold ${(fmcsaData.driverOosRate || 0) > parseFloat(String(fmcsaData.driverOosRateNationalAverage || 0)) ? 'text-red-500' : 'text-green-500'}`}>{fmcsaData.driverOosRate || 0}%</span>
+                <div>
+                  <h4 className="text-sm font-black uppercase tracking-[0.2em] text-foreground">Identity Verification</h4>
+                  <p className="text-[10px] font-bold text-muted-foreground uppercase opacity-70">Carrier Registry Source-of-Truth</p>
                 </div>
               </div>
+              <div className="px-4 py-1.5 bg-primary text-primary-foreground rounded-full shadow-lg shadow-primary/20">
+                <p className="text-[10px] font-black uppercase tracking-widest leading-none">Official Registry Active</p>
+              </div>
             </div>
 
-            <div className="p-4 rounded-xl border border-border bg-muted/20">
-              <p className="text-[10px] uppercase font-bold text-muted-foreground tracking-widest mb-1">Status</p>
-              <div className="flex items-center gap-2 mt-2">
-                <div className={`w-2 h-2 rounded-full ${computedStatus?.status === 'approved' ? 'bg-green-500 animate-pulse' : computedStatus?.status === 'pending' ? 'bg-yellow-500 animate-pulse' : 'bg-red-500'}`} />
-                <span className={`font-bold text-sm leading-tight ${computedStatus?.status === 'approved' ? 'text-green-600 dark:text-green-400' : computedStatus?.status === 'pending' ? 'text-yellow-600 dark:text-yellow-400' : 'text-red-600 dark:text-red-400'}`}>
-                  {computedStatus?.message || 'Authorized to Operate'}
-                </span>
+            <div className="p-8 sm:p-12 flex flex-col items-center gap-8">
+              {/* Top Section: User Input */}
+              <div className="w-full max-w-lg space-y-3">
+                <div className="flex items-center justify-center gap-2">
+                  <span className="h-px flex-1 bg-border/50" />
+                  <p className="text-[10px] uppercase font-bold text-muted-foreground tracking-widest px-4">Your Entry</p>
+                  <span className="h-px flex-1 bg-border/50" />
+                </div>
+                <div className="p-8 bg-background/50 border-2 border-dashed border-border rounded-[32px] text-center transition-all group hover:bg-background/80">
+                  <p className="text-2xl font-bold text-foreground/40 leading-tight tracking-tight italic select-none">
+                    "{formData.name || 'Anonymous Carrier'}"
+                  </p>
+                </div>
+              </div>
+
+              {/* Vertical Transition Arrow */}
+              <div className="relative group">
+                <div className="absolute inset-0 rounded-full bg-primary/20 blur-xl animate-pulse group-hover:bg-primary/40 transition-all" />
+                <div className="w-16 h-16 rounded-full bg-card border-4 border-muted shadow-2xl flex items-center justify-center text-primary relative z-10 hover:scale-110 transition-transform cursor-default">
+                  <ArrowRight className="rotate-90" size={32} strokeWidth={3} />
+                </div>
+              </div>
+
+              {/* Bottom Section: FMCSA Payload */}
+              <div className="w-full max-w-2xl space-y-4">
+                <div className="flex items-center justify-center gap-2">
+                  <span className="h-px flex-1 bg-primary/20" />
+                  <p className="text-[10px] uppercase font-bold text-primary tracking-widest px-4 flex items-center gap-2">
+                    <span className="w-2 h-2 rounded-full bg-primary animate-ping" />
+                    FMCSA Verified Data
+                  </p>
+                  <span className="h-px flex-1 bg-primary/20" />
+                </div>
+
+                <div className="bg-card border border-border shadow-2xl rounded-[40px] overflow-hidden relative group transition-all hover:border-primary/30">
+                  <div className="absolute top-0 left-0 w-full h-1.5 bg-gradient-to-r from-primary via-indigo-500 to-primary/50" />
+
+                  <div className="p-8 sm:p-10 space-y-8">
+                    {/* Main Identity */}
+                    <div className="flex flex-col sm:flex-row justify-between items-start gap-4 border-b border-border/50 pb-8">
+                      <div>
+                        <p className="text-[10px] font-black uppercase tracking-widest text-primary mb-1">Legal Entity Name</p>
+                        <h2 className="text-3xl font-black text-foreground tracking-tighter leading-none">{fmcsaData.legalName}</h2>
+                        {fmcsaData.dbaName && (
+                          <p className="text-sm font-bold text-muted-foreground mt-2 italic flex items-center gap-1.5">
+                            <Info size={14} className="opacity-50" />
+                            DBA: {fmcsaData.dbaName}
+                          </p>
+                        )}
+                      </div>
+                      <div className="flex flex-col items-end gap-2">
+                        <div className={`px-4 py-2 rounded-xl text-xs font-black uppercase tracking-widest flex items-center gap-2 ${computedStatus?.status === 'approved' ? 'bg-green-500/10 text-green-600 border border-green-500/20' : 'bg-red-500/10 text-red-600 border border-red-500/20'}`}>
+                          <ShieldCheck size={16} />
+                          {computedStatus?.message}
+                        </div>
+                        <div className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest bg-muted px-2 py-1 rounded-md">
+                          {fmcsaData.carrierOperation?.carrierOperationDesc || 'Standard Carrier'}
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Meta Grid */}
+                    <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
+                      <div className="space-y-1">
+                        <p className="text-[10px] font-black text-muted-foreground uppercase opacity-50 tracking-widest">USDOT Number</p>
+                        <p className="font-mono text-lg font-black text-foreground">{fmcsaData.dotNumber}</p>
+                      </div>
+                      <div className="space-y-1">
+                        <p className="text-[10px] font-black text-muted-foreground uppercase opacity-50 tracking-widest">MC Number</p>
+                        <p className="font-mono text-lg font-black text-foreground">{fmcsaData.mcNumber || 'N/A'}</p>
+                      </div>
+                      <div className="space-y-1">
+                        <p className="text-[10px] font-black text-muted-foreground uppercase opacity-50 tracking-widest">Power Units</p>
+                        <p className="text-lg font-black text-foreground">{fmcsaData.totalPowerUnits || '0'}</p>
+                      </div>
+                      <div className="space-y-1">
+                        <p className="text-[10px] font-black text-muted-foreground uppercase opacity-50 tracking-widest">Total Drivers</p>
+                        <p className="text-lg font-black text-foreground">{fmcsaData.totalDrivers || '0'}</p>
+                      </div>
+                    </div>
+
+                    {/* Detailed Triage */}
+                    <div className="grid grid-cols-1 gap-4">
+                      <div className="p-5 bg-muted/20 border border-border/50 rounded-[24px] flex flex-col gap-4">
+                        <div className="flex items-center gap-2 text-xs font-bold text-muted-foreground uppercase tracking-widest">
+                          <MapPin size={16} className="text-primary" />
+                          Physical Presence
+                        </div>
+                        <div className="text-sm font-semibold text-foreground/80 leading-relaxed">
+                          <p className="text-foreground font-black">{fmcsaData.phyStreet}</p>
+                          <p>{fmcsaData.phyCity}, {fmcsaData.phyState} {fmcsaData.phyZipcode}</p>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
               </div>
             </div>
           </div>
         </div>
 
-        <div className="flex flex-col sm:flex-row gap-3 pt-6 border-t border-border mt-2">
+        <div className="flex flex-col sm:flex-row gap-3 pt-6 border-t border-border mt-4">
           <Button
             type="button"
             variant="ghost"
             onClick={() => setIsConfirming(false)}
-            className="flex-1 font-bold uppercase tracking-widest text-[10px] py-6"
+            className="flex-1 font-bold uppercase tracking-widest text-[10px] py-6 rounded-2xl border-transparent hover:bg-muted"
           >
             <RotateCcw size={16} className="mr-2" />
-            Go Back & Edit
+            Restart Verification
           </Button>
           <Button
             type="button"
             isLoading={loading}
             onClick={handleFinalSubmit}
-            className="flex-[2] font-bold uppercase tracking-widest text-[10px] py-6 shadow-xl shadow-primary/20"
+            className="flex-[2] font-bold uppercase tracking-widest text-[10px] py-6 rounded-2xl shadow-2xl shadow-primary/30 transform hover:-translate-y-1 active:translate-y-0 transition-all"
           >
-            Confirm & Complete Registration
+            Authenticate & Complete Registration
           </Button>
         </div>
       </div>

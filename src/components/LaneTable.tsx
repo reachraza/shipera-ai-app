@@ -77,6 +77,13 @@ export default function LaneTable({ lanes }: { lanes: RFPLane[] }) {
               </td>
             </tr>
           ))}
+          {paginatedLanes.length > 0 && paginatedLanes.length < ITEMS_PER_PAGE && (
+            Array.from({ length: ITEMS_PER_PAGE - paginatedLanes.length }).map((_, i) => (
+              <tr key={`empty-${i}`} className="h-[73px] bg-transparent">
+                <td colSpan={4}></td>
+              </tr>
+            ))
+          )}
         </tbody>
       </table>
       <Pagination

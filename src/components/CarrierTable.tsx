@@ -21,18 +21,21 @@ import {
 import { Button } from '@/components/ui/Button';
 import Pagination from '@/components/ui/Pagination';
 
+import DeleteConfirmationModal from '@/components/ui/DeleteConfirmationModal';
+
 const ITEMS_PER_PAGE = 10;
 
 interface CarrierTableProps {
   onEdit: (carrier: Carrier) => void;
   onView: (carrier: Carrier) => void;
   onRefresh: () => void;
+  onDelete?: (carrier: Carrier) => void;
   searchQuery?: string;
   statusFilter?: string;
   refreshKey?: number;
 }
 
-export default function CarrierTable({ onEdit, onView, onRefresh, searchQuery = '', statusFilter = 'all', refreshKey = 0 }: CarrierTableProps) {
+export default function CarrierTable({ onEdit, onView, onRefresh, onDelete, searchQuery = '', statusFilter = 'all', refreshKey = 0 }: CarrierTableProps) {
 
   const { orgId, role, loading: authLoading } = useAuth();
   const [carriers, setCarriers] = useState<Carrier[]>([]);
@@ -67,14 +70,9 @@ export default function CarrierTable({ onEdit, onView, onRefresh, searchQuery = 
     }
   }
 
-  async function handleDelete(carrier: Carrier) {
-    if (!confirm(`Are you sure you want to remove "${carrier.name}"?`)) return;
-    try {
-      await softDeleteCarrier(carrier.id);
-      onRefresh();
-      loadCarriers();
-    } catch (err) {
-      console.error('Error deleting carrier:', err);
+  function handleDeleteClick(carrier: Carrier) {
+    if (onDelete) {
+      onDelete(carrier);
     }
   }
 
@@ -177,6 +175,7 @@ export default function CarrierTable({ onEdit, onView, onRefresh, searchQuery = 
                         DOT {carrier.dot_number}
                       </span>
                     )}
+
                   </div>
                 </td>
                 <td className="px-6 py-5">
@@ -223,7 +222,7 @@ export default function CarrierTable({ onEdit, onView, onRefresh, searchQuery = 
                       <Button
                         variant="ghost"
                         size="icon"
-                        onClick={() => handleDelete(carrier)}
+                        onClick={() => handleDeleteClick(carrier)}
                         className="h-10 w-10 bg-card hover:bg-red-500 hover:text-white border-border rounded-xl"
                         title="Delete"
                       >
