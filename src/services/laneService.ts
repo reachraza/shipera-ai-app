@@ -23,6 +23,8 @@ export async function createLanes(rfpId: string, lanes: RFPLaneCSVRow[]): Promis
     destination_state: lane.destination_state,
     equipment_type: lane.equipment_type,
     frequency: lane.frequency || null,
+    total_hours: lane.total_hours || null,
+    total_time: lane.total_time || null,
   }));
 
   const { data, error } = await supabase

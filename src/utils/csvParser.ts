@@ -63,6 +63,8 @@ export function parseCSV(csvText: string): CSVParseResult {
       destination_state: row.destination_state,
       equipment_type: row.equipment_type,
       frequency: row.frequency || undefined,
+      total_hours: row.total_hours || undefined,
+      total_time: row.total_time || undefined,
     });
   }
 

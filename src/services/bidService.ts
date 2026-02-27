@@ -127,3 +127,75 @@ export async function getBidsForRFP(rfpId: string): Promise<Bid[]> {
     // It returns all bids, but if the lane.rfp_id doesn't match, `lane` is null
     return (data || []).filter((bid) => bid.lane !== null) as unknown as Bid[];
 }
+
+/**
+ * Accepts a specific bid and rejects all other bids for that same lane.
+ */
+export async function acceptBid(bidId: string, laneId: string): Promise<boolean> {
+    const supabase = createClient();
+
+    // 1. Mark the selected bid as 'accepted'
+    const { error: acceptError } = await supabase
+        .from('bids')
+        .update({ status: 'accepted' })
+        .eq('id', bidId);
+
+    if (acceptError) throw new Error(`Failed to accept bid: ${acceptError.message}`);
+
+    // 2. Mark all other bids for the SAME LANE as 'rejected'
+    const { error: rejectError } = await supabase
+        .from('bids')
+        .update({ status: 'rejected' })
+        .eq('rfp_lane_id', laneId)
+        .neq('id', bidId);
+
+    if (rejectError) {
+        console.error('Error rejecting other bids:', rejectError);
+    }
+
+    return true;
+}
+
+/**
+ * Accepts ALL bids from a carrier for a specific RFP and rejects competitors for those lanes.
+ */
+export async function acceptAllCarrierBids(rfpId: string, carrierId: string): Promise<boolean> {
+    const supabase = createClient();
+
+    // 1. Fetch all bids from this carrier for this RFP to identify the lanes
+    const { data: carrierBids, error: fetchError } = await supabase
+        .from('bids')
+        .select('id, rfp_lane_id, lane:rfp_lanes!inner(rfp_id)')
+        .eq('carrier_id', carrierId)
+        .eq('lane.rfp_id', rfpId);
+
+    if (fetchError || !carrierBids) {
+        throw new Error(`Failed to fetch carrier bids: ${fetchError?.message}`);
+    }
+
+    if (carrierBids.length === 0) return true;
+
+    const bidIds = carrierBids.map(b => b.id);
+    const laneIds = carrierBids.map(b => b.rfp_lane_id);
+
+    // 2. Mark all of this carrier's bids as 'accepted'
+    const { error: acceptError } = await supabase
+        .from('bids')
+        .update({ status: 'accepted' })
+        .in('id', bidIds);
+
+    if (acceptError) throw new Error(`Failed to accept bids: ${acceptError.message}`);
+
+    // 3. Mark all OTHER bids for these lanes as 'rejected'
+    const { error: rejectError } = await supabase
+        .from('bids')
+        .update({ status: 'rejected' })
+        .in('rfp_lane_id', laneIds)
+        .neq('carrier_id', carrierId);
+
+    if (rejectError) {
+        console.error('Error rejecting competitor bids:', rejectError);
+    }
+
+    return true;
+}

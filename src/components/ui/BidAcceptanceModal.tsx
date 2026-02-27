@@ -2,26 +2,28 @@
 
 import React, { useEffect, useState } from 'react';
 import { createPortal } from 'react-dom';
-import { X, AlertTriangle, Loader2 } from 'lucide-react';
+import { X, CheckCircle2, Loader2 } from 'lucide-react';
 import { Button } from '@/components/ui/Button';
 
-interface DeleteConfirmationModalProps {
+interface BidAcceptanceModalProps {
     isOpen: boolean;
     onClose: () => void;
     onConfirm: () => void;
     title: string;
     message: string;
     isLoading?: boolean;
+    confirmText?: string;
 }
 
-export default function DeleteConfirmationModal({
+export default function BidAcceptanceModal({
     isOpen,
     onClose,
     onConfirm,
     title,
     message,
-    isLoading = false
-}: DeleteConfirmationModalProps) {
+    isLoading = false,
+    confirmText = "Confirm Acceptance"
+}: BidAcceptanceModalProps) {
     const [mounted, setMounted] = useState(false);
     useEffect(() => setMounted(true), []);
 
@@ -29,12 +31,12 @@ export default function DeleteConfirmationModal({
 
     return createPortal(
         <div className="fixed inset-0 z-[10000] w-screen h-screen flex items-center justify-center p-4 bg-background/80 backdrop-blur-md animate-in fade-in duration-300">
-            <div className="relative w-full max-w-md bg-card/95 border border-red-500/20 shadow-2xl shadow-red-500/10 rounded-[32px] overflow-hidden animate-in zoom-in-95 duration-300">
+            <div className="relative w-full max-w-md bg-card/95 border border-green-500/20 shadow-2xl shadow-green-500/10 rounded-[32px] overflow-hidden animate-in zoom-in-95 duration-300 flex flex-col items-center text-center">
                 {/* Dramatic top border glow */}
-                <div className="absolute top-0 left-0 w-full h-1.5 bg-gradient-to-r from-red-600 via-red-500 to-orange-500" />
+                <div className="absolute top-0 left-0 w-full h-1.5 bg-gradient-to-r from-green-600 via-green-500 to-emerald-500" />
 
                 {/* Background ambient glow */}
-                <div className="absolute -top-24 -right-24 w-48 h-48 bg-red-500/10 rounded-full blur-3xl pointer-events-none" />
+                <div className="absolute -top-24 -right-24 w-48 h-48 bg-green-500/10 rounded-full blur-3xl pointer-events-none" />
 
                 <div className="p-8 sm:p-10 relative z-10 flex flex-col items-center text-center">
                     <button
@@ -46,9 +48,9 @@ export default function DeleteConfirmationModal({
 
                     <div className="mb-8">
                         <div className="relative group mx-auto">
-                            <div className="absolute inset-0 bg-red-500/20 rounded-2xl blur-xl animate-pulse group-hover:bg-red-500/30 transition-all" />
-                            <div className="relative h-16 w-16 rounded-2xl bg-red-500/10 flex items-center justify-center text-red-500 border border-red-500/20 shadow-inner group-hover:scale-110 transition-transform">
-                                <AlertTriangle size={32} strokeWidth={2.5} />
+                            <div className="absolute inset-0 bg-green-500/20 rounded-2xl blur-xl animate-pulse group-hover:bg-green-500/30 transition-all" />
+                            <div className="relative h-16 w-16 rounded-2xl bg-green-500/10 flex items-center justify-center text-green-500 border border-green-500/20 shadow-inner group-hover:scale-110 transition-transform">
+                                <CheckCircle2 size={32} strokeWidth={2.5} />
                             </div>
                         </div>
                     </div>
@@ -57,7 +59,7 @@ export default function DeleteConfirmationModal({
                         <h3 className="text-2xl sm:text-3xl font-black text-foreground tracking-tight leading-tight">
                             {title}
                         </h3>
-                        <div className="h-px w-12 bg-red-500/30 rounded-full" />
+                        <div className="h-px w-12 bg-green-500/30 rounded-full" />
                         <p className="text-muted-foreground font-medium text-sm leading-relaxed pt-2 max-w-xs mx-auto">
                             {message}
                         </p>
@@ -77,9 +79,9 @@ export default function DeleteConfirmationModal({
                             type="button"
                             onClick={onConfirm}
                             isLoading={isLoading}
-                            className="flex-1 font-black uppercase tracking-widest text-[10px] py-6 rounded-2xl bg-red-500 hover:bg-red-600 text-white shadow-xl shadow-red-500/25 hover:shadow-red-500/40 transform hover:-translate-y-1 active:translate-y-0 transition-all"
+                            className="flex-1 font-black uppercase tracking-widest text-[10px] py-6 rounded-2xl bg-green-500 hover:bg-green-600 text-white shadow-xl shadow-green-500/25 hover:shadow-green-500/40 transform hover:-translate-y-1 active:translate-y-0 transition-all"
                         >
-                            Confirm Delete
+                            {confirmText}
                         </Button>
                     </div>
                 </div>

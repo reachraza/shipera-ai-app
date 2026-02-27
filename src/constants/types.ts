@@ -103,6 +103,8 @@ export interface RFPLane {
   destination_state: string;
   equipment_type: string;
   frequency: string | null;
+  total_hours: string | null;
+  total_time: string | null;
   rfp?: RFP;
 }
 
@@ -113,6 +115,8 @@ export interface RFPLaneCSVRow {
   destination_state: string;
   equipment_type: string;
   frequency?: string;
+  total_hours?: string;
+  total_time?: string;
 }
 
 // ─── RFP Invite ──────────────────────────────────────────────
@@ -138,6 +142,7 @@ export interface Bid {
   rate: number;
   transit_time: string;
   notes: string;
+  status: 'pending' | 'accepted' | 'rejected';
   created_at: string;
   // Joined fields
   carrier?: Partial<Carrier>;

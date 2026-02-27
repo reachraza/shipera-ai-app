@@ -94,7 +94,16 @@ export async function POST(
             );
         }
 
-        // 2. Insert Bids using Service Role (Bypasses RLS)
+        // 2. Validate all bids are positive numbers
+        const allPositive = bids.every((bid: { rate: number }) => bid.rate > 0);
+        if (!allPositive) {
+            return NextResponse.json(
+                { error: 'All bid rates must be positive numbers' },
+                { status: 400 }
+            );
+        }
+
+        // 3. Insert Bids using Service Role (Bypasses RLS)
         const { error: bidsError } = await supabase
             .from('bids')
             .upsert(
