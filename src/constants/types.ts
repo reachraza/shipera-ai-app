@@ -21,6 +21,26 @@ export interface User {
 // ─── Carrier ─────────────────────────────────────────────────
 export type CarrierStatus = 'approved' | 'pending' | 'suspended';
 
+export interface CarrierFMCSA {
+  id: string;
+  carrier_id: string;
+  legal_name: string | null;
+  phone: string | null;
+  street: string | null;
+  city: string | null;
+  state: string | null;
+  zip: string | null;
+  common_authority: string | null;
+  contract_authority: string | null;
+  broker_authority: string | null;
+  vehicle_oos_rate: number | null;
+  driver_oos_rate: number | null;
+  allowed_to_operate: string | null;
+  raw_data: any;
+  last_verified_at: string;
+  created_at: string;
+}
+
 export interface Carrier {
   id: string;
   org_id: string;
@@ -34,16 +54,8 @@ export interface Carrier {
   status: CarrierStatus;
   is_deleted: boolean;
   created_at: string;
-  // FMCSA Extended Data
-  fmcsa_street?: string | null;
-  fmcsa_city?: string | null;
-  fmcsa_state?: string | null;
-  fmcsa_zip?: string | null;
-  common_authority?: string | null;
-  contract_authority?: string | null;
-  broker_authority?: string | null;
-  vehicle_oos_rate?: number | null;
-  driver_oos_rate?: number | null;
+  // Join related data
+  fmcsa_data?: CarrierFMCSA | null;
 }
 
 export interface CarrierFormData {
@@ -55,16 +67,8 @@ export interface CarrierFormData {
   phone: string;
   insurance_expiration: string | null;
   status: CarrierStatus;
-  // FMCSA Extended Data
-  fmcsa_street?: string | null;
-  fmcsa_city?: string | null;
-  fmcsa_state?: string | null;
-  fmcsa_zip?: string | null;
-  common_authority?: string | null;
-  contract_authority?: string | null;
-  broker_authority?: string | null;
-  vehicle_oos_rate?: number | null;
-  driver_oos_rate?: number | null;
+  // FMCSA data is handled separately during registration/update
+  fmcsa_data?: Partial<CarrierFMCSA> | null;
 }
 
 // ─── RFP ─────────────────────────────────────────────────────

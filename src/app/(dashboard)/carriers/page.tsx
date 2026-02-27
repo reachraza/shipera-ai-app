@@ -1,49 +1,56 @@
 'use client';
 
 import React, { useState } from 'react';
+import { useRouter } from 'next/navigation';
 import { Truck, Plus, Search, Filter } from 'lucide-react';
 import CarrierTable from '@/components/CarrierTable';
-import CarrierForm from '@/components/CarrierForm';
 import CarrierViewModal from '@/components/CarrierViewModal';
 import { Carrier } from '@/constants/types';
 import { useAuthContext } from '@/context/AuthProvider';
 import { Button } from '@/components/ui/Button';
 import { Input } from '@/components/ui/Input';
+import { softDeleteCarrier } from '@/services/carrierService';
+import DeleteConfirmationModal from '@/components/ui/DeleteConfirmationModal';
 
 export default function CarriersPage() {
-  const [showForm, setShowForm] = useState(false);
-  const [editingCarrier, setEditingCarrier] = useState<Carrier | null>(null);
+  const router = useRouter();
   const [viewingCarrier, setViewingCarrier] = useState<Carrier | null>(null);
   const [refreshKey, setRefreshKey] = useState(0);
   const [searchQuery, setSearchQuery] = useState('');
   const [statusFilter, setStatusFilter] = useState<string>('all');
+  const [carrierToDelete, setCarrierToDelete] = useState<Carrier | null>(null);
+  const [isDeleting, setIsDeleting] = useState(false);
 
 
   const { role } = useAuthContext();
 
   function handleAdd() {
-    setEditingCarrier(null);
-    setShowForm(true);
+    router.push('/carriers/new');
   }
 
   function handleEdit(carrier: Carrier) {
-    setEditingCarrier(carrier);
-    setShowForm(true);
+    router.push(`/carriers/${carrier.id}/edit`);
   }
 
   function handleView(carrier: Carrier) {
     setViewingCarrier(carrier);
   }
 
-  function handleSaved() {
-    setShowForm(false);
-    setEditingCarrier(null);
-    setRefreshKey((prev: number) => prev + 1);
-  }
-
-  function handleCancel() {
-    setShowForm(false);
-    setEditingCarrier(null);
+  async function handleDeleteConfirm() {
+    if (!carrierToDelete) return;
+    setIsDeleting(true);
+    try {
+      await softDeleteCarrier(carrierToDelete.id);
+      setRefreshKey((prev: number) => prev + 1);
+      setCarrierToDelete(null);
+      if (viewingCarrier?.id === carrierToDelete.id) {
+        setViewingCarrier(null);
+      }
+    } catch (err) {
+      console.error('Error deleting carrier:', err);
+    } finally {
+      setIsDeleting(false);
+    }
   }
 
   return (
@@ -93,30 +100,14 @@ export default function CarriersPage() {
           </select>
           <Filter size={18} className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground pointer-events-none" />
         </div>
-
       </div>
-
-      {showForm && (
-        <div className="animate-in slide-in-from-top-4 fade-in duration-300">
-          <div className="glass-panel p-6 sm:p-8 rounded-2xl relative overflow-hidden">
-            <div className="absolute top-0 left-0 w-1 h-full bg-primary" />
-            <h2 className="text-xl font-bold text-foreground mb-6">
-              {editingCarrier ? 'Edit Carrier Profile' : 'Register New Carrier'}
-            </h2>
-            <CarrierForm
-              carrier={editingCarrier}
-              onSaved={handleSaved}
-              onCancel={handleCancel}
-            />
-          </div>
-        </div>
-      )}
 
       <div className="glass-panel rounded-2xl overflow-hidden shadow-sm">
         <CarrierTable
           onEdit={handleEdit}
           onView={handleView}
           onRefresh={() => setRefreshKey((prev: number) => prev + 1)}
+          onDelete={setCarrierToDelete}
           searchQuery={searchQuery}
           statusFilter={statusFilter}
           refreshKey={refreshKey}
@@ -127,9 +118,19 @@ export default function CarriersPage() {
         <CarrierViewModal
           carrier={viewingCarrier}
           onClose={() => setViewingCarrier(null)}
+          onDelete={setCarrierToDelete}
+          onEdit={handleEdit}
         />
       )}
 
+      <DeleteConfirmationModal
+        isOpen={!!carrierToDelete}
+        onClose={() => setCarrierToDelete(null)}
+        onConfirm={handleDeleteConfirm}
+        isLoading={isDeleting}
+        title="Remove Carrier"
+        message={`Are you sure you want to remove "${carrierToDelete?.name}" from your network? This action can be reversed by an administrator, and FMCSA registry data will remain preserved.`}
+      />
     </div>
   );
 }

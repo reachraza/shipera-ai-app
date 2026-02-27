@@ -21,6 +21,9 @@ export interface FMCSACarrier {
     vehicleOosRateNationalAverage?: string | number;
     driverOosRate?: number;
     driverOosRateNationalAverage?: string | number;
+    dbaName?: string;
+    totalPowerUnits?: string | number;
+    totalDrivers?: string | number;
     carrierOperation?: {
         carrierOperationCode?: string;
         carrierOperationDesc?: string;
