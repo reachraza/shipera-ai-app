@@ -5,6 +5,8 @@ import { useAuth } from '@/hooks/useAuth';
 import { Carrier, RFPInvite } from '@/constants/types';
 import { getCarriers } from '@/services/carrierService';
 import { createInvites } from '@/services/inviteService';
+import { sendInviteEmails, InviteEmailPayload } from '@/services/emailService';
+import { getRFP } from '@/services/rfpService';
 import { Button } from '@/components/ui/Button';
 import CarrierDetailsModal from '@/components/CarrierDetailsModal';
 import { Eye } from 'lucide-react';
@@ -61,7 +63,33 @@ export default function CarrierSelect({ rfpId, existingInvites, onInvited }: Car
     setSubmitting(true);
 
     try {
-      await createInvites(rfpId, Array.from(selectedIds));
+      const newInvites = await createInvites(rfpId, Array.from(selectedIds));
+
+      // Send invitation emails to carriers with email addresses
+      try {
+        const rfpData = await getRFP(rfpId);
+        const origin = typeof window !== 'undefined' ? window.location.origin : '';
+
+        const emailPayloads: InviteEmailPayload[] = newInvites
+          .filter(inv => inv.carrier?.email && inv.access_token)
+          .map(inv => ({
+            carrierEmail: inv.carrier!.email,
+            carrierName: inv.carrier!.name,
+            rfpTitle: rfpData.title,
+            biddingUrl: `${origin}/bid/${inv.access_token}`,
+          }));
+
+        if (emailPayloads.length > 0) {
+          const emailResult = await sendInviteEmails(emailPayloads);
+          if (!emailResult.success) {
+            console.warn('Some invite emails failed:', emailResult.errors);
+          }
+        }
+      } catch (emailErr) {
+        // Email send failure should not block the invite creation
+        console.error('Failed to send invite emails (invites still created):', emailErr);
+      }
+
       setSelectedIds(new Set());
       onInvited();
       // Reload to remove newly invited carriers from the available list
