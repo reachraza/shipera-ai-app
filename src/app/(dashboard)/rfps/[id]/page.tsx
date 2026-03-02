@@ -126,6 +126,7 @@ export default function RFPDetailPage() {
   }
 
   const statusInfo = RFP_STATUSES.find((s) => s.value === rfp.status);
+  const isLocked = rfp.status === 'awarded';
 
   return (
     <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-700">
@@ -180,7 +181,7 @@ export default function RFPDetailPage() {
               {statusInfo?.label || rfp.status}
             </span>
 
-            {rfp.status === 'draft' && (
+            {!isLocked && rfp.status === 'draft' && (
               <button
                 onClick={() => handleStatusChange('active')}
                 className="text-xs font-bold text-primary hover:text-primary-hover border border-primary/20 hover:border-primary/50 bg-primary/5 hover:bg-primary/10 px-3 py-1.5 rounded-lg transition-all"
@@ -188,7 +189,7 @@ export default function RFPDetailPage() {
                 Publish RFP
               </button>
             )}
-            {rfp.status === 'active' && (
+            {!isLocked && rfp.status === 'active' && (
               <button
                 onClick={() => handleStatusChange('closed')}
                 className="text-xs font-bold text-red-500 hover:text-red-600 border border-red-500/20 hover:border-red-500/50 bg-red-500/5 hover:bg-red-500/10 px-3 py-1.5 rounded-lg transition-all"
@@ -196,7 +197,7 @@ export default function RFPDetailPage() {
                 Close Bidding
               </button>
             )}
-            {rfp.status === 'closed' && (
+            {!isLocked && rfp.status === 'closed' && (
               <button
                 onClick={() => handleStatusChange('active')}
                 className="text-xs font-bold text-muted-foreground hover:text-foreground border border-border hover:border-muted-foreground/50 bg-muted/50 hover:bg-muted px-3 py-1.5 rounded-lg transition-all"
@@ -221,10 +222,10 @@ export default function RFPDetailPage() {
             </span>
           </div>
           <div className="mb-8">
-            <CSVUpload rfpId={rfpId} onUploaded={loadData} />
+            <CSVUpload rfpId={rfpId} onUploaded={loadData} isLocked={isLocked} />
           </div>
           <div className="border border-border/50 rounded-2xl overflow-hidden shadow-2xl shadow-primary/5">
-            <LaneTable lanes={lanes} onDelete={handleDeleteClick} onBulkDelete={handleBulkDeleteClick} />
+            <LaneTable lanes={lanes} onDelete={handleDeleteClick} onBulkDelete={handleBulkDeleteClick} isLocked={isLocked} />
           </div>
         </div>
 
@@ -240,7 +241,7 @@ export default function RFPDetailPage() {
             </span>
           </div>
           <div className="mb-8">
-            <CarrierSelect rfpId={rfpId} existingInvites={invites} onInvited={loadData} />
+            <CarrierSelect rfpId={rfpId} existingInvites={invites} onInvited={loadData} isLocked={isLocked} />
           </div>
           <div className="border border-border/50 rounded-2xl overflow-hidden shadow-2xl shadow-accent/5">
             <InviteTable invites={invites} />
@@ -256,7 +257,7 @@ export default function RFPDetailPage() {
             Bids Received
           </h2>
         </div>
-        <BidList rfpId={rfpId} />
+        <BidList rfpId={rfpId} isLocked={isLocked} />
       </div>
 
       <DeleteConfirmationModal

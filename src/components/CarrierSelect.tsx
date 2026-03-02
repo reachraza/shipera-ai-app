@@ -15,9 +15,10 @@ interface CarrierSelectProps {
   rfpId: string;
   existingInvites: RFPInvite[];
   onInvited: () => void;
+  isLocked?: boolean;
 }
 
-export default function CarrierSelect({ rfpId, existingInvites, onInvited }: CarrierSelectProps) {
+export default function CarrierSelect({ rfpId, existingInvites, onInvited, isLocked }: CarrierSelectProps) {
   const { orgId } = useAuth();
   const [carriers, setCarriers] = useState<Carrier[]>([]);
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
@@ -48,6 +49,7 @@ export default function CarrierSelect({ rfpId, existingInvites, onInvited }: Car
   }
 
   function toggleCarrier(id: string) {
+    if (isLocked) return;
     const next = new Set(selectedIds);
     if (next.has(id)) {
       next.delete(id);
@@ -58,7 +60,7 @@ export default function CarrierSelect({ rfpId, existingInvites, onInvited }: Car
   }
 
   async function handleInvite() {
-    if (selectedIds.size === 0) return;
+    if (selectedIds.size === 0 || isLocked) return;
     setError('');
     setSubmitting(true);
 
@@ -122,7 +124,7 @@ export default function CarrierSelect({ rfpId, existingInvites, onInvited }: Car
         </div>
       )}
 
-      <div className="border border-border rounded-xl overflow-hidden bg-background">
+      <div className={`border border-border rounded-xl overflow-hidden bg-background ${isLocked ? 'opacity-60 grayscale-[0.5]' : ''}`}>
         <div className="max-h-60 overflow-y-auto p-2 space-y-1">
           {carriers.map((carrier) => {
             const isSelected = selectedIds.has(carrier.id);
@@ -131,18 +133,19 @@ export default function CarrierSelect({ rfpId, existingInvites, onInvited }: Car
                 key={carrier.id}
                 className={`flex items-center justify-between p-2 rounded-lg transition-all border group ${isSelected
                   ? 'bg-primary/5 border-primary shadow-sm'
-                  : 'border-transparent hover:bg-muted/80 hover:border-border/50'
+                  : isLocked ? 'border-transparent cursor-not-allowed' : 'border-transparent hover:bg-muted/80 hover:border-border/50 cursor-pointer'
                   }`}
               >
-                <label className="flex items-center gap-3 cursor-pointer flex-1 min-w-0 pr-4">
+                <label className={`flex items-center gap-3 flex-1 min-w-0 pr-4 ${isLocked ? 'cursor-not-allowed' : 'cursor-pointer'}`}>
                   <div className="relative flex items-center justify-center shrink-0">
                     <input
                       type="checkbox"
                       checked={isSelected}
                       onChange={() => toggleCarrier(carrier.id)}
                       className="peer sr-only"
+                      disabled={isLocked}
                     />
-                    <div className="w-5 h-5 rounded border-2 border-muted-foreground/30 bg-background peer-checked:bg-primary peer-checked:border-primary transition-all"></div>
+                    <div className={`w-5 h-5 rounded border-2 transition-all ${isLocked ? 'border-muted bg-muted' : 'border-muted-foreground/30 bg-background peer-checked:bg-primary peer-checked:border-primary'}`}></div>
                     <svg className="absolute w-3 h-3 text-primary-foreground opacity-0 peer-checked:opacity-100 transition-opacity pointer-events-none" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
                   </div>
 
@@ -178,14 +181,14 @@ export default function CarrierSelect({ rfpId, existingInvites, onInvited }: Car
 
       <div className="flex items-center justify-between mt-2 px-1">
         <span className="text-sm font-semibold text-foreground">
-          {selectedIds.size} carrier{selectedIds.size !== 1 ? 's' : ''} selected
+          {isLocked ? 'Selection disabled' : `${selectedIds.size} carrier${selectedIds.size !== 1 ? 's' : ''} selected`}
         </span>
         <Button
           onClick={handleInvite}
-          disabled={selectedIds.size === 0 || submitting}
+          disabled={selectedIds.size === 0 || submitting || isLocked}
           isLoading={submitting}
         >
-          {submitting ? 'Sending...' : 'Send Invites'}
+          {isLocked ? 'RFP Locked' : submitting ? 'Sending...' : 'Send Invites'}
         </Button>
       </div>
 

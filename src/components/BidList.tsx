@@ -10,9 +10,10 @@ const ITEMS_PER_PAGE = 10;
 
 interface BidListProps {
     rfpId: string;
+    isLocked?: boolean;
 }
 
-export default function BidList({ rfpId }: BidListProps) {
+export default function BidList({ rfpId, isLocked }: BidListProps) {
     const [bids, setBids] = useState<Bid[]>([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState('');
@@ -186,7 +187,7 @@ export default function BidList({ rfpId }: BidListProps) {
                                     </div>
                                 </div>
                                 <div className="flex items-center gap-4">
-                                    {!allAccepted && (
+                                    {!allAccepted && !isLocked && (
                                         <button
                                             onClick={(e) => {
                                                 e.stopPropagation();
@@ -267,7 +268,7 @@ export default function BidList({ rfpId }: BidListProps) {
                                                                     <div className="flex items-center gap-1.5 px-3 py-1.5 bg-rose-500/10 border border-rose-500/20 text-rose-500 text-[10px] font-black uppercase tracking-widest rounded-lg">
                                                                         <XCircle size={12} /> Rejected
                                                                     </div>
-                                                                ) : (
+                                                                ) : !isLocked ? (
                                                                     <button
                                                                         onClick={(e) => {
                                                                             e.stopPropagation();
@@ -278,7 +279,7 @@ export default function BidList({ rfpId }: BidListProps) {
                                                                     >
                                                                         {processingId === bid.id ? <Loader2 size={12} className="animate-spin" /> : 'Accept Bid'}
                                                                     </button>
-                                                                )}
+                                                                ) : null}
                                                             </div>
                                                         </td>
                                                     </tr>
