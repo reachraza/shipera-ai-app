@@ -9,10 +9,37 @@ const ITEMS_PER_PAGE = 10;
 interface LaneTableProps {
   lanes: RFPLane[];
   onDelete?: (laneId: string) => void;
+  onBulkDelete?: (laneIds: string[]) => void;
 }
 
-export default function LaneTable({ lanes, onDelete }: LaneTableProps) {
+export default function LaneTable({ lanes, onDelete, onBulkDelete }: LaneTableProps) {
   const [currentPage, setCurrentPage] = useState(1);
+  const [selected, setSelected] = useState<Set<string>>(new Set());
+
+  const handleSelectAll = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.checked) {
+      setSelected(new Set(lanes.map(l => l.id)));
+    } else {
+      setSelected(new Set());
+    }
+  };
+
+  const handleSelect = (id: string) => {
+    const newSelected = new Set(selected);
+    if (newSelected.has(id)) {
+      newSelected.delete(id);
+    } else {
+      newSelected.add(id);
+    }
+    setSelected(newSelected);
+  };
+
+  const handleBulkDelete = () => {
+    if (onBulkDelete) {
+      onBulkDelete(Array.from(selected));
+      setSelected(new Set());
+    }
+  };
 
   if (lanes.length === 0) {
     return (
@@ -33,11 +60,38 @@ export default function LaneTable({ lanes, onDelete }: LaneTableProps) {
   );
 
   return (
-    <div className="overflow-x-auto w-full">
+    <div className="overflow-x-auto w-full relative">
+      {selected.size > 0 && onBulkDelete && (
+        <div className="absolute top-0 left-0 w-full h-14 bg-card/95 backdrop-blur-md border-b border-border z-20 flex items-center justify-between px-6 animate-in slide-in-from-top-2 fade-in">
+          <span className="text-sm font-bold text-foreground">
+            {selected.size} {selected.size === 1 ? 'lane' : 'lanes'} selected
+          </span>
+          <Button
+            size="sm"
+            variant="destructive"
+            onClick={handleBulkDelete}
+            className="h-8 gap-2 font-black shadow-lg shadow-red-500/20"
+          >
+            <Trash2 size={14} />
+            Delete Selected
+          </Button>
+        </div>
+      )}
+
       <table className="w-full text-sm text-left">
         <thead>
           <tr className="bg-muted/30 border-b border-border">
-            <th className="px-6 py-5 font-black text-muted-foreground tracking-[0.1em] uppercase text-[10px]">Origin</th>
+            {onBulkDelete && (
+              <th className="px-6 py-5 w-14">
+                <input
+                  type="checkbox"
+                  className="rounded border-border/50 bg-card text-primary focus:ring-primary focus:ring-offset-background w-4 h-4 cursor-pointer"
+                  checked={lanes.length > 0 && selected.size === lanes.length}
+                  onChange={handleSelectAll}
+                />
+              </th>
+            )}
+            <th className={`${!onBulkDelete ? 'px-6' : 'px-2'} py-5 font-black text-muted-foreground tracking-[0.1em] uppercase text-[10px]`}>Origin</th>
             <th className="w-10 px-2 py-5"></th>
             <th className="px-6 py-5 font-black text-muted-foreground tracking-[0.1em] uppercase text-[10px]">Destination</th>
             <th className="px-6 py-5 font-black text-muted-foreground tracking-[0.1em] uppercase text-[10px]">Equipment</th>
@@ -48,7 +102,17 @@ export default function LaneTable({ lanes, onDelete }: LaneTableProps) {
         <tbody className="divide-y divide-border/50">
           {paginatedLanes.map((lane) => (
             <tr key={lane.id} className="hover:bg-muted/30 transition-colors group">
-              <td className="px-6 py-5">
+              {onBulkDelete && (
+                <td className="px-6 py-5">
+                  <input
+                    type="checkbox"
+                    className="rounded border-border/50 bg-card text-primary focus:ring-primary focus:ring-offset-background w-4 h-4 cursor-pointer"
+                    checked={selected.has(lane.id)}
+                    onChange={() => handleSelect(lane.id)}
+                  />
+                </td>
+              )}
+              <td className={`${!onBulkDelete ? 'px-6' : 'px-2'} py-5`}>
                 <div className="flex items-center gap-2.5">
                   <div className="w-8 h-8 rounded-xl bg-accent/10 flex items-center justify-center text-accent">
                     <MapPin size={16} />
@@ -101,7 +165,7 @@ export default function LaneTable({ lanes, onDelete }: LaneTableProps) {
           {paginatedLanes.length > 0 && paginatedLanes.length < ITEMS_PER_PAGE && (
             Array.from({ length: ITEMS_PER_PAGE - paginatedLanes.length }).map((_, i) => (
               <tr key={`empty-${i}`} className="h-[73px] bg-transparent">
-                <td colSpan={onDelete ? 6 : 5}></td>
+                <td colSpan={(onDelete ? 6 : 5) + (onBulkDelete ? 1 : 0)}></td>
               </tr>
             ))
           )}
