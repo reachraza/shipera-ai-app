@@ -9,16 +9,17 @@ import { sendInviteEmails, InviteEmailPayload } from '@/services/emailService';
 import { getRFP } from '@/services/rfpService';
 import { Button } from '@/components/ui/Button';
 import CarrierDetailsModal from '@/components/CarrierDetailsModal';
-import { Eye } from 'lucide-react';
+import { Eye, AlertCircle } from 'lucide-react';
 
 interface CarrierSelectProps {
   rfpId: string;
   existingInvites: RFPInvite[];
   onInvited: () => void;
   isLocked?: boolean;
+  rfpStatus?: string;
 }
 
-export default function CarrierSelect({ rfpId, existingInvites, onInvited, isLocked }: CarrierSelectProps) {
+export default function CarrierSelect({ rfpId, existingInvites, onInvited, isLocked, rfpStatus }: CarrierSelectProps) {
   const { orgId } = useAuth();
   const [carriers, setCarriers] = useState<Carrier[]>([]);
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
@@ -105,6 +106,21 @@ export default function CarrierSelect({ rfpId, existingInvites, onInvited, isLoc
 
   if (loading) {
     return <div className="text-sm text-primary font-medium flex items-center gap-2"><svg className="animate-spin h-4 w-4" viewBox="0 0 24 24"><circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" fill="none"></circle><path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>Loading available carriers...</div>;
+  }
+
+  // Guard: RFP must be published (active) before sending invites
+  if (rfpStatus === 'draft') {
+    return (
+      <div className="p-5 bg-amber-500/10 border border-amber-500/30 rounded-xl flex items-start gap-3">
+        <AlertCircle size={20} className="text-amber-500 shrink-0 mt-0.5" />
+        <div>
+          <p className="text-sm font-bold text-amber-600 dark:text-amber-400">Publish RFP First</p>
+          <p className="text-xs text-muted-foreground mt-1">
+            You must <span className="font-bold">Publish</span> this RFP before you can invite carriers. Finalize your freight lanes, then click <span className="font-bold">&quot;Publish RFP&quot;</span> above to open bidding.
+          </p>
+        </div>
+      </div>
+    );
   }
 
   if (carriers.length === 0) {

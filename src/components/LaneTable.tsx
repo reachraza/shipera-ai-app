@@ -11,9 +11,10 @@ interface LaneTableProps {
   onDelete?: (laneId: string) => void;
   onBulkDelete?: (laneIds: string[]) => void;
   isLocked?: boolean;
+  hasInvites?: boolean;
 }
 
-export default function LaneTable({ lanes, onDelete, onBulkDelete, isLocked }: LaneTableProps) {
+export default function LaneTable({ lanes, onDelete, onBulkDelete, isLocked, hasInvites }: LaneTableProps) {
   const [currentPage, setCurrentPage] = useState(1);
   const [selected, setSelected] = useState<Set<string>>(new Set());
 
@@ -62,7 +63,7 @@ export default function LaneTable({ lanes, onDelete, onBulkDelete, isLocked }: L
 
   return (
     <div className="overflow-x-auto w-full relative">
-      {selected.size > 0 && onBulkDelete && !isLocked && (
+      {selected.size > 0 && onBulkDelete && !isLocked && !hasInvites && (
         <div className="absolute top-0 left-0 w-full h-14 bg-card/95 backdrop-blur-md border-b border-border z-20 flex items-center justify-between px-6 animate-in slide-in-from-top-2 fade-in">
           <span className="text-sm font-bold text-foreground">
             {selected.size} {selected.size === 1 ? 'lane' : 'lanes'} selected
@@ -82,7 +83,7 @@ export default function LaneTable({ lanes, onDelete, onBulkDelete, isLocked }: L
       <table className="w-full text-sm text-left">
         <thead>
           <tr className="bg-muted/30 border-b border-border">
-            {onBulkDelete && !isLocked && (
+            {onBulkDelete && !isLocked && !hasInvites && (
               <th className="px-6 py-5 w-14">
                 <input
                   type="checkbox"
@@ -92,18 +93,18 @@ export default function LaneTable({ lanes, onDelete, onBulkDelete, isLocked }: L
                 />
               </th>
             )}
-            <th className={`${(!onBulkDelete || isLocked) ? 'px-6' : 'px-2'} py-5 font-black text-muted-foreground tracking-[0.1em] uppercase text-[10px]`}>Origin</th>
+            <th className={`${(!onBulkDelete || isLocked || hasInvites) ? 'px-6' : 'px-2'} py-5 font-black text-muted-foreground tracking-[0.1em] uppercase text-[10px]`}>Origin</th>
             <th className="w-10 px-2 py-5"></th>
             <th className="px-6 py-5 font-black text-muted-foreground tracking-[0.1em] uppercase text-[10px]">Destination</th>
             <th className="px-6 py-5 font-black text-muted-foreground tracking-[0.1em] uppercase text-[10px]">Equipment</th>
             <th className="px-6 py-5 font-black text-muted-foreground tracking-[0.1em] uppercase text-[10px]">Volume / Freq</th>
-            {onDelete && !isLocked && <th className="px-6 py-5 font-black text-muted-foreground tracking-[0.1em] uppercase text-[10px] text-right">Actions</th>}
+            {onDelete && !isLocked && !hasInvites && <th className="px-6 py-5 font-black text-muted-foreground tracking-[0.1em] uppercase text-[10px] text-right">Actions</th>}
           </tr>
         </thead>
         <tbody className="divide-y divide-border/50">
           {paginatedLanes.map((lane) => (
             <tr key={lane.id} className="hover:bg-muted/30 transition-colors group">
-              {onBulkDelete && !isLocked && (
+              {onBulkDelete && !isLocked && !hasInvites && (
                 <td className="px-6 py-5">
                   <input
                     type="checkbox"
@@ -113,7 +114,7 @@ export default function LaneTable({ lanes, onDelete, onBulkDelete, isLocked }: L
                   />
                 </td>
               )}
-              <td className={`${(!onBulkDelete || isLocked) ? 'px-6' : 'px-2'} py-5`}>
+              <td className={`${(!onBulkDelete || isLocked || hasInvites) ? 'px-6' : 'px-2'} py-5`}>
                 <div className="flex items-center gap-2.5">
                   <div className="w-8 h-8 rounded-xl bg-accent/10 flex items-center justify-center text-accent">
                     <MapPin size={16} />
@@ -148,7 +149,7 @@ export default function LaneTable({ lanes, onDelete, onBulkDelete, isLocked }: L
                   {lane.frequency || <span className="italic font-medium opacity-40">TBD</span>}
                 </div>
               </td>
-              {onDelete && !isLocked && (
+              {onDelete && !isLocked && !hasInvites && (
                 <td className="px-6 py-5 text-right">
                   <Button
                     variant="ghost"
@@ -166,7 +167,7 @@ export default function LaneTable({ lanes, onDelete, onBulkDelete, isLocked }: L
           {paginatedLanes.length > 0 && paginatedLanes.length < ITEMS_PER_PAGE && (
             Array.from({ length: ITEMS_PER_PAGE - paginatedLanes.length }).map((_, i) => (
               <tr key={`empty-${i}`} className="h-[73px] bg-transparent">
-                <td colSpan={(onDelete && !isLocked ? 6 : 5) + (onBulkDelete && !isLocked ? 1 : 0)}></td>
+                <td colSpan={(onDelete && !isLocked && !hasInvites ? 6 : 5) + (onBulkDelete && !isLocked && !hasInvites ? 1 : 0)}></td>
               </tr>
             ))
           )}

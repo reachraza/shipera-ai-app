@@ -9,9 +9,10 @@ interface CSVUploadProps {
   rfpId: string;
   onUploaded: () => void;
   isLocked?: boolean;
+  hasInvites?: boolean;
 }
 
-export default function CSVUpload({ rfpId, onUploaded, isLocked }: CSVUploadProps) {
+export default function CSVUpload({ rfpId, onUploaded, isLocked, hasInvites }: CSVUploadProps) {
   const [isDragging, setIsDragging] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -19,7 +20,7 @@ export default function CSVUpload({ rfpId, onUploaded, isLocked }: CSVUploadProp
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   function handleDragOver(e: React.DragEvent) {
-    if (isLocked) return;
+    if (isLocked || hasInvites) return;
     e.preventDefault();
     setIsDragging(true);
   }
@@ -29,7 +30,7 @@ export default function CSVUpload({ rfpId, onUploaded, isLocked }: CSVUploadProp
   }
 
   function handleDrop(e: React.DragEvent) {
-    if (isLocked) return;
+    if (isLocked || hasInvites) return;
     e.preventDefault();
     setIsDragging(false);
     const file = e.dataTransfer.files[0];
@@ -37,13 +38,13 @@ export default function CSVUpload({ rfpId, onUploaded, isLocked }: CSVUploadProp
   }
 
   function handleFileSelect(e: React.ChangeEvent<HTMLInputElement>) {
-    if (isLocked) return;
+    if (isLocked || hasInvites) return;
     const file = e.target.files?.[0];
     if (file) handleFile(file);
   }
 
   async function handleFile(file: File) {
-    if (isLocked) return;
+    if (isLocked || hasInvites) return;
     setError(null);
     setSuccess(null);
     setLoading(true);
@@ -95,10 +96,12 @@ export default function CSVUpload({ rfpId, onUploaded, isLocked }: CSVUploadProp
         onDragOver={handleDragOver}
         onDragLeave={handleDragLeave}
         onDrop={handleDrop}
-        onClick={() => !isLocked && fileInputRef.current?.click()}
+        onClick={() => !isLocked && !hasInvites && fileInputRef.current?.click()}
         className={`border-2 border-dashed rounded-2xl p-8 text-center transition-all duration-300 relative group ${isDragging
           ? 'border-primary bg-primary/5 scale-[1.02]'
-          : isLocked ? 'border-emerald-500/20 bg-emerald-500/5 cursor-not-allowed opacity-80' : 'border-border bg-muted/30 hover:bg-muted/50 hover:border-primary/50 cursor-pointer'
+          : isLocked ? 'border-emerald-500/20 bg-emerald-500/5 cursor-not-allowed opacity-80'
+            : hasInvites ? 'border-amber-500/20 bg-amber-500/5 cursor-not-allowed opacity-80'
+              : 'border-border bg-muted/30 hover:bg-muted/50 hover:border-primary/50 cursor-pointer'
           }`}
       >
         <input
@@ -107,13 +110,13 @@ export default function CSVUpload({ rfpId, onUploaded, isLocked }: CSVUploadProp
           onChange={handleFileSelect}
           accept=".csv, .xlsx, application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
           className="hidden"
-          disabled={loading || isLocked}
+          disabled={loading || isLocked || hasInvites}
         />
 
         <div className={`absolute inset-0 rounded-2xl bg-gradient-to-b from-transparent to-primary/5 transition-opacity ${isLocked ? 'opacity-0' : 'opacity-0 group-hover:opacity-100'}`} />
 
         <div className="relative z-10 flex flex-col items-center justify-center space-y-4">
-          <div className={`p-4 rounded-full transition-colors duration-300 ${isDragging ? 'bg-primary text-primary-foreground shadow-lg shadow-primary/25' : isLocked ? 'bg-muted text-muted-foreground' : 'bg-background border border-border text-primary shadow-sm group-hover:bg-primary/10'}`}>
+          <div className={`p-4 rounded-full transition-colors duration-300 ${isDragging ? 'bg-primary text-primary-foreground shadow-lg shadow-primary/25' : isLocked ? 'bg-muted text-muted-foreground' : hasInvites ? 'bg-amber-500/10 text-amber-500' : 'bg-background border border-border text-primary shadow-sm group-hover:bg-primary/10'}`}>
             {loading ? (
               <svg className="animate-spin h-8 w-8" viewBox="0 0 24 24"><circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" fill="none"></circle><path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>
             ) : isLocked ? (
@@ -125,8 +128,8 @@ export default function CSVUpload({ rfpId, onUploaded, isLocked }: CSVUploadProp
 
           <div>
             <div className="text-foreground font-bold text-lg mb-1 flex items-center justify-center gap-2">
-              {loading ? 'Processing File...' : isLocked ? 'RFP Awarded & Locked' : 'Click or Drag & Drop Network CSV or XLSX'}
-              {!isLocked && (
+              {loading ? 'Processing File...' : isLocked ? 'RFP Awarded & Locked' : hasInvites ? 'Lane Changes Locked' : 'Click or Drag & Drop Network CSV or XLSX'}
+              {!isLocked && !hasInvites && (
                 <div className="relative group/tooltip flex items-center justify-center">
                   <Info size={16} className="text-muted-foreground hover:text-primary cursor-help transition-colors" />
                   <div className="absolute top-full mt-2 left-1/2 -translate-x-1/2 sm:left-auto sm:right-0 sm:translate-x-0 w-64 p-4 bg-card text-card-foreground border border-border rounded-xl opacity-0 invisible group-hover/tooltip:opacity-100 group-hover/tooltip:visible transition-all shadow-2xl shadow-black/20 z-[99999] pointer-events-none text-left">
@@ -143,6 +146,7 @@ export default function CSVUpload({ rfpId, onUploaded, isLocked }: CSVUploadProp
               )}
             </div>
             {isLocked && <p className="text-sm text-muted-foreground font-medium">This tender is completed and no longer accepting cargo updates.</p>}
+            {hasInvites && !isLocked && <p className="text-sm text-amber-600 dark:text-amber-400 font-medium">Carriers have been invited. Lanes cannot be modified to ensure bid fairness.</p>}
           </div>
         </div>
       </div>

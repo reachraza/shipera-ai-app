@@ -230,14 +230,14 @@ export default function RFPDetailPage() {
             </span>
           </div>
           <div className="mb-8">
-            <CSVUpload rfpId={rfpId} onUploaded={loadData} isLocked={isLocked} />
+            <CSVUpload rfpId={rfpId} onUploaded={loadData} isLocked={isLocked} hasInvites={invites.length > 0} />
           </div>
           <div className={`border-2 rounded-2xl overflow-hidden shadow-2xl ${rfp.status === 'active' ? '!border-primary/20 shadow-primary/5' :
             rfp.status === 'awarded' ? '!border-emerald-500/20 shadow-emerald-500/5' :
               rfp.status === 'closed' ? '!border-red-500/20 shadow-red-500/5' :
                 'border-border/50 shadow-primary/5'
             }`}>
-            <LaneTable lanes={lanes} onDelete={handleDeleteClick} onBulkDelete={handleBulkDeleteClick} isLocked={isLocked} />
+            <LaneTable lanes={lanes} onDelete={handleDeleteClick} onBulkDelete={handleBulkDeleteClick} isLocked={isLocked} hasInvites={invites.length > 0} />
           </div>
         </div>
 
@@ -257,7 +257,7 @@ export default function RFPDetailPage() {
             </span>
           </div>
           <div className="mb-8">
-            <CarrierSelect rfpId={rfpId} existingInvites={invites} onInvited={loadData} isLocked={isLocked} />
+            <CarrierSelect rfpId={rfpId} existingInvites={invites} onInvited={loadData} isLocked={isLocked} rfpStatus={rfp.status} />
           </div>
           <div className={`border-2 rounded-2xl overflow-hidden shadow-2xl ${rfp.status === 'active' ? '!border-primary/20 shadow-primary/5' :
             rfp.status === 'awarded' ? '!border-emerald-500/20 shadow-emerald-500/5' :
