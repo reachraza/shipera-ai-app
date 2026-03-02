@@ -17,6 +17,7 @@ import {
     AlertCircle
 } from 'lucide-react';
 import { Button } from '@/components/ui/Button';
+import { ThemeToggle } from '@/components/ThemeToggle';
 
 export default function CarrierBiddingPage() {
     const params = useParams();
@@ -213,9 +214,14 @@ export default function CarrierBiddingPage() {
                         </div>
                     </div>
 
-                    <div className="flex flex-col items-center sm:items-end gap-0.5">
-                        <span className="text-[9px] font-black uppercase tracking-[0.2em] text-muted-foreground/40">Powered By</span>
-                        <h1 className="text-xl font-black text-transparent bg-clip-text bg-gradient-to-r from-white to-white/40 tracking-tighter italic">Shipera.AI</h1>
+                    <div className="flex flex-col items-center sm:items-end gap-2">
+                        <div className="flex flex-col items-center sm:items-end gap-0.5">
+                            <span className="text-[9px] font-black uppercase tracking-[0.2em] text-muted-foreground/40">Powered By</span>
+                            <h1 className="text-xl font-black text-transparent bg-clip-text bg-gradient-to-r from-muted-foreground to-muted-foreground/40 tracking-tighter italic">Shipera.AI</h1>
+                        </div>
+                        <div className="w-10 h-10 right-0 sm:relative rounded-xl border border-border/50 bg-card overflow-hidden">
+                            <ThemeToggle isSidebarOpen={false} />
+                        </div>
                     </div>
                 </header>
 
