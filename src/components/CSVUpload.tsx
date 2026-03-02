@@ -98,7 +98,7 @@ export default function CSVUpload({ rfpId, onUploaded, isLocked }: CSVUploadProp
         onClick={() => !isLocked && fileInputRef.current?.click()}
         className={`border-2 border-dashed rounded-2xl p-8 text-center transition-all duration-300 relative group ${isDragging
           ? 'border-primary bg-primary/5 scale-[1.02]'
-          : isLocked ? 'border-border bg-muted/10 cursor-not-allowed opacity-60' : 'border-border bg-muted/30 hover:bg-muted/50 hover:border-primary/50 cursor-pointer'
+          : isLocked ? 'border-emerald-500/20 bg-emerald-500/5 cursor-not-allowed opacity-80' : 'border-border bg-muted/30 hover:bg-muted/50 hover:border-primary/50 cursor-pointer'
           }`}
       >
         <input

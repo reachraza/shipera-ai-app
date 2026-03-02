@@ -139,10 +139,10 @@ export default function RFPDetailPage() {
       </button>
 
       {/* RFP Header */}
-      <div className={`glass-panel rounded-3xl p-8 sm:p-10 relative overflow-hidden border ${rfp.status === 'active' ? 'border-primary/40' :
-        rfp.status === 'awarded' ? 'border-emerald-500/40' :
-          rfp.status === 'closed' ? 'border-red-500/40' :
-            'border-border/50'
+      <div className={`glass-panel rounded-3xl p-8 sm:p-10 relative overflow-hidden border-2 ${rfp.status === 'active' ? '!border-green-500/60 shadow-xl shadow-green-500/5' :
+        rfp.status === 'awarded' ? '!border-emerald-500/60 shadow-xl shadow-emerald-500/5' :
+          rfp.status === 'closed' ? '!border-red-500/60 shadow-xl shadow-red-500/5' :
+            '!border-border/50'
         }`}>
         <div className="absolute top-0 right-0 w-64 h-64 bg-primary/5 rounded-bl-full pointer-events-none" />
         <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-6 relative z-10">
@@ -215,7 +215,11 @@ export default function RFPDetailPage() {
 
       <div className="grid grid-cols-1 xl:grid-cols-3 gap-8">
         {/* Lanes Section */}
-        <div className="glass-panel rounded-3xl p-8 sm:p-10 xl:col-span-2 flex flex-col border border-border/50">
+        <div className={`glass-panel rounded-3xl p-8 sm:p-10 xl:col-span-2 flex flex-col border-2 ${rfp.status === 'active' ? '!border-green-500/30' :
+          rfp.status === 'awarded' ? '!border-emerald-500/30' :
+            rfp.status === 'closed' ? '!border-red-500/30' :
+              'border-border/50'
+          }`}>
           <div className="mb-8 flex items-center justify-between">
             <h2 className="text-2xl font-black text-foreground flex items-center gap-3">
               <Layers size={24} className="text-primary" />
@@ -228,13 +232,21 @@ export default function RFPDetailPage() {
           <div className="mb-8">
             <CSVUpload rfpId={rfpId} onUploaded={loadData} isLocked={isLocked} />
           </div>
-          <div className="border border-border/50 rounded-2xl overflow-hidden shadow-2xl shadow-primary/5">
+          <div className={`border-2 rounded-2xl overflow-hidden shadow-2xl ${rfp.status === 'active' ? '!border-green-500/20 shadow-green-500/5' :
+            rfp.status === 'awarded' ? '!border-emerald-500/20 shadow-emerald-500/5' :
+              rfp.status === 'closed' ? '!border-red-500/20 shadow-red-500/5' :
+                'border-border/50 shadow-primary/5'
+            }`}>
             <LaneTable lanes={lanes} onDelete={handleDeleteClick} onBulkDelete={handleBulkDeleteClick} isLocked={isLocked} />
           </div>
         </div>
 
         {/* Carrier Invites Section */}
-        <div className="glass-panel rounded-3xl p-8 sm:p-10 flex flex-col border border-border/50">
+        <div className={`glass-panel rounded-3xl p-8 sm:p-10 flex flex-col border-2 ${rfp.status === 'active' ? '!border-green-500/30' :
+          rfp.status === 'awarded' ? '!border-emerald-500/30' :
+            rfp.status === 'closed' ? '!border-red-500/30' :
+              'border-border/50'
+          }`}>
           <div className="mb-8 flex items-center justify-between">
             <h2 className="text-2xl font-black text-foreground flex items-center gap-3">
               <UserPlus size={24} className="text-accent" />
@@ -247,14 +259,22 @@ export default function RFPDetailPage() {
           <div className="mb-8">
             <CarrierSelect rfpId={rfpId} existingInvites={invites} onInvited={loadData} isLocked={isLocked} />
           </div>
-          <div className="border border-border/50 rounded-2xl overflow-hidden shadow-2xl shadow-accent/5">
+          <div className={`border-2 rounded-2xl overflow-hidden shadow-2xl ${rfp.status === 'active' ? '!border-green-500/20 shadow-green-500/5' :
+            rfp.status === 'awarded' ? '!border-emerald-500/20 shadow-emerald-500/5' :
+              rfp.status === 'closed' ? '!border-red-500/20 shadow-red-500/5' :
+                'border-border/50 shadow-accent/5'
+            }`}>
             <InviteTable invites={invites} />
           </div>
         </div>
       </div>
 
       {/* Embedded Bids Viewer */}
-      <div className="glass-panel rounded-3xl p-8 sm:p-10 border border-border/50">
+      <div className={`glass-panel rounded-3xl p-8 sm:p-10 border-2 ${rfp.status === 'active' ? '!border-green-500/30' :
+        rfp.status === 'awarded' ? '!border-emerald-500/30' :
+          rfp.status === 'closed' ? '!border-red-500/30' :
+            'border-border/50'
+        }`}>
         <div className="mb-8 flex items-center justify-between">
           <h2 className="text-2xl font-black text-foreground flex items-center gap-3">
             <DollarSign size={24} className="text-green-500" />
