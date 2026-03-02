@@ -61,6 +61,13 @@ export default function CarrierBiddingPage() {
         if (token) loadBiddingContext();
     }, [token]);
 
+    // If the invite is already marked as submitted, show success state immediately
+    useEffect(() => {
+        if (invite?.status === 'submitted') {
+            setIsSuccess(true);
+        }
+    }, [invite]);
+
     const handleInputChange = (laneId: string, field: string, value: string) => {
         setBidsData(prev => ({
             ...prev,
@@ -150,15 +157,21 @@ export default function CarrierBiddingPage() {
 
     // Success State
     if (isSuccess) {
+        const alreadySubmitted = invite?.status === 'submitted';
+
         return (
             <div className="min-h-screen bg-[#0a0a0a] p-6 flex flex-col items-center justify-center">
                 <div className="max-w-md w-full glass-panel p-10 rounded-[2rem] text-center border-green-500/20 animate-in zoom-in-95 duration-700 relative overflow-hidden">
                     <div className="h-20 w-20 bg-green-500/10 text-green-500 rounded-2xl flex items-center justify-center mx-auto mb-6 shadow-xl shadow-green-500/10">
                         <CheckCircle2 size={40} />
                     </div>
-                    <h2 className="text-2xl font-black text-foreground mb-3 tracking-tighter">Bids Transmitted</h2>
+                    <h2 className="text-2xl font-black text-foreground mb-3 tracking-tighter">
+                        {alreadySubmitted ? 'Bids Already Submitted' : 'Bids Transmitted'}
+                    </h2>
                     <p className="text-base text-muted-foreground font-medium mb-8 leading-relaxed">
-                        Your strategic rates have been securely transmitted to the shipper.
+                        {alreadySubmitted
+                            ? 'You have already submitted your rates for this RFP. Thank you for participating!'
+                            : 'Your strategic rates have been securely transmitted to the shipper.'}
                     </p>
                     <Button
                         variant="outline"
@@ -212,8 +225,8 @@ export default function CarrierBiddingPage() {
                     <section className="glass-panel p-8 md:p-10 rounded-[1.5rem] border-white/5 relative overflow-hidden group animate-in fade-in slide-in-from-bottom-4 duration-700">
                         <div className="absolute top-0 right-0 w-[30%] h-full bg-gradient-to-l from-primary/5 to-transparent pointer-events-none" />
 
-                        <div className="relative z-10 flex flex-col lg:flex-row gap-8 lg:items-end justify-between">
-                            <div className="space-y-4 flex-1">
+                        <div className="relative z-10 flex flex-col gap-6">
+                            <div className="space-y-4 w-full">
                                 <div className="space-y-1">
                                     <h3 className="text-[10px] font-black text-primary uppercase tracking-[0.2em]">RFP Proposal</h3>
                                     <h1 className="text-3xl md:text-4xl font-black tracking-tighter leading-tight">{rfp?.title}</h1>
@@ -231,8 +244,8 @@ export default function CarrierBiddingPage() {
                             </div>
 
                             {rfp?.notes && (
-                                <div className="max-w-xs p-4 bg-white/5 border border-white/10 rounded-2xl relative backdrop-blur-xl">
-                                    <p className="text-[11px] leading-relaxed text-muted-foreground italic font-medium">
+                                <div className="w-full p-5 bg-white/5 border border-white/10 rounded-2xl relative backdrop-blur-xl">
+                                    <p className="text-sm leading-relaxed text-muted-foreground italic font-medium whitespace-pre-wrap">
                                         &quot;{rfp.notes}&quot;
                                     </p>
                                 </div>
