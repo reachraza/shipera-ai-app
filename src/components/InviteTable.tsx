@@ -44,10 +44,10 @@ export default function InviteTable({ invites }: { invites: RFPInvite[] }) {
       <table className="w-full text-sm text-left">
         <thead>
           <tr className="bg-muted/30 border-b border-border">
-            <th className="px-6 py-5 font-black text-muted-foreground tracking-[0.1em] uppercase text-[10px]">Carrier Partner</th>
-            <th className="px-6 py-5 font-black text-muted-foreground tracking-[0.1em] uppercase text-[10px]">Invite Status</th>
-            <th className="px-6 py-5 font-black text-muted-foreground tracking-[0.1em] uppercase text-[10px]">Sent On</th>
-            <th className="px-6 py-5 font-black text-muted-foreground tracking-[0.1em] uppercase text-[10px] text-right">Actions</th>
+            <th className="px-6 py-3 font-black text-muted-foreground tracking-[0.1em] uppercase text-[10px]">Carrier Partner</th>
+            <th className="px-6 py-3 font-black text-muted-foreground tracking-[0.1em] uppercase text-[10px]">Invite Status</th>
+            <th className="px-6 py-3 font-black text-muted-foreground tracking-[0.1em] uppercase text-[10px]">Sent On</th>
+            <th className="px-6 py-3 font-black text-muted-foreground tracking-[0.1em] uppercase text-[10px] text-right">Actions</th>
           </tr>
         </thead>
         <tbody className="divide-y divide-border/50">
@@ -64,7 +64,7 @@ export default function InviteTable({ invites }: { invites: RFPInvite[] }) {
             return (
               <tr key={invite.id} className="hover:bg-muted/30 transition-colors group">
                 <td
-                  className="px-6 py-5 cursor-pointer hover:bg-muted/40 transition-colors"
+                  className="px-6 py-3 cursor-pointer hover:bg-muted/40 transition-colors"
                   onClick={() => {
                     if (invite.carrier) {
                       setSelectedCarrier(invite.carrier as Carrier);
@@ -79,20 +79,20 @@ export default function InviteTable({ invites }: { invites: RFPInvite[] }) {
                     {invite.carrier?.email}
                   </div>
                 </td>
-                <td className="px-6 py-5">
+                <td className="px-6 py-3">
                   <span className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-[10px] font-black uppercase tracking-widest border ${statusColor}`}>
                     <StatusIcon size={12} />
                     {statusInfo?.label || invite.status}
                   </span>
                 </td>
-                <td className="px-6 py-5 text-muted-foreground font-bold text-xs">
+                <td className="px-6 py-3 text-muted-foreground font-bold text-xs">
                   <div className="flex items-center gap-2">
                     <Clock size={12} className="opacity-40" />
                     {new Date(invite.created_at).toLocaleDateString()}
                   </div>
                 </td>
-                <td className="px-6 py-5 text-right">
-                  <div className="flex items-center justify-end gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                <td className="px-6 py-3 text-right">
+                  <div className="flex items-center justify-end gap-2">
                     <Button
                       variant="outline"
                       size="sm"
