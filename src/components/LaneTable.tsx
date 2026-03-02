@@ -38,6 +38,7 @@ export default function LaneTable({ lanes, onDelete }: LaneTableProps) {
         <thead>
           <tr className="bg-muted/30 border-b border-border">
             <th className="px-6 py-5 font-black text-muted-foreground tracking-[0.1em] uppercase text-[10px]">Origin</th>
+            <th className="w-10 px-2 py-5"></th>
             <th className="px-6 py-5 font-black text-muted-foreground tracking-[0.1em] uppercase text-[10px]">Destination</th>
             <th className="px-6 py-5 font-black text-muted-foreground tracking-[0.1em] uppercase text-[10px]">Equipment</th>
             <th className="px-6 py-5 font-black text-muted-foreground tracking-[0.1em] uppercase text-[10px]">Volume / Freq</th>
@@ -57,17 +58,17 @@ export default function LaneTable({ lanes, onDelete }: LaneTableProps) {
                   </span>
                 </div>
               </td>
+              <td className="w-10 px-2 py-5 text-center">
+                <MoveRight size={18} className="text-muted-foreground/30 group-hover:text-primary transition-colors mx-auto" />
+              </td>
               <td className="px-6 py-5">
-                <div className="flex items-center gap-4">
-                  <MoveRight size={18} className="text-muted-foreground/30 group-hover:text-primary transition-colors" />
-                  <div className="flex items-center gap-2.5">
-                    <div className="w-8 h-8 rounded-xl bg-primary/10 flex items-center justify-center text-primary">
-                      <MapPin size={16} />
-                    </div>
-                    <span className="font-bold text-foreground">
-                      {lane.destination_city}, <span className="text-muted-foreground font-medium">{lane.destination_state}</span>
-                    </span>
+                <div className="flex items-center gap-2.5">
+                  <div className="w-8 h-8 rounded-xl bg-primary/10 flex items-center justify-center text-primary">
+                    <MapPin size={16} />
                   </div>
+                  <span className="font-bold text-foreground">
+                    {lane.destination_city}, <span className="text-muted-foreground font-medium">{lane.destination_state}</span>
+                  </span>
                 </div>
               </td>
               <td className="px-6 py-5">
@@ -100,7 +101,7 @@ export default function LaneTable({ lanes, onDelete }: LaneTableProps) {
           {paginatedLanes.length > 0 && paginatedLanes.length < ITEMS_PER_PAGE && (
             Array.from({ length: ITEMS_PER_PAGE - paginatedLanes.length }).map((_, i) => (
               <tr key={`empty-${i}`} className="h-[73px] bg-transparent">
-                <td colSpan={onDelete ? 5 : 4}></td>
+                <td colSpan={onDelete ? 6 : 5}></td>
               </tr>
             ))
           )}
@@ -113,6 +114,6 @@ export default function LaneTable({ lanes, onDelete }: LaneTableProps) {
         totalItems={lanes.length}
         itemsPerPage={ITEMS_PER_PAGE}
       />
-    </div>
+    </div >
   );
 }
