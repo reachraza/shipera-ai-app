@@ -41,14 +41,14 @@ export default function BidDetailsModal({ bid, onClose }: BidDetailsModalProps) 
             />
 
             {/* Modal */}
-            <div className="relative w-full max-w-2xl bg-[#0a0a0a] border border-white/10 rounded-[2.5rem] shadow-2xl overflow-hidden animate-in zoom-in-95 duration-300">
+            <div className="relative w-full max-w-2xl bg-card border border-border rounded-[2.5rem] shadow-2xl overflow-hidden animate-in zoom-in-95 duration-300">
 
                 {/* Header */}
-                <div className="relative p-8 border-b border-white/10">
+                <div className="relative p-8 border-b border-border">
                     <div className="absolute top-0 right-0 p-6">
                         <button
                             onClick={onClose}
-                            className="h-10 w-10 rounded-full bg-white/5 flex items-center justify-center hover:bg-white/10 transition-colors"
+                            className="h-10 w-10 rounded-full bg-muted/50 flex items-center justify-center hover:bg-muted transition-colors"
                         >
                             <X size={20} className="text-muted-foreground" />
                         </button>
@@ -75,10 +75,10 @@ export default function BidDetailsModal({ bid, onClose }: BidDetailsModalProps) 
                     <div className="space-y-4">
                         <div className="flex items-center gap-3">
                             <div className="h-2 w-8 bg-primary rounded-full" />
-                            <h3 className="text-sm font-black text-white/40 uppercase tracking-[0.2em]">Lane Operational Logistics</h3>
+                            <h3 className="text-sm font-black text-muted-foreground/60 uppercase tracking-[0.2em]">Lane Operational Logistics</h3>
                         </div>
 
-                        <div className="bg-white/5 border border-white/10 rounded-3xl p-6 flex items-center justify-between">
+                        <div className="bg-muted/30 border border-border/50 rounded-3xl p-6 flex items-center justify-between">
                             <div className="space-y-1.5 flex-1">
                                 <p className="text-[10px] font-black text-muted-foreground uppercase tracking-widest">Origin</p>
                                 <div className="flex items-center gap-2">
@@ -125,11 +125,11 @@ export default function BidDetailsModal({ bid, onClose }: BidDetailsModalProps) 
 
                     {/* Bidder Details (Notes) */}
                     <div className="space-y-4">
-                        <div className="flex items-center gap-2 px-1 text-muted-foreground/40">
+                        <div className="flex items-center gap-2 px-1 text-muted-foreground/60">
                             <FileText size={16} />
                             <span className="text-[10px] font-black uppercase tracking-widest">Bidder Specification Notes</span>
                         </div>
-                        <div className="bg-white/5 border border-white/10 rounded-[2rem] p-6">
+                        <div className="bg-muted/30 border border-border/50 rounded-[2rem] p-6">
                             <p className="text-sm font-medium leading-relaxed italic text-foreground/80">
                                 &quot;{bid.notes || 'No operational specifics provided for this lane.'}&quot;
                             </p>
@@ -141,7 +141,8 @@ export default function BidDetailsModal({ bid, onClose }: BidDetailsModalProps) 
                 <div className="p-8 pt-0 flex justify-end">
                     <Button
                         onClick={onClose}
-                        className="h-12 px-10 rounded-xl bg-white/5 hover:bg-white/10 border border-white/10 font-bold"
+                        variant="outline"
+                        className="h-12 px-10 rounded-xl font-bold bg-muted/50 hover:bg-muted border-border/50 hover:text-foreground text-foreground"
                     >
                         Close Specification
                     </Button>

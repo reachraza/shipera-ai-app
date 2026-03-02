@@ -29,10 +29,28 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
   // Close mobile menu when route changes
-  // Close mobile menu when route changes
   useEffect(() => {
     setIsMobileMenuOpen(false);
   }, [pathname]);
+
+  // Auto-collapse sidebar on smaller desktop/tablet screens
+  useEffect(() => {
+    const handleResize = () => {
+      if (window.innerWidth < 1024) {
+        setIsSidebarOpen(false);
+      } else {
+        setIsSidebarOpen(true);
+      }
+    };
+
+    // Check on initial load
+    handleResize();
+
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
+
+  const isFullSidebar = isSidebarOpen || isMobileMenuOpen;
 
   const navItems: { name: string; href: string; icon: any; adminOnly?: boolean }[] = [
     { name: 'Dashboard', href: '/dashboard', icon: LayoutDashboard },
@@ -61,7 +79,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
       {/* Sidebar */}
       <aside
         className={`
-          ${isSidebarOpen ? 'w-80' : 'w-24'} 
+          w-[85vw] sm:w-80 md:${isSidebarOpen ? 'w-80' : 'w-24'} 
           ${isMobileMenuOpen ? 'translate-x-0' : '-translate-x-full'}
           md:translate-x-0
           fixed md:relative
@@ -80,7 +98,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
               priority
             />
           </div>
-          {isSidebarOpen && (
+          {isFullSidebar && (
             <div className="flex flex-col">
               <span className="text-2xl font-black tracking-tighter text-foreground whitespace-nowrap leading-none">
                 SHIPERA<span className="text-primary">.AI</span>
@@ -90,7 +108,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
           )}
         </div>
 
-        <nav className="flex-1 px-4 space-y-2 mt-4">
+        <nav className="flex-1 px-4 space-y-2 mt-4 overflow-y-auto overflow-x-hidden min-h-0 custom-scrollbar">
           {navItems.map((item) => {
             // If the item is marked as adminOnly and the current user isn't an admin, hide it from the sidebar
             if (item.adminOnly && appUser?.role !== 'admin') {
@@ -109,16 +127,16 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
                   : 'text-muted-foreground hover:bg-muted hover:text-foreground'
                   }`}
               >
-                <Icon size={22} className={`${isActive ? 'scale-110' : 'group-hover:scale-110'} transition-transform`} />
-                {isSidebarOpen && <span className="ml-4">{item.name}</span>}
-                {isSidebarOpen && isActive && <ChevronRight className="ml-auto opacity-60" size={16} />}
+                <Icon size={22} className={`${isActive ? 'scale-110' : 'group-hover:scale-110'} transition-transform shrink-0`} />
+                {isFullSidebar && <span className="ml-4 truncate">{item.name}</span>}
+                {isFullSidebar && isActive && <ChevronRight className="ml-auto opacity-60 shrink-0" size={16} />}
               </button>
             );
           })}
         </nav>
 
-        <div className="p-4 bg-muted/20 border-t border-border mt-auto">
-          {isSidebarOpen && (
+        <div className="p-4 bg-muted/20 border-t border-border mt-auto shrink-0">
+          {isFullSidebar && (
             <div className="flex items-center gap-4 px-4 py-4 mb-4 bg-card/50 rounded-2xl border border-border/50">
               <div className="w-12 h-12 rounded-xl bg-accent/20 flex items-center justify-center text-accent ring-2 ring-accent/10">
                 <UserIcon size={24} />
@@ -133,25 +151,25 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
           )}
 
           <div className="flex flex-col gap-2">
-            <ThemeToggle isSidebarOpen={isSidebarOpen} />
+            <ThemeToggle isSidebarOpen={isFullSidebar} />
 
             <div className="flex flex-col gap-2">
               <button
                 onClick={() => router.push('/settings')}
-                className={`w-full flex items-center ${isSidebarOpen ? 'px-5 justify-start' : 'justify-center'} py-3 rounded-xl text-sm font-bold transition-all group ${pathname.startsWith('/settings')
+                className={`w-full flex items-center ${isFullSidebar ? 'px-5 justify-start' : 'justify-center'} py-3 rounded-xl text-sm font-bold transition-all group ${pathname.startsWith('/settings')
                   ? 'bg-primary/10 text-primary'
                   : 'text-muted-foreground hover:bg-muted hover:text-foreground'
                   }`}
               >
-                <Settings size={20} className={`transition-transform ${pathname.startsWith('/settings') ? 'rotate-45' : 'group-hover:rotate-45'}`} />
-                {isSidebarOpen && <span className="ml-4">Settings</span>}
+                <Settings size={20} className={`shrink-0 transition-transform ${pathname.startsWith('/settings') ? 'rotate-45' : 'group-hover:rotate-45'}`} />
+                {isFullSidebar && <span className="ml-4 truncate">Settings</span>}
               </button>
               <button
                 onClick={handleSignOut}
-                className={`w-full flex items-center ${isSidebarOpen ? 'px-5 justify-start' : 'justify-center'} py-3 rounded-xl text-sm font-bold text-red-500/80 hover:bg-red-500/10 hover:text-red-500 transition-all group`}
+                className={`w-full flex items-center ${isFullSidebar ? 'px-5 justify-start' : 'justify-center'} py-3 rounded-xl text-sm font-bold text-red-500/80 hover:bg-red-500/10 hover:text-red-500 transition-all group`}
               >
-                <LogOut size={20} className="group-hover:-translate-x-1 transition-transform" />
-                {isSidebarOpen && <span className="ml-4">Logout</span>}
+                <LogOut size={20} className="shrink-0 group-hover:-translate-x-1 transition-transform" />
+                {isFullSidebar && <span className="ml-4 truncate">Logout</span>}
               </button>
             </div>
           </div>
