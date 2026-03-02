@@ -104,3 +104,13 @@ export async function updateRFPStatus(id: string, status: RFP['status']): Promis
 
   return data as RFP;
 }
+
+export async function deleteRFP(id: string): Promise<void> {
+  const supabase = createClient();
+  const { error } = await supabase
+    .from('rfps')
+    .delete()
+    .eq('id', id);
+
+  if (error) throw error;
+}

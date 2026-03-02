@@ -2,9 +2,11 @@
 
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 import { RFP } from '@/constants/types';
 import { RFP_STATUSES } from '@/constants/statuses';
 import { getRFPs } from '@/services/rfpService';
+import { deleteRFP } from '@/services/rfpService';
 import { useAuth } from '@/hooks/useAuth';
 import {
   FileText,
@@ -15,18 +17,22 @@ import {
   Calendar,
   ShieldCheck,
   AlertCircle,
-  MoreVertical
+  MoreVertical,
+  Trash2
 } from 'lucide-react';
 import Pagination from '@/components/ui/Pagination';
+import DeleteConfirmationModal from '@/components/ui/DeleteConfirmationModal';
 
 const ITEMS_PER_PAGE = 9;
 
 export default function RFPList({ searchQuery = '', statusFilter = 'all' }: { searchQuery?: string; statusFilter?: string }) {
-
+  const router = useRouter();
   const { orgId, loading: authLoading } = useAuth();
   const [rfps, setRFPs] = useState<RFP[]>([]);
   const [loading, setLoading] = useState(true);
   const [currentPage, setCurrentPage] = useState(1);
+  const [rfpToDelete, setRfpToDelete] = useState<RFP | null>(null);
+  const [isDeleting, setIsDeleting] = useState(false);
 
   useEffect(() => {
     if (!authLoading) {
@@ -53,6 +59,21 @@ export default function RFPList({ searchQuery = '', statusFilter = 'all' }: { se
       console.error('Error loading RFPs:', err);
     } finally {
       setLoading(false);
+    }
+  }
+
+  async function handleDeleteRFP() {
+    if (!rfpToDelete) return;
+    setIsDeleting(true);
+    try {
+      await deleteRFP(rfpToDelete.id);
+      setRFPs((prev) => prev.filter((r) => r.id !== rfpToDelete.id));
+      setRfpToDelete(null);
+    } catch (err) {
+      console.error('Error deleting RFP:', err);
+      alert('Failed to delete RFP.');
+    } finally {
+      setIsDeleting(false);
     }
   }
 
@@ -129,10 +150,10 @@ export default function RFPList({ searchQuery = '', statusFilter = 'all' }: { se
             displayStatus === 'closed' ? AlertCircle : Clock;
 
           return (
-            <Link
+            <div
               key={rfp.id}
-              href={`/rfps/${rfp.id}`}
-              className={`group flex flex-col glass-panel rounded-3xl p-6 hover:-translate-y-1.5 hover:shadow-2xl hover:shadow-primary/20 dark:hover:shadow-primary/10 transition-all duration-300 relative overflow-hidden h-full border-2 ${borderColorClass} bg-card`}
+              onClick={() => router.push(`/rfps/${rfp.id}`)}
+              className={`group flex flex-col glass-panel rounded-3xl p-6 hover:-translate-y-1.5 hover:shadow-2xl hover:shadow-primary/20 dark:hover:shadow-primary/10 transition-all duration-300 relative overflow-hidden h-full border-2 ${borderColorClass} bg-card cursor-pointer`}
             >
               {/* Visual accent bar */}
               <div className={`absolute top-0 left-0 right-0 h-1.5 transition-colors ${displayStatus === 'active' ? 'bg-primary' : displayStatus === 'awarded' ? 'bg-emerald-500' : displayStatus === 'closed' ? 'bg-red-500' : 'bg-accent'
@@ -142,10 +163,21 @@ export default function RFPList({ searchQuery = '', statusFilter = 'all' }: { se
                 <h3 className="font-extrabold text-foreground text-lg leading-tight group-hover:text-primary transition-colors line-clamp-2">
                   {rfp.title}
                 </h3>
-                <span className={`px-2.5 py-1.5 rounded-full text-[10px] font-black uppercase tracking-widest border shrink-0 flex items-center gap-1 ${statusColorClass}`}>
-                  <StatusIcon size={12} />
-                  {statusLabel}
-                </span>
+                <div className="flex items-center gap-1.5 shrink-0">
+                  {rfp.status === 'draft' && (
+                    <button
+                      onClick={(e) => { e.stopPropagation(); setRfpToDelete(rfp); }}
+                      className="opacity-0 group-hover:opacity-100 p-1.5 rounded-lg text-muted-foreground hover:text-red-500 hover:bg-red-500/10 transition-all cursor-pointer"
+                      title="Delete RFP"
+                    >
+                      <Trash2 size={14} />
+                    </button>
+                  )}
+                  <span className={`px-2.5 py-1.5 rounded-full text-[10px] font-black uppercase tracking-widest border flex items-center gap-1 ${statusColorClass}`}>
+                    <StatusIcon size={12} />
+                    {statusLabel}
+                  </span>
+                </div>
               </div>
 
               <div className="space-y-4 flex-1 flex flex-col justify-end">
@@ -176,7 +208,7 @@ export default function RFPList({ searchQuery = '', statusFilter = 'all' }: { se
                   </div>
                 </div>
               </div>
-            </Link>
+            </div>
           );
         })}
       </div>
@@ -186,6 +218,15 @@ export default function RFPList({ searchQuery = '', statusFilter = 'all' }: { se
         onPageChange={setCurrentPage}
         totalItems={filteredRFPs.length}
         itemsPerPage={ITEMS_PER_PAGE}
+      />
+
+      <DeleteConfirmationModal
+        isOpen={!!rfpToDelete}
+        onClose={() => !isDeleting && setRfpToDelete(null)}
+        onConfirm={handleDeleteRFP}
+        title="Delete RFP"
+        message={`Are you sure you want to permanently delete "${rfpToDelete?.title}"? This cannot be undone.`}
+        isLoading={isDeleting}
       />
     </>
   );

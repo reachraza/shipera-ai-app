@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import { useParams, useRouter } from 'next/navigation';
-import { getRFP, updateRFPStatus } from '@/services/rfpService';
+import { getRFP, updateRFPStatus, deleteRFP } from '@/services/rfpService';
 import { getLanesByRFP, deleteLanes } from '@/services/laneService';
 import { getInvitesByRFP } from '@/services/inviteService';
 import { RFP, RFPLane, RFPInvite } from '@/constants/types';
@@ -22,7 +22,8 @@ import {
   Layers,
   Clock,
   Loader2,
-  DollarSign
+  DollarSign,
+  Trash2
 } from 'lucide-react';
 
 export default function RFPDetailPage() {
@@ -34,9 +35,13 @@ export default function RFPDetailPage() {
   const [invites, setInvites] = useState<RFPInvite[]>([]);
   const [loading, setLoading] = useState(true);
 
-  // New state for modal
+  // State for lane delete modal
   const [lanesToDelete, setLanesToDelete] = useState<string[]>([]);
   const [isDeleting, setIsDeleting] = useState(false);
+
+  // State for RFP delete
+  const [showDeleteRFP, setShowDeleteRFP] = useState(false);
+  const [isDeletingRFP, setIsDeletingRFP] = useState(false);
 
   useEffect(() => {
     loadData();
@@ -63,12 +68,23 @@ export default function RFPDetailPage() {
   async function handleStatusChange(newStatus: RFP['status']) {
     try {
       await updateRFPStatus(rfpId, newStatus);
-      // Refresh RFP
       const updatedData = await getRFP(rfpId);
       setRFP(updatedData);
     } catch (err) {
       console.error('Error updating status:', err);
       alert('Failed to update RFP status.');
+    }
+  }
+
+  async function handleDeleteRFP() {
+    setIsDeletingRFP(true);
+    try {
+      await deleteRFP(rfpId);
+      router.push('/rfps');
+    } catch (err) {
+      console.error('Error deleting RFP:', err);
+      alert('Failed to delete RFP.');
+      setIsDeletingRFP(false);
     }
   }
 
@@ -211,6 +227,15 @@ export default function RFPDetailPage() {
                 Reopen
               </button>
             )}
+            {rfp.status === 'draft' && (
+              <button
+                onClick={() => setShowDeleteRFP(true)}
+                className="text-xs font-bold text-red-500 hover:text-red-600 border border-red-500/20 hover:border-red-500/50 bg-red-500/5 hover:bg-red-500/10 px-3 py-1.5 rounded-lg transition-all flex items-center gap-1.5 mt-1 cursor-pointer"
+              >
+                <Trash2 size={12} />
+                Delete RFP
+              </button>
+            )}
           </div>
         </div>
       </div>
@@ -293,6 +318,15 @@ export default function RFPDetailPage() {
         title={lanesToDelete.length > 1 ? `Delete ${lanesToDelete.length} Freight Lanes` : "Delete Freight Lane"}
         message={lanesToDelete.length > 1 ? `Are you sure you want to remove these ${lanesToDelete.length} lanes from the RFP? Carriers will no longer be able to bid on them.` : "Are you sure you want to remove this lane from the RFP? Carriers will no longer be able to bid on it."}
         isLoading={isDeleting}
+      />
+
+      <DeleteConfirmationModal
+        isOpen={showDeleteRFP}
+        onClose={() => !isDeletingRFP && setShowDeleteRFP(false)}
+        onConfirm={handleDeleteRFP}
+        title="Delete RFP"
+        message={`Are you sure you want to permanently delete "${rfp?.title}"? This action cannot be undone and will remove all associated lanes and invites.`}
+        isLoading={isDeletingRFP}
       />
     </div>
   );
