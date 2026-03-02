@@ -57,6 +57,7 @@ export default function RFPsPage() {
             <option value="all">All Statuses</option>
             <option value="draft">Draft</option>
             <option value="active">Active</option>
+            <option value="awarded">Awarded</option>
             <option value="closed">Closed</option>
           </select>
           <Filter size={18} className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground pointer-events-none" />
