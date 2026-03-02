@@ -122,7 +122,7 @@ export default function RFPList({ searchQuery = '', statusFilter = 'all' }: { se
             <Link
               key={rfp.id}
               href={`/rfps/${rfp.id}`}
-              className="group flex flex-col glass-panel rounded-3xl p-6 hover:-translate-y-1 hover:shadow-2xl hover:shadow-primary/10 hover:border-primary/40 transition-all duration-300 relative overflow-hidden h-full border border-border/50"
+              className="group flex flex-col glass-panel rounded-3xl p-6 hover:-translate-y-1.5 hover:shadow-2xl hover:shadow-primary/20 dark:hover:shadow-primary/10 hover:border-primary/50 dark:hover:border-primary/40 transition-all duration-300 relative overflow-hidden h-full border border-border/50 bg-card"
             >
               {/* Visual accent bar */}
               <div className={`absolute top-0 left-0 right-0 h-1.5 transition-colors ${rfp.status === 'active' ? 'bg-primary' : rfp.status === 'closed' ? 'bg-red-500' : 'bg-accent'
