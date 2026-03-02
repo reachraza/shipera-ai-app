@@ -15,11 +15,30 @@ import { Button } from '@/components/ui/Button';
 import Pagination from '@/components/ui/Pagination';
 import CarrierDetailsModal from '@/components/CarrierDetailsModal';
 
+import { removeInvite } from '@/services/inviteService';
+
 const ITEMS_PER_PAGE = 10;
 
-export default function InviteTable({ invites }: { invites: RFPInvite[] }) {
+export default function InviteTable({ invites, isLocked = false, onRevoke }: { invites: RFPInvite[], isLocked?: boolean, onRevoke: () => void }) {
   const [currentPage, setCurrentPage] = useState(1);
   const [selectedCarrier, setSelectedCarrier] = useState<Carrier | null>(null);
+  const [revokingId, setRevokingId] = useState<string | null>(null);
+
+  const handleRevoke = async (id: string) => {
+    if (!window.confirm('Are you sure you want to revoke this invitation? The carrier will no longer be able to access the bidding link.')) return;
+
+    setRevokingId(id);
+    try {
+      await removeInvite(id);
+      alert('Invitation revoked successfully');
+      onRevoke();
+    } catch (error) {
+      console.error('Error revoking invite:', error);
+      alert('Failed to revoke invitation');
+    } finally {
+      setRevokingId(null);
+    }
+  };
 
   if (invites.length === 0) {
     return (
@@ -121,7 +140,10 @@ export default function InviteTable({ invites }: { invites: RFPInvite[] }) {
                     <Button
                       variant="danger-outline"
                       size="sm"
-                      className="text-[10px] uppercase tracking-widest"
+                      onClick={() => handleRevoke(invite.id)}
+                      isLoading={revokingId === invite.id}
+                      disabled={isLocked || !!revokingId}
+                      className="text-[10px] uppercase tracking-widest cursor-pointer"
                     >
                       <Trash2 size={12} className="mr-1.5" />
                       Revoke

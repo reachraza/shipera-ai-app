@@ -125,8 +125,10 @@ export default function RFPDetailPage() {
     );
   }
 
-  const statusInfo = RFP_STATUSES.find((s) => s.value === rfp.status);
-  const isLocked = rfp.status === 'awarded';
+  const isOverdue = rfp.deadline && new Date(rfp.deadline).getTime() < new Date().getTime();
+  const displayStatus = isOverdue ? 'closed' : rfp.status;
+  const statusInfo = RFP_STATUSES.find((s) => s.value === displayStatus);
+  const isLocked = displayStatus === 'awarded' || displayStatus === 'closed';
 
   return (
     <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-700">
@@ -139,9 +141,9 @@ export default function RFPDetailPage() {
       </button>
 
       {/* RFP Header */}
-      <div className={`glass-panel rounded-3xl p-8 sm:p-10 relative overflow-hidden border-2 ${rfp.status === 'active' ? '!border-primary/60 shadow-xl shadow-primary/5' :
-        rfp.status === 'awarded' ? '!border-emerald-500/60 shadow-xl shadow-emerald-500/5' :
-          rfp.status === 'closed' ? '!border-red-500/60 shadow-xl shadow-red-500/5' :
+      <div className={`glass-panel rounded-3xl p-8 sm:p-10 relative overflow-hidden border-2 animate-in fade-in duration-500 ${displayStatus === 'active' ? '!border-primary/60 shadow-xl shadow-primary/5' :
+        displayStatus === 'awarded' ? '!border-emerald-500/60 shadow-xl shadow-emerald-500/5' :
+          displayStatus === 'closed' ? '!border-red-500/60 shadow-xl shadow-red-500/5' :
             '!border-border/50'
         }`}>
         <div className="absolute top-0 right-0 w-64 h-64 bg-primary/5 rounded-bl-full pointer-events-none" />
@@ -182,7 +184,7 @@ export default function RFPDetailPage() {
               className="px-4 py-2 rounded-full text-[10px] font-black tracking-[0.2em] text-white shadow-xl whitespace-nowrap shadow-primary/10 uppercase"
               style={{ backgroundColor: statusInfo?.color || '#94a3b8' }}
             >
-              {statusInfo?.label || rfp.status}
+              {statusInfo?.label || displayStatus}
             </span>
 
             {!isLocked && rfp.status === 'draft' && (
@@ -215,9 +217,9 @@ export default function RFPDetailPage() {
 
       <div className="grid grid-cols-1 xl:grid-cols-3 gap-8">
         {/* Lanes Section */}
-        <div className={`glass-panel rounded-3xl p-8 sm:p-10 xl:col-span-2 flex flex-col border-2 ${rfp.status === 'active' ? '!border-primary/30' :
-          rfp.status === 'awarded' ? '!border-emerald-500/30' :
-            rfp.status === 'closed' ? '!border-red-500/30' :
+        <div className={`glass-panel rounded-3xl p-8 sm:p-10 xl:col-span-2 flex flex-col border-2 ${displayStatus === 'active' ? '!border-primary/30' :
+          displayStatus === 'awarded' ? '!border-emerald-500/30' :
+            displayStatus === 'closed' ? '!border-red-500/30' :
               'border-border/50'
           }`}>
           <div className="mb-8 flex items-center justify-between">
@@ -232,9 +234,9 @@ export default function RFPDetailPage() {
           <div className="mb-8">
             <CSVUpload rfpId={rfpId} onUploaded={loadData} isLocked={isLocked} hasInvites={invites.length > 0} />
           </div>
-          <div className={`border-2 rounded-2xl overflow-hidden shadow-2xl ${rfp.status === 'active' ? '!border-primary/20 shadow-primary/5' :
-            rfp.status === 'awarded' ? '!border-emerald-500/20 shadow-emerald-500/5' :
-              rfp.status === 'closed' ? '!border-red-500/20 shadow-red-500/5' :
+          <div className={`border-2 rounded-2xl overflow-hidden shadow-2xl ${displayStatus === 'active' ? '!border-primary/20 shadow-primary/5' :
+            displayStatus === 'awarded' ? '!border-emerald-500/20 shadow-emerald-500/5' :
+              displayStatus === 'closed' ? '!border-red-500/20 shadow-red-500/5' :
                 'border-border/50 shadow-primary/5'
             }`}>
             <LaneTable lanes={lanes} onDelete={handleDeleteClick} onBulkDelete={handleBulkDeleteClick} isLocked={isLocked} hasInvites={invites.length > 0} />
@@ -242,9 +244,9 @@ export default function RFPDetailPage() {
         </div>
 
         {/* Carrier Invites Section */}
-        <div className={`glass-panel rounded-3xl p-8 sm:p-10 flex flex-col border-2 ${rfp.status === 'active' ? '!border-primary/30' :
-          rfp.status === 'awarded' ? '!border-emerald-500/30' :
-            rfp.status === 'closed' ? '!border-red-500/30' :
+        <div className={`glass-panel rounded-3xl p-8 sm:p-10 flex flex-col border-2 ${displayStatus === 'active' ? '!border-primary/30' :
+          displayStatus === 'awarded' ? '!border-emerald-500/30' :
+            displayStatus === 'closed' ? '!border-red-500/30' :
               'border-border/50'
           }`}>
           <div className="mb-8 flex items-center justify-between">
@@ -259,12 +261,12 @@ export default function RFPDetailPage() {
           <div className="mb-8">
             <CarrierSelect rfpId={rfpId} existingInvites={invites} onInvited={loadData} isLocked={isLocked} rfpStatus={rfp.status} />
           </div>
-          <div className={`border-2 rounded-2xl overflow-hidden shadow-2xl ${rfp.status === 'active' ? '!border-primary/20 shadow-primary/5' :
-            rfp.status === 'awarded' ? '!border-emerald-500/20 shadow-emerald-500/5' :
-              rfp.status === 'closed' ? '!border-red-500/20 shadow-red-500/5' :
+          <div className={`border-2 rounded-2xl overflow-hidden shadow-2xl ${displayStatus === 'active' ? '!border-primary/20 shadow-primary/5' :
+            displayStatus === 'awarded' ? '!border-emerald-500/20 shadow-emerald-500/5' :
+              displayStatus === 'closed' ? '!border-red-500/20 shadow-red-500/5' :
                 'border-border/50 shadow-accent/5'
             }`}>
-            <InviteTable invites={invites} />
+            <InviteTable invites={invites} isLocked={isLocked} onRevoke={loadData} />
           </div>
         </div>
       </div>
