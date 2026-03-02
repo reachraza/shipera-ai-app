@@ -10,6 +10,7 @@ export const RFP_STATUSES: { value: RFPStatus; label: string; color: string }[] 
   { value: 'draft', label: 'Draft', color: '#94a3b8' },
   { value: 'active', label: 'Active', color: '#22c55e' },
   { value: 'closed', label: 'Closed', color: '#ef4444' },
+  { value: 'awarded', label: 'Awarded', color: '#10b981' },
 ];
 
 export const INVITE_STATUSES: { value: InviteStatus; label: string; color: string }[] = [
