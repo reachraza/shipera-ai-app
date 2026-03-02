@@ -110,14 +110,18 @@ export default function RFPList({ searchQuery = '', statusFilter = 'all' }: { se
         )}
         {paginatedRFPs.map((rfp) => {
 
-          const statusLabel = RFP_STATUSES.find((s) => s.value === rfp.status)?.label || rfp.status;
-          const statusColorClass = rfp.status === 'active' ? 'bg-primary/10 text-primary border-primary/20' :
-            rfp.status === 'awarded' ? 'bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-500/20' :
-              rfp.status === 'closed' ? 'bg-red-500/10 text-red-600 dark:text-red-400 border-red-500/20' :
+          // Check if genuinely closed or past deadline
+          const isOverdue = rfp.deadline && new Date(rfp.deadline).getTime() < new Date().getTime();
+          const displayStatus = isOverdue ? 'closed' : rfp.status;
+
+          const statusLabel = RFP_STATUSES.find((s) => s.value === displayStatus)?.label || displayStatus;
+          const statusColorClass = displayStatus === 'active' ? 'bg-primary/10 text-primary border-primary/20' :
+            displayStatus === 'awarded' ? 'bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-500/20' :
+              displayStatus === 'closed' ? 'bg-red-500/10 text-red-600 dark:text-red-400 border-red-500/20' :
                 'bg-accent/10 text-accent border-accent/20';
 
-          const StatusIcon = rfp.status === 'active' || rfp.status === 'awarded' ? ShieldCheck :
-            rfp.status === 'closed' ? AlertCircle : Clock;
+          const StatusIcon = displayStatus === 'active' || displayStatus === 'awarded' ? ShieldCheck :
+            displayStatus === 'closed' ? AlertCircle : Clock;
 
           return (
             <Link
@@ -126,7 +130,7 @@ export default function RFPList({ searchQuery = '', statusFilter = 'all' }: { se
               className="group flex flex-col glass-panel rounded-3xl p-6 hover:-translate-y-1.5 hover:shadow-2xl hover:shadow-primary/20 dark:hover:shadow-primary/10 hover:border-primary/50 dark:hover:border-primary/40 transition-all duration-300 relative overflow-hidden h-full border border-border/50 bg-card"
             >
               {/* Visual accent bar */}
-              <div className={`absolute top-0 left-0 right-0 h-1.5 transition-colors ${rfp.status === 'active' ? 'bg-primary' : rfp.status === 'awarded' ? 'bg-emerald-500' : rfp.status === 'closed' ? 'bg-red-500' : 'bg-accent'
+              <div className={`absolute top-0 left-0 right-0 h-1.5 transition-colors ${displayStatus === 'active' ? 'bg-primary' : displayStatus === 'awarded' ? 'bg-emerald-500' : displayStatus === 'closed' ? 'bg-red-500' : 'bg-accent'
                 }`} />
 
               <div className="flex items-start justify-between gap-4 mb-6">
