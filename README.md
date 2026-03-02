@@ -37,14 +37,9 @@ This application features a robust Multi-Tenant architecture where users can sea
 ## 🛠️ Getting Started
 
 ### 1. Database Setup (Supabase)
-To set up or reset your database, you must run our schema and trigger scripts in your Supabase SQL Editor in the exact chronological order outlined in the `src/config` directory:
+To set up or reset your database, you must run our consolidated master schema script in your Supabase SQL Editor:
 
-1. `01_schema.sql` - Core tables & Row Level Security.
-2. `02_rbac_update.sql` - Route specific carrier RLS policies.
-3. `03_teams_rbac_update.sql` - Role updates.
-4. `04_setup_auth_trigger.sql` - Base trigger for Org allocation.
-5. `05_trigger_update.sql` - Upgraded trigger to support Magic Invite Links.
-6. `06_force_password_update.sql` - Required trigger for newly invited User Security flow.
+1. `src/config/00_master_schema.sql` - This single file contains all core tables, Row Level Security policies, RBAC roles, auth triggers, and RFP structures needed for the application.
 
 (For more details, see [`src/config/README.md`](src/config/README.md)).
 
