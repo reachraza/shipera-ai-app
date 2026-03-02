@@ -434,7 +434,7 @@ export default function CarrierForm({ carrier, onSaved, onCancel }: CarrierFormP
               key={type}
               type="button"
               onClick={() => handleEquipmentToggle(type)}
-              className={`px-4 py-2 rounded-xl text-xs font-bold border transition-all ${formData.equipment_types.includes(type)
+              className={`px-4 py-2 rounded-xl text-xs font-bold border transition-all cursor-pointer ${formData.equipment_types.includes(type)
                 ? 'bg-primary text-primary-foreground border-primary shadow-md shadow-primary/20 scale-105'
                 : 'bg-muted text-muted-foreground border-border hover:bg-background hover:text-foreground hover:border-primary/50'
                 }`}

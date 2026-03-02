@@ -39,7 +39,7 @@ export default function DeleteConfirmationModal({
                 <div className="p-8 sm:p-10 relative z-10 flex flex-col items-center text-center">
                     <button
                         onClick={onClose}
-                        className="absolute top-6 right-6 p-2.5 text-muted-foreground/60 hover:text-foreground bg-muted/30 hover:bg-muted/80 rounded-2xl transition-all hover:scale-105 active:scale-95 border border-transparent hover:border-border/50 backdrop-blur-sm"
+                        className="absolute top-6 right-6 p-2.5 text-muted-foreground/60 hover:text-foreground bg-muted/30 hover:bg-muted/80 rounded-2xl transition-all hover:scale-105 active:scale-95 border border-transparent hover:border-border/50 backdrop-blur-sm cursor-pointer"
                     >
                         <X size={18} strokeWidth={2.5} />
                     </button>

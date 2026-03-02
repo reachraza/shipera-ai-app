@@ -108,21 +108,6 @@ export default function CarrierSelect({ rfpId, existingInvites, onInvited, isLoc
     return <div className="text-sm text-primary font-medium flex items-center gap-2"><svg className="animate-spin h-4 w-4" viewBox="0 0 24 24"><circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" fill="none"></circle><path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>Loading available carriers...</div>;
   }
 
-  // Guard: RFP must be published (active) before sending invites
-  if (rfpStatus === 'draft') {
-    return (
-      <div className="p-5 bg-amber-500/10 border border-amber-500/30 rounded-xl flex items-start gap-3">
-        <AlertCircle size={20} className="text-amber-500 shrink-0 mt-0.5" />
-        <div>
-          <p className="text-sm font-bold text-amber-600 dark:text-amber-400">Publish RFP First</p>
-          <p className="text-xs text-muted-foreground mt-1">
-            You must <span className="font-bold">Publish</span> this RFP before you can invite carriers. Finalize your freight lanes, then click <span className="font-bold">&quot;Publish RFP&quot;</span> above to open bidding.
-          </p>
-        </div>
-      </div>
-    );
-  }
-
   if (carriers.length === 0) {
     return (
       <div className="p-4 bg-muted/50 border border-border rounded-xl text-center">
@@ -132,6 +117,9 @@ export default function CarrierSelect({ rfpId, existingInvites, onInvited, isLoc
     );
   }
 
+  const isDraft = rfpStatus === 'draft';
+  const isDisabled = isLocked || isDraft;
+
   return (
     <div className="space-y-4">
       {error && (
@@ -140,7 +128,7 @@ export default function CarrierSelect({ rfpId, existingInvites, onInvited, isLoc
         </div>
       )}
 
-      <div className={`border border-border rounded-xl overflow-hidden bg-background ${isLocked ? 'opacity-60 grayscale-[0.5]' : ''}`}>
+      <div className={`border border-border rounded-xl overflow-hidden bg-background ${isDisabled ? 'opacity-60 grayscale-[0.5]' : ''}`}>
         <div className="max-h-60 overflow-y-auto p-2 space-y-1">
           {carriers.map((carrier) => {
             const isSelected = selectedIds.has(carrier.id);
@@ -159,9 +147,9 @@ export default function CarrierSelect({ rfpId, existingInvites, onInvited, isLoc
                       checked={isSelected}
                       onChange={() => toggleCarrier(carrier.id)}
                       className="peer sr-only"
-                      disabled={isLocked}
+                      disabled={isDisabled}
                     />
-                    <div className={`w-5 h-5 rounded border-2 transition-all ${isLocked ? 'border-muted bg-muted' : 'border-muted-foreground/30 bg-background peer-checked:bg-primary peer-checked:border-primary'}`}></div>
+                    <div className={`w-5 h-5 rounded border-2 transition-all ${isDisabled ? 'border-muted bg-muted' : 'border-muted-foreground/30 bg-background peer-checked:bg-primary peer-checked:border-primary'}`}></div>
                     <svg className="absolute w-3 h-3 text-primary-foreground opacity-0 peer-checked:opacity-100 transition-opacity pointer-events-none" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
                   </div>
 
@@ -197,16 +185,25 @@ export default function CarrierSelect({ rfpId, existingInvites, onInvited, isLoc
 
       <div className="flex items-center justify-between mt-2 px-1">
         <span className="text-sm font-semibold text-foreground">
-          {isLocked ? 'Selection disabled' : `${selectedIds.size} carrier${selectedIds.size !== 1 ? 's' : ''} selected`}
+          {isDisabled ? 'Invite disabled' : `${selectedIds.size} carrier${selectedIds.size !== 1 ? 's' : ''} selected`}
         </span>
         <Button
           onClick={handleInvite}
-          disabled={selectedIds.size === 0 || submitting || isLocked}
+          disabled={selectedIds.size === 0 || submitting || isDisabled}
           isLoading={submitting}
         >
-          {isLocked ? 'RFP Locked' : submitting ? 'Sending...' : 'Send Invites'}
+          {isLocked ? 'RFP Locked' : isDraft ? 'Publish to Invite' : submitting ? 'Sending...' : 'Send Invites'}
         </Button>
       </div>
+
+      {isDraft && (
+        <div className="mt-2 p-3 bg-amber-500/10 border border-amber-500/20 rounded-xl flex items-start gap-2 animate-in fade-in slide-in-from-top-1">
+          <AlertCircle size={16} className="text-amber-500 shrink-0 mt-0.5" />
+          <p className="text-[11px] font-medium text-amber-700 dark:text-amber-400 leading-tight">
+            You must <span className="font-bold underline cursor-default">Publish</span> this RFP before sending invites. Finalize your lanes and click &quot;Publish RFP&quot; above.
+          </p>
+        </div>
+      )}
 
       {selectedCarrierView && (
         <CarrierDetailsModal

@@ -41,7 +41,7 @@ export default function CarrierDetailsModal({
                     </div>
                     <button
                         onClick={onClose}
-                        className="p-2 text-muted-foreground hover:bg-muted rounded-full transition-colors"
+                        className="p-2 text-muted-foreground hover:bg-muted rounded-full transition-colors cursor-pointer"
                     >
                         <X size={20} />
                     </button>

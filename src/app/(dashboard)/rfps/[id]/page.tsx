@@ -117,7 +117,7 @@ export default function RFPDetailPage() {
         <p className="text-muted-foreground mt-2 font-medium">The requested tender does not exist or you don&apos;t have permission.</p>
         <button
           onClick={() => router.push('/rfps')}
-          className="mt-8 px-6 py-3 bg-primary text-primary-foreground font-bold rounded-2xl hover:bg-primary-hover shadow-lg shadow-primary/25 transition-all active:scale-95"
+          className="mt-8 px-6 py-3 bg-primary text-primary-foreground font-bold rounded-2xl hover:bg-primary-hover shadow-lg shadow-primary/25 transition-all active:scale-95 cursor-pointer"
         >
           Return to RFPs
         </button>
@@ -132,7 +132,7 @@ export default function RFPDetailPage() {
     <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-700">
       <button
         onClick={() => router.push('/rfps')}
-        className="group text-sm font-black text-muted-foreground hover:text-primary flex items-center gap-2 transition-all w-fit uppercase tracking-widest"
+        className="group text-sm font-black text-muted-foreground hover:text-primary flex items-center gap-2 transition-all w-fit uppercase tracking-widest cursor-pointer"
       >
         <ArrowLeft size={16} className="group-hover:-translate-x-1 transition-transform" />
         Back to list

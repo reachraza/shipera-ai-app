@@ -65,7 +65,7 @@ export default function CarrierViewModal({ carrier, onClose, onDelete, onEdit }:
                     </div>
                     <button
                         onClick={onClose}
-                        className="p-2 text-muted-foreground hover:text-foreground hover:bg-muted rounded-xl transition-colors"
+                        className="p-2 text-muted-foreground hover:text-foreground hover:bg-muted rounded-xl transition-colors cursor-pointer"
                     >
                         <X size={24} />
                     </button>
@@ -190,7 +190,7 @@ export default function CarrierViewModal({ carrier, onClose, onDelete, onEdit }:
                                 onDelete(carrier);
                                 onClose();
                             }}
-                            className="px-4 py-2.5 text-red-500 hover:bg-red-500/10 font-bold rounded-xl transition-all flex items-center gap-2 group"
+                            className="px-4 py-2.5 text-red-500 hover:bg-red-500/10 font-bold rounded-xl transition-all flex items-center gap-2 group cursor-pointer"
                         >
                             <Trash2 size={18} className="group-hover:scale-110 transition-transform" />
                             Delete Carrier
@@ -203,7 +203,7 @@ export default function CarrierViewModal({ carrier, onClose, onDelete, onEdit }:
                                     onEdit(carrier);
                                     onClose();
                                 }}
-                                className="px-6 py-3 bg-muted text-foreground font-black uppercase tracking-widest text-[10px] rounded-xl hover:bg-muted/80 hover:scale-105 active:scale-95 transition-all flex items-center gap-2 border border-border"
+                                className="px-6 py-3 bg-muted text-foreground font-black uppercase tracking-widest text-[10px] rounded-xl hover:bg-muted/80 hover:scale-105 active:scale-95 transition-all flex items-center gap-2 border border-border cursor-pointer"
                             >
                                 <Edit2 size={16} />
                                 Modify Profile
@@ -211,7 +211,7 @@ export default function CarrierViewModal({ carrier, onClose, onDelete, onEdit }:
                         )}
                         <button
                             onClick={onClose}
-                            className="px-8 py-3 bg-primary text-primary-foreground font-black uppercase tracking-widest text-[10px] rounded-xl hover:bg-primary/90 hover:scale-105 active:scale-95 transition-all shadow-lg shadow-primary/25"
+                            className="px-8 py-3 bg-primary text-primary-foreground font-black uppercase tracking-widest text-[10px] rounded-xl hover:bg-primary/90 hover:scale-105 active:scale-95 transition-all shadow-lg shadow-primary/25 cursor-pointer"
                         >
                             Close Portal
                         </button>
