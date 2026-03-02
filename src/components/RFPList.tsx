@@ -115,6 +115,11 @@ export default function RFPList({ searchQuery = '', statusFilter = 'all' }: { se
           const displayStatus = isOverdue ? 'closed' : rfp.status;
 
           const statusLabel = RFP_STATUSES.find((s) => s.value === displayStatus)?.label || displayStatus;
+          const borderColorClass = displayStatus === 'active' ? 'border-primary/40' :
+            displayStatus === 'awarded' ? 'border-emerald-500/40' :
+              displayStatus === 'closed' ? 'border-red-500/40' :
+                'border-border/50';
+
           const statusColorClass = displayStatus === 'active' ? 'bg-primary/10 text-primary border-primary/20' :
             displayStatus === 'awarded' ? 'bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-500/20' :
               displayStatus === 'closed' ? 'bg-red-500/10 text-red-600 dark:text-red-400 border-red-500/20' :
@@ -127,7 +132,7 @@ export default function RFPList({ searchQuery = '', statusFilter = 'all' }: { se
             <Link
               key={rfp.id}
               href={`/rfps/${rfp.id}`}
-              className="group flex flex-col glass-panel rounded-3xl p-6 hover:-translate-y-1.5 hover:shadow-2xl hover:shadow-primary/20 dark:hover:shadow-primary/10 hover:border-primary/50 dark:hover:border-primary/40 transition-all duration-300 relative overflow-hidden h-full border border-border/50 bg-card"
+              className={`group flex flex-col glass-panel rounded-3xl p-6 hover:-translate-y-1.5 hover:shadow-2xl hover:shadow-primary/20 dark:hover:shadow-primary/10 hover:border-primary/50 dark:hover:border-primary/40 transition-all duration-300 relative overflow-hidden h-full border ${borderColorClass} bg-card`}
             >
               {/* Visual accent bar */}
               <div className={`absolute top-0 left-0 right-0 h-1.5 transition-colors ${displayStatus === 'active' ? 'bg-primary' : displayStatus === 'awarded' ? 'bg-emerald-500' : displayStatus === 'closed' ? 'bg-red-500' : 'bg-accent'

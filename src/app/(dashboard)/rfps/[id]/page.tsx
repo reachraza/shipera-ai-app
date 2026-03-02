@@ -139,7 +139,11 @@ export default function RFPDetailPage() {
       </button>
 
       {/* RFP Header */}
-      <div className="glass-panel rounded-3xl p-8 sm:p-10 relative overflow-hidden border border-border/50">
+      <div className={`glass-panel rounded-3xl p-8 sm:p-10 relative overflow-hidden border ${rfp.status === 'active' ? 'border-primary/40' :
+        rfp.status === 'awarded' ? 'border-emerald-500/40' :
+          rfp.status === 'closed' ? 'border-red-500/40' :
+            'border-border/50'
+        }`}>
         <div className="absolute top-0 right-0 w-64 h-64 bg-primary/5 rounded-bl-full pointer-events-none" />
         <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-6 relative z-10">
           <div className="flex-1">
