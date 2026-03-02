@@ -39,36 +39,36 @@ export default function DeleteConfirmationModal({
                 <div className="p-8 sm:p-10 relative z-10 flex flex-col items-center text-center">
                     <button
                         onClick={onClose}
-                        className="absolute top-6 right-6 p-2.5 text-muted-foreground hover:text-foreground hover:bg-muted/50 rounded-xl transition-all hover:scale-105 active:scale-95"
+                        className="absolute top-6 right-6 p-2.5 text-muted-foreground/60 hover:text-foreground bg-muted/30 hover:bg-muted/80 rounded-2xl transition-all hover:scale-105 active:scale-95 border border-transparent hover:border-border/50 backdrop-blur-sm"
                     >
-                        <X size={20} strokeWidth={2.5} />
+                        <X size={18} strokeWidth={2.5} />
                     </button>
 
-                    <div className="mb-8">
+                    <div className="mb-8 mt-2">
                         <div className="relative group mx-auto">
-                            <div className="absolute inset-0 bg-red-500/20 rounded-2xl blur-xl animate-pulse group-hover:bg-red-500/30 transition-all" />
-                            <div className="relative h-16 w-16 rounded-2xl bg-red-500/10 flex items-center justify-center text-red-500 border border-red-500/20 shadow-inner group-hover:scale-110 transition-transform">
-                                <AlertTriangle size={32} strokeWidth={2.5} />
+                            <div className="absolute inset-0 bg-red-500/20 rounded-[28px] blur-2xl animate-pulse group-hover:bg-red-500/40 transition-all duration-700" />
+                            <div className="relative h-20 w-20 rounded-[28px] bg-gradient-to-br from-card to-red-500/10 flex items-center justify-center text-red-500 border border-red-500/20 shadow-[0_8px_32px_-8px_rgba(239,68,68,0.3)] inset-0 group-hover:scale-110 transition-transform duration-500">
+                                <AlertTriangle size={36} strokeWidth={2} className="relative z-10" />
                             </div>
                         </div>
                     </div>
 
-                    <div className="space-y-3 flex flex-col items-center">
-                        <h3 className="text-2xl sm:text-3xl font-black text-foreground tracking-tight leading-tight">
+                    <div className="space-y-4 flex flex-col items-center">
+                        <h3 className="text-2xl sm:text-[28px] font-black text-foreground tracking-tight leading-tight">
                             {title}
                         </h3>
-                        <div className="h-px w-12 bg-red-500/30 rounded-full" />
-                        <p className="text-muted-foreground font-medium text-sm leading-relaxed pt-2 max-w-xs mx-auto">
+                        <div className="h-1 w-12 bg-gradient-to-r from-red-500/0 via-red-500/50 to-red-500/0 rounded-full" />
+                        <p className="text-muted-foreground font-medium text-[15px] leading-relaxed max-w-[280px] mx-auto">
                             {message}
                         </p>
                     </div>
 
-                    <div className="flex flex-col-reverse sm:flex-row gap-3 mt-10 pt-6 border-t border-border/50">
+                    <div className="flex flex-col-reverse sm:flex-row gap-4 mt-12 w-full">
                         <Button
                             type="button"
                             variant="ghost"
                             onClick={onClose}
-                            className="flex-1 font-bold uppercase tracking-widest text-[10px] py-6 rounded-2xl border border-transparent hover:bg-muted hover:border-border/50 transition-all"
+                            className="flex-1 font-bold text-sm py-6 rounded-2xl bg-muted/40 hover:bg-muted/80 text-foreground border border-border/50 hover:border-border transition-all duration-300"
                             disabled={isLoading}
                         >
                             Cancel
@@ -77,7 +77,7 @@ export default function DeleteConfirmationModal({
                             type="button"
                             onClick={onConfirm}
                             isLoading={isLoading}
-                            className="flex-1 font-black uppercase tracking-widest text-[10px] py-6 rounded-2xl bg-red-500 hover:bg-red-600 text-white shadow-xl shadow-red-500/25 hover:shadow-red-500/40 transform hover:-translate-y-1 active:translate-y-0 transition-all"
+                            className="flex-1 font-black leading-none tracking-wide text-sm py-6 rounded-2xl bg-gradient-to-b from-red-500 to-red-600 hover:from-red-400 hover:to-red-500 text-white shadow-[0_0_40px_-10px_rgba(239,68,68,0.5)] hover:shadow-[0_0_60px_-15px_rgba(239,68,68,0.6)] border border-red-400/20 transition-all duration-300 transform hover:-translate-y-[2px] active:translate-y-[1px]"
                         >
                             Confirm Delete
                         </Button>
