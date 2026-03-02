@@ -128,7 +128,7 @@ export default function RFPDetailPage() {
   const isOverdue = rfp.deadline && new Date(rfp.deadline).getTime() < new Date().getTime();
   const displayStatus = isOverdue ? 'closed' : rfp.status;
   const statusInfo = RFP_STATUSES.find((s) => s.value === displayStatus);
-  const isLocked = displayStatus === 'awarded' || displayStatus === 'closed';
+  const isLocked = displayStatus === 'awarded' || displayStatus === 'closed' || displayStatus === 'active';
 
   return (
     <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-700">
