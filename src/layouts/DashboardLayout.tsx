@@ -26,6 +26,13 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
   const router = useRouter();
   const { appUser, signOut } = useAuth();
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+
+  // Close mobile menu when route changes
+  import { useEffect } from 'react';
+  useEffect(() => {
+    setIsMobileMenuOpen(false);
+  }, [pathname]);
 
   const navItems: { name: string; href: string; icon: any; adminOnly?: boolean }[] = [
     { name: 'Dashboard', href: '/dashboard', icon: LayoutDashboard },
@@ -43,10 +50,25 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
     <div className="h-screen bg-background text-foreground flex overflow-hidden">
       <ForcePasswordUpdate />
 
+      {/* Mobile Overlay */}
+      {isMobileMenuOpen && (
+        <div
+          className="fixed inset-0 bg-background/80 backdrop-blur-sm z-40 md:hidden"
+          onClick={() => setIsMobileMenuOpen(false)}
+        />
+      )}
+
       {/* Sidebar */}
       <aside
-        className={`${isSidebarOpen ? 'w-80' : 'w-24'
-          } bg-card/40 backdrop-blur-xl border-r border-border flex flex-col transition-all duration-500 ease-in-out relative z-30 group`}
+        className={`
+          ${isSidebarOpen ? 'w-80' : 'w-24'} 
+          ${isMobileMenuOpen ? 'translate-x-0' : '-translate-x-full'}
+          md:translate-x-0
+          fixed md:relative
+          h-full
+          bg-card/95 md:bg-card/40 backdrop-blur-xl border-r border-border 
+          flex flex-col transition-all duration-300 ease-in-out z-50 group
+        `}
       >
         <div className="p-8 flex items-center gap-4">
           <div className="relative w-12 h-12 flex items-center justify-center shrink-0">
@@ -135,25 +157,46 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
           </div>
         </div>
 
-        {/* Toggle Sidebar Button */}
+        {/* Toggle Sidebar Button (Desktop Only) */}
         <button
           onClick={() => setIsSidebarOpen(!isSidebarOpen)}
-          className="absolute -right-4 top-1/2 -translate-y-1/2 w-8 h-8 rounded-full bg-card border border-border flex items-center justify-center text-muted-foreground hover:text-primary hover:border-primary transition-all opacity-0 group-hover:opacity-100 shadow-sm"
+          className="hidden md:flex absolute -right-4 top-1/2 -translate-y-1/2 w-8 h-8 rounded-full bg-card border border-border items-center justify-center text-muted-foreground hover:text-primary hover:border-primary transition-all opacity-0 group-hover:opacity-100 shadow-sm"
         >
           {isSidebarOpen ? <ChevronLeft size={16} /> : <ChevronRight size={16} />}
         </button>
       </aside>
 
-      {/* Main Content */}
-      <main className="flex-1 overflow-y-auto bg-background p-6 sm:p-10 relative">
-        <div className="max-w-7xl mx-auto">
-          {children}
-        </div>
+      {/* Main Content Wrapper */}
+      <div className="flex-1 flex flex-col min-w-0 overflow-hidden relative">
+        {/* Mobile Header */}
+        <header className="md:hidden flex items-center justify-between p-4 border-b border-border bg-card/40 backdrop-blur-xl z-30">
+          <div className="flex items-center gap-3">
+            <div className="relative w-8 h-8">
+              <Image src="/logo.png" alt="Logo" fill className="object-contain" priority />
+            </div>
+            <span className="text-lg font-black tracking-tighter text-foreground">
+              SHIPERA<span className="text-primary">.AI</span>
+            </span>
+          </div>
+          <button
+            onClick={() => setIsMobileMenuOpen(true)}
+            className="p-2 rounded-xl bg-muted/50 text-foreground hover:bg-muted transition-colors"
+          >
+            <Menu size={24} />
+          </button>
+        </header>
 
-        {/* Background Decors */}
-        <div className="fixed top-0 right-0 w-[500px] h-[500px] bg-primary/5 blur-[120px] rounded-full -translate-y-1/2 translate-x-1/2 pointer-events-none -z-10" />
-        <div className="fixed bottom-0 left-0 w-[500px] h-[500px] bg-accent/5 blur-[120px] rounded-full translate-y-1/2 -translate-x-1/2 pointer-events-none -z-10" />
-      </main>
+        {/* Main Content Area */}
+        <main className="flex-1 overflow-y-auto bg-background p-4 sm:p-6 md:p-10 relative">
+          <div className="max-w-7xl mx-auto h-full">
+            {children}
+          </div>
+
+          {/* Background Decors */}
+          <div className="fixed top-0 right-0 w-[500px] h-[500px] bg-primary/5 blur-[120px] rounded-full -translate-y-1/2 translate-x-1/2 pointer-events-none -z-10" />
+          <div className="fixed bottom-0 left-0 w-[500px] h-[500px] bg-accent/5 blur-[120px] rounded-full translate-y-1/2 -translate-x-1/2 pointer-events-none -z-10" />
+        </main>
+      </div>
     </div>
   );
 }
