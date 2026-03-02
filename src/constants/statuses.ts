@@ -8,7 +8,7 @@ export const CARRIER_STATUSES: { value: CarrierStatus; label: string; color: str
 
 export const RFP_STATUSES: { value: RFPStatus; label: string; color: string }[] = [
   { value: 'draft', label: 'Draft', color: '#94a3b8' },
-  { value: 'active', label: 'Active', color: '#22c55e' },
+  { value: 'active', label: 'Active', color: '#eab308' },
   { value: 'closed', label: 'Closed', color: '#ef4444' },
   { value: 'awarded', label: 'Awarded', color: '#10b981' },
 ];

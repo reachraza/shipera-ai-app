@@ -115,7 +115,7 @@ export default function RFPList({ searchQuery = '', statusFilter = 'all' }: { se
           const displayStatus = isOverdue ? 'closed' : rfp.status;
 
           const statusLabel = RFP_STATUSES.find((s) => s.value === displayStatus)?.label || displayStatus;
-          const borderColorClass = displayStatus === 'active' ? '!border-green-500/60 shadow-lg shadow-green-500/5' :
+          const borderColorClass = displayStatus === 'active' ? '!border-primary/60 shadow-lg shadow-primary/5' :
             displayStatus === 'awarded' ? '!border-emerald-500/60 shadow-lg shadow-emerald-500/5' :
               displayStatus === 'closed' ? '!border-red-500/60 shadow-lg shadow-red-500/5' :
                 'border-border/50';
