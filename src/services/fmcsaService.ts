@@ -1,5 +1,5 @@
 const FMCSA_BASE_URL = 'https://mobile.fmcsa.dot.gov/qc/services';
-const WEB_KEY = process.env.NEXT_PUBLIC_FMCSA_WEB_KEY || 'd6037fd9d684ef028874dd9e14b69ca3e0d0b9bd';
+const WEB_KEY = process.env.FMCSA_WEB_KEY || 'd6037fd9d684ef028874dd9e14b69ca3e0d0b9bd';
 
 export interface FMCSACarrier {
     legalName: string;
