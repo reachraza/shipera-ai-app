@@ -25,14 +25,36 @@ export function parseCSV(csvText: string): CSVParseResult {
   }
 
   // Parse header
-  const header = lines[0].split(',').map((col) => col.trim().toLowerCase().replace(/\s+/g, '_'));
+  const header = lines[0].split(/[,;]/).map((col) => col.trim().toLowerCase().replace(/[^a-z0-9]+/g, '_').replace(/^_+|_+$/g, ''));
 
-  // Validate required columns
-  const missingColumns = REQUIRED_COLUMNS.filter((col) => !header.includes(col));
+  // Define column mappings for variations
+  const columnMap: Record<string, string> = {
+    'origin_city': 'origin_city',
+    'origin': 'origin_city',
+    'origin_state': 'origin_state',
+    'destination_city': 'destination_city',
+    'destination': 'destination_city',
+    'destination_state': 'destination_state',
+    'equipment_type': 'equipment_type',
+    'equipment': 'equipment_type',
+    'volume_freq': 'frequency',
+    'volume_/_freq': 'frequency',
+    'volume': 'frequency',
+    'weekly_volume': 'frequency',
+    'frequency': 'frequency',
+    'total_hours': 'total_hours',
+    'total_time': 'total_time'
+  };
+
+  // Map the actual headers found to our internal keys
+  const headerKeys = header.map(h => columnMap[h] || h);
+
+  // Validate required columns using the mapped keys
+  const missingColumns = REQUIRED_COLUMNS.filter((col) => !headerKeys.includes(col));
   if (missingColumns.length > 0) {
     return {
       lanes: [],
-      errors: [`Missing required columns: ${missingColumns.join(', ')}`],
+      errors: [`Missing required columns: ${missingColumns.join(', ')} (Headers found: ${header.join(', ')})`],
       totalRows: 0,
     };
   }
@@ -42,11 +64,11 @@ export function parseCSV(csvText: string): CSVParseResult {
     const line = lines[i].trim();
     if (!line) continue;
 
-    const values = line.split(',').map((val) => val.trim());
+    const values = line.split(/[,;]/).map((val) => val.trim().replace(/^"|"$/g, ''));
     const row: Record<string, string> = {};
 
-    header.forEach((col, idx) => {
-      row[col] = values[idx] || '';
+    headerKeys.forEach((key, idx) => {
+      if (key) row[key] = values[idx] || '';
     });
 
     // Validate required fields

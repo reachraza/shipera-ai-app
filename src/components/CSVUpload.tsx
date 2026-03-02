@@ -125,7 +125,7 @@ export default function CSVUpload({ rfpId, onUploaded }: CSVUploadProps) {
                   <p className="font-black text-[10px] uppercase tracking-widest text-muted-foreground border-b border-border pb-2 mb-2">Required Columns</p>
                   <p className="font-mono text-xs text-primary mb-3 leading-relaxed">origin_city, origin_state, destination_city, destination_state, equipment_type</p>
                   <p className="font-black text-[10px] uppercase tracking-widest text-muted-foreground border-b border-border pb-2 mb-2">Optional</p>
-                  <p className="font-mono text-xs text-muted-foreground">frequency</p>
+                  <p className="font-mono text-xs text-muted-foreground">frequency, volume, volume / freq</p>
 
                   {/* Triangle indicator */}
                   <div className="absolute bottom-full left-1/2 -translate-x-1/2 sm:left-auto sm:right-4 sm:translate-x-0 border-4 border-transparent border-b-border" />
