@@ -1,11 +1,17 @@
 import { useState } from 'react';
 import { RFPLane } from '@/constants/types';
-import { MapPin, MoveRight, Truck, Box, Layers } from 'lucide-react';
+import { MapPin, MoveRight, Truck, Box, Layers, Trash2 } from 'lucide-react';
 import Pagination from '@/components/ui/Pagination';
+import { Button } from '@/components/ui/Button';
 
 const ITEMS_PER_PAGE = 10;
 
-export default function LaneTable({ lanes }: { lanes: RFPLane[] }) {
+interface LaneTableProps {
+  lanes: RFPLane[];
+  onDelete?: (laneId: string) => void;
+}
+
+export default function LaneTable({ lanes, onDelete }: LaneTableProps) {
   const [currentPage, setCurrentPage] = useState(1);
 
   if (lanes.length === 0) {
@@ -35,6 +41,7 @@ export default function LaneTable({ lanes }: { lanes: RFPLane[] }) {
             <th className="px-6 py-5 font-black text-muted-foreground tracking-[0.1em] uppercase text-[10px]">Destination</th>
             <th className="px-6 py-5 font-black text-muted-foreground tracking-[0.1em] uppercase text-[10px]">Equipment</th>
             <th className="px-6 py-5 font-black text-muted-foreground tracking-[0.1em] uppercase text-[10px]">Volume / Freq</th>
+            {onDelete && <th className="px-6 py-5 font-black text-muted-foreground tracking-[0.1em] uppercase text-[10px] text-right">Actions</th>}
           </tr>
         </thead>
         <tbody className="divide-y divide-border/50">
@@ -75,12 +82,25 @@ export default function LaneTable({ lanes }: { lanes: RFPLane[] }) {
                   {lane.frequency || <span className="italic font-medium opacity-40">TBD</span>}
                 </div>
               </td>
+              {onDelete && (
+                <td className="px-6 py-5 text-right">
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    onClick={() => onDelete(lane.id)}
+                    className="h-8 w-8 text-muted-foreground hover:text-red-500 hover:bg-red-500/10 transition-colors rounded-lg"
+                    title={`Delete lane from ${lane.origin_city} to ${lane.destination_city}`}
+                  >
+                    <Trash2 size={16} />
+                  </Button>
+                </td>
+              )}
             </tr>
           ))}
           {paginatedLanes.length > 0 && paginatedLanes.length < ITEMS_PER_PAGE && (
             Array.from({ length: ITEMS_PER_PAGE - paginatedLanes.length }).map((_, i) => (
               <tr key={`empty-${i}`} className="h-[73px] bg-transparent">
-                <td colSpan={4}></td>
+                <td colSpan={onDelete ? 5 : 4}></td>
               </tr>
             ))
           )}

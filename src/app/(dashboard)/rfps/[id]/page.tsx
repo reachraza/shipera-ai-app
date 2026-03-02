@@ -3,7 +3,7 @@
 import { useEffect, useState } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import { getRFP, updateRFPStatus } from '@/services/rfpService';
-import { getLanesByRFP } from '@/services/laneService';
+import { getLanesByRFP, deleteLane } from '@/services/laneService';
 import { getInvitesByRFP } from '@/services/inviteService';
 import { RFP, RFPLane, RFPInvite } from '@/constants/types';
 import LaneTable from '@/components/LaneTable';
@@ -64,6 +64,18 @@ export default function RFPDetailPage() {
     } catch (err) {
       console.error('Error updating status:', err);
       alert('Failed to update RFP status.');
+    }
+  }
+
+  async function handleDeleteLane(laneId: string) {
+    if (!confirm('Are you sure you want to delete this lane?')) return;
+    try {
+      await deleteLane(laneId);
+      // Optimistically update UI or refresh data
+      setLanes((prev) => prev.filter((l) => l.id !== laneId));
+    } catch (err) {
+      console.error('Error deleting lane:', err);
+      alert('Failed to delete lane.');
     }
   }
 
@@ -195,7 +207,7 @@ export default function RFPDetailPage() {
             <CSVUpload rfpId={rfpId} onUploaded={loadData} />
           </div>
           <div className="border border-border/50 rounded-2xl overflow-hidden shadow-2xl shadow-primary/5">
-            <LaneTable lanes={lanes} />
+            <LaneTable lanes={lanes} onDelete={handleDeleteLane} />
           </div>
         </div>
 
