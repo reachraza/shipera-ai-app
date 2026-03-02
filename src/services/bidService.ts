@@ -168,6 +168,32 @@ export async function acceptBid(bidId: string, laneId: string): Promise<boolean>
         console.error('Error rejecting other bids:', rejectError);
     }
 
+    // 3. Log Activity
+    if (laneData?.rfp_id) {
+        try {
+            const { data: { user } } = await supabase.auth.getUser();
+            const { data: userData } = await supabase.from('users').select('org_id').eq('id', user?.id).single();
+            const { data: bidData } = await supabase.from('bids').select('carrier:carriers(name)').eq('id', bidId).single();
+
+            if (user && userData?.org_id) {
+                const { logActivity } = await import('./activityService');
+                await logActivity(
+                    userData.org_id,
+                    user.id,
+                    'award',
+                    'bid',
+                    laneData.rfp_id, // We associate the award with the RFP
+                    {
+                        lane_id: laneId,
+                        carrier_name: (bidData?.carrier as any)?.name || 'A Carrier'
+                    }
+                );
+            }
+        } catch (err) {
+            console.error('Error logging bid award:', err);
+        }
+    }
+
     return true;
 }
 
@@ -216,6 +242,30 @@ export async function acceptAllCarrierBids(rfpId: string, carrierId: string): Pr
 
     if (rejectError) {
         console.error('Error rejecting competitor bids:', rejectError);
+    }
+
+    // 4. Log Activity
+    try {
+        const { data: { user } } = await supabase.auth.getUser();
+        const { data: userData } = await supabase.from('users').select('org_id').eq('id', user?.id).single();
+        const { data: carrierData } = await supabase.from('carriers').select('name').eq('id', carrierId).single();
+
+        if (user && userData?.org_id) {
+            const { logActivity } = await import('./activityService');
+            await logActivity(
+                userData.org_id,
+                user.id,
+                'award',
+                'rfp',
+                rfpId, // We associate the full award with the RFP
+                {
+                    carrier_name: carrierData?.name || 'A Carrier',
+                    lanes_awarded: laneIds.length
+                }
+            );
+        }
+    } catch (err) {
+        console.error('Error logging bulk bid award:', err);
     }
 
     return true;

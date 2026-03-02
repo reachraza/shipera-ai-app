@@ -150,7 +150,7 @@ export interface Bid {
 }
 
 // ─── Activity Log ────────────────────────────────────────────
-export type ActionType = 'create' | 'update' | 'delete' | 'invite' | 'upload';
+export type ActionType = 'create' | 'update' | 'delete' | 'invite' | 'upload' | 'award';
 export type EntityType = 'carrier' | 'rfp' | 'rfp_lane' | 'rfp_invite' | 'bid';
 
 export interface ActivityLog {

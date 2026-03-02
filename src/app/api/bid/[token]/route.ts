@@ -127,6 +127,52 @@ export async function POST(
             .update({ status: 'submitted' })
             .eq('id', invite.id);
 
+        // 4. Activity Logging (Notify the Organization that bids were received)
+        const { data: routeData } = await supabase
+            .from('rfp_lanes')
+            .select(`
+                rfp:rfps (
+                    org_id,
+                    title
+                ),
+                carrier:carriers!inner(name)
+            `)
+            .eq('id', bids[0].rfp_lane_id)
+            .eq('carrier.id', invite.carrier_id)
+            .single();
+
+        // Check if data shaped correctly, supabase type mappings can be tricky on joined queries
+        const orgId = routeData?.rfp && (routeData.rfp as any).org_id;
+
+        if (orgId) {
+            try {
+                // Determine base carrier name
+                const { data: carrierInfo } = await supabase
+                    .from('carriers')
+                    .select('name')
+                    .eq('id', invite.carrier_id)
+                    .single();
+
+                const { logActivity } = await import('@/services/activityService');
+
+                // Since this is a public endpoint, we pass the carrier_id as the user_id (it's legally allowed by DB schema to be UUID)
+                await logActivity(
+                    orgId,
+                    invite.carrier_id, // Who did the action
+                    'create',
+                    'bid',
+                    invite.rfp_id, // The entity being acted upon (The RFP)
+                    {
+                        rfp_title: (routeData.rfp as any).title,
+                        carrier_name: carrierInfo?.name || 'A Carrier',
+                        lanes_bid: bids.length
+                    }
+                );
+            } catch (err) {
+                console.error('Failed to log bid submission activity:', err);
+            }
+        }
+
         return NextResponse.json({ success: true });
 
     } catch (error) {
