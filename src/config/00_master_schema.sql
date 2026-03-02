@@ -655,3 +655,10 @@ ALTER TABLE rfps DROP CONSTRAINT IF EXISTS rfps_status_check;
 
 -- Add the new check constraint including 'awarded'
 ALTER TABLE rfps ADD CONSTRAINT rfps_status_check CHECK (status IN ('draft', 'active', 'closed', 'awarded'));
+-- ============================================================
+-- Enforce Unique Bids per Lane per Carrier
+-- ============================================================
+
+-- Add a unique constraint to prevent a carrier from submitting multiple bids for the same lane
+ALTER TABLE bids ADD CONSTRAINT bids_rfp_lane_id_carrier_id_key UNIQUE (rfp_lane_id, carrier_id);
+`
