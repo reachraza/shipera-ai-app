@@ -144,7 +144,9 @@ export default function RFPDetailPage() {
   const isOverdue = rfp.deadline && new Date(rfp.deadline).getTime() < new Date().getTime();
   const displayStatus = isOverdue ? 'closed' : rfp.status;
   const statusInfo = RFP_STATUSES.find((s) => s.value === displayStatus);
-  const isLocked = displayStatus === 'awarded' || displayStatus === 'closed' || displayStatus === 'active';
+  const isContentLocked = displayStatus === 'awarded' || displayStatus === 'closed' || displayStatus === 'active'; // lanes, bids
+  const isCarrierLocked = displayStatus === 'awarded' || displayStatus === 'closed'; // invites only
+  const isLocked = isContentLocked; // used for status buttons
 
   return (
     <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-700">
@@ -257,14 +259,14 @@ export default function RFPDetailPage() {
             </span>
           </div>
           <div className="mb-8">
-            <CSVUpload rfpId={rfpId} onUploaded={loadData} isLocked={isLocked} hasInvites={invites.length > 0} />
+            <CSVUpload rfpId={rfpId} onUploaded={loadData} isLocked={isContentLocked} hasInvites={invites.length > 0} />
           </div>
           <div className={`border-2 rounded-2xl overflow-hidden shadow-2xl ${displayStatus === 'active' ? '!border-primary/20 shadow-primary/5' :
             displayStatus === 'awarded' ? '!border-emerald-500/20 shadow-emerald-500/5' :
               displayStatus === 'closed' ? '!border-red-500/20 shadow-red-500/5' :
                 'border-border/50 shadow-primary/5'
             }`}>
-            <LaneTable lanes={lanes} onDelete={handleDeleteClick} onBulkDelete={handleBulkDeleteClick} isLocked={isLocked} hasInvites={invites.length > 0} />
+            <LaneTable lanes={lanes} onDelete={handleDeleteClick} onBulkDelete={handleBulkDeleteClick} isLocked={isContentLocked} hasInvites={invites.length > 0} />
           </div>
         </div>
 
@@ -284,14 +286,14 @@ export default function RFPDetailPage() {
             </span>
           </div>
           <div className="mb-8">
-            <CarrierSelect rfpId={rfpId} existingInvites={invites} onInvited={loadData} isLocked={isLocked} rfpStatus={rfp.status} />
+            <CarrierSelect rfpId={rfpId} existingInvites={invites} onInvited={loadData} isLocked={isCarrierLocked} rfpStatus={rfp.status} />
           </div>
           <div className={`border-2 rounded-2xl overflow-hidden shadow-2xl ${displayStatus === 'active' ? '!border-primary/20 shadow-primary/5' :
             displayStatus === 'awarded' ? '!border-emerald-500/20 shadow-emerald-500/5' :
               displayStatus === 'closed' ? '!border-red-500/20 shadow-red-500/5' :
                 'border-border/50 shadow-accent/5'
             }`}>
-            <InviteTable invites={invites} isLocked={isLocked} onRevoke={loadData} />
+            <InviteTable invites={invites} isLocked={isCarrierLocked} onRevoke={loadData} />
           </div>
         </div>
       </div>
@@ -308,7 +310,7 @@ export default function RFPDetailPage() {
             Bids Received
           </h2>
         </div>
-        <BidList rfpId={rfpId} isLocked={isLocked} />
+        <BidList rfpId={rfpId} isLocked={isCarrierLocked} />
       </div>
 
       <DeleteConfirmationModal
