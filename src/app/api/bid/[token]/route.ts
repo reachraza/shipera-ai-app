@@ -45,10 +45,10 @@ export async function GET(
             }
         }
 
-        // Check if RFP is already awarded
-        if (invite.rfp?.status === 'awarded') {
+        // Check if RFP is closed or already awarded
+        if (invite.rfp?.status === 'closed' || invite.rfp?.status === 'awarded') {
             return NextResponse.json(
-                { error: 'This RFP has already been awarded and is closed to new bids.' },
+                { error: 'This RFP is currently closed to new bids.' },
                 { status: 403 }
             );
         }
@@ -121,9 +121,9 @@ export async function POST(
         // 1.5. Validate Deadline and Status
         const rfpData = invite.rfp as any;
 
-        if (rfpData?.status === 'awarded') {
+        if (rfpData?.status === 'closed' || rfpData?.status === 'awarded') {
             return NextResponse.json(
-                { error: 'This RFP has already been awarded and is closed to new bids.' },
+                { error: 'This RFP is currently closed to new bids.' },
                 { status: 403 }
             );
         }
