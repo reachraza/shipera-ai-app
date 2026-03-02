@@ -11,6 +11,7 @@ import CSVUpload from '@/components/CSVUpload';
 import CarrierSelect from '@/components/CarrierSelect';
 import InviteTable from '@/components/InviteTable';
 import BidList from '@/components/BidList';
+import DeleteConfirmationModal from '@/components/ui/DeleteConfirmationModal';
 import { RFP_STATUSES } from '@/constants/statuses';
 import {
   ArrowLeft,
@@ -32,6 +33,10 @@ export default function RFPDetailPage() {
   const [lanes, setLanes] = useState<RFPLane[]>([]);
   const [invites, setInvites] = useState<RFPInvite[]>([]);
   const [loading, setLoading] = useState(true);
+
+  // New state for modal
+  const [laneToDelete, setLaneToDelete] = useState<string | null>(null);
+  const [isDeleting, setIsDeleting] = useState(false);
 
   useEffect(() => {
     loadData();
@@ -67,16 +72,24 @@ export default function RFPDetailPage() {
     }
   }
 
-  async function handleDeleteLane(laneId: string) {
-    if (!confirm('Are you sure you want to delete this lane?')) return;
+  async function confirmDeleteLane() {
+    if (!laneToDelete) return;
+    setIsDeleting(true);
     try {
-      await deleteLane(laneId);
+      await deleteLane(laneToDelete);
       // Optimistically update UI or refresh data
-      setLanes((prev) => prev.filter((l) => l.id !== laneId));
+      setLanes((prev) => prev.filter((l) => l.id !== laneToDelete));
+      setLaneToDelete(null); // Close modal
     } catch (err) {
       console.error('Error deleting lane:', err);
       alert('Failed to delete lane.');
+    } finally {
+      setIsDeleting(false);
     }
+  }
+
+  function handleDeleteClick(laneId: string) {
+    setLaneToDelete(laneId);
   }
 
   if (loading) {
@@ -207,7 +220,7 @@ export default function RFPDetailPage() {
             <CSVUpload rfpId={rfpId} onUploaded={loadData} />
           </div>
           <div className="border border-border/50 rounded-2xl overflow-hidden shadow-2xl shadow-primary/5">
-            <LaneTable lanes={lanes} onDelete={handleDeleteLane} />
+            <LaneTable lanes={lanes} onDelete={handleDeleteClick} />
           </div>
         </div>
 
@@ -241,6 +254,15 @@ export default function RFPDetailPage() {
         </div>
         <BidList rfpId={rfpId} />
       </div>
+
+      <DeleteConfirmationModal
+        isOpen={!!laneToDelete}
+        onClose={() => !isDeleting && setLaneToDelete(null)}
+        onConfirm={confirmDeleteLane}
+        title="Delete Freight Lane"
+        message="Are you sure you want to remove this lane from the RFP? Carriers will no longer be able to bid on it."
+        isLoading={isDeleting}
+      />
     </div>
   );
 }
