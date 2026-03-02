@@ -45,6 +45,14 @@ export async function GET(
             }
         }
 
+        // Check if RFP is already awarded
+        if (invite.rfp?.status === 'awarded') {
+            return NextResponse.json(
+                { error: 'This RFP has already been awarded and is closed to new bids.' },
+                { status: 403 }
+            );
+        }
+
         // 2. Fetch the Lanes for this RFP
         const { data: lanes, error: lanesError } = await supabase
             .from('rfp_lanes')
@@ -93,12 +101,12 @@ export async function POST(
             );
         }
 
-        // 1. Verify token and get invite details along with RFP deadline
+        // 1. Verify token and get invite details along with RFP deadline and status
         const { data: invite, error: inviteError } = await supabase
             .from('rfp_invites')
             .select(`
                 *,
-                rfp:rfps(deadline)
+                rfp:rfps(deadline, status)
             `)
             .eq('access_token', token)
             .single();
@@ -110,8 +118,16 @@ export async function POST(
             );
         }
 
-        // 1.5. Validate Deadline
+        // 1.5. Validate Deadline and Status
         const rfpData = invite.rfp as any;
+
+        if (rfpData?.status === 'awarded') {
+            return NextResponse.json(
+                { error: 'This RFP has already been awarded and is closed to new bids.' },
+                { status: 403 }
+            );
+        }
+
         if (rfpData?.deadline) {
             const deadlineDate = new Date(rfpData.deadline);
             if (new Date() > deadlineDate) {
