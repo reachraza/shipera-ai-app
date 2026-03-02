@@ -142,6 +142,21 @@ export async function acceptBid(bidId: string, laneId: string): Promise<boolean>
 
     if (acceptError) throw new Error(`Failed to accept bid: ${acceptError.message}`);
 
+    // 1.5 Update Parent RFP status to 'closed'
+    // First find the RFP ID through the lane
+    const { data: laneData } = await supabase
+        .from('rfp_lanes')
+        .select('rfp_id')
+        .eq('id', laneId)
+        .single();
+
+    if (laneData?.rfp_id) {
+        await supabase
+            .from('rfps')
+            .update({ status: 'awarded' }) // <--- Changed from 'closed' to 'awarded'
+            .eq('id', laneData.rfp_id);
+    }
+
     // 2. Mark all other bids for the SAME LANE as 'rejected'
     const { error: rejectError } = await supabase
         .from('bids')
@@ -185,6 +200,12 @@ export async function acceptAllCarrierBids(rfpId: string, carrierId: string): Pr
         .in('id', bidIds);
 
     if (acceptError) throw new Error(`Failed to accept bids: ${acceptError.message}`);
+
+    // 2.5 Update Parent RFP status to 'awarded'
+    await supabase
+        .from('rfps')
+        .update({ status: 'awarded' }) // <--- Changed from 'closed' to 'awarded'
+        .eq('id', rfpId);
 
     // 3. Mark all OTHER bids for these lanes as 'rejected'
     const { error: rejectError } = await supabase

@@ -72,7 +72,7 @@ export interface CarrierFormData {
 }
 
 // ─── RFP ─────────────────────────────────────────────────────
-export type RFPStatus = 'draft' | 'active' | 'closed';
+export type RFPStatus = 'draft' | 'active' | 'closed' | 'awarded';
 export type RFPMode = 'full_truckload' | 'ltl' | 'intermodal';
 
 export interface RFP {
