@@ -124,7 +124,7 @@ export default function CarrierBiddingPage() {
 
     if (loading) {
         return (
-            <div className="min-h-screen bg-[#0a0a0a] flex items-center justify-center p-6">
+            <div className="min-h-screen bg-background flex items-center justify-center p-6">
                 <div className="flex flex-col items-center gap-4">
                     <div className="relative">
                         <div className="absolute inset-0 bg-primary/20 blur-2xl rounded-full" />
@@ -141,8 +141,8 @@ export default function CarrierBiddingPage() {
     // Error State (Invalid Token)
     if (error || !invite) {
         return (
-            <div className="min-h-screen bg-[#0a0a0a] p-6 flex flex-col items-center justify-center">
-                <div className="max-w-sm w-full glass-panel p-8 rounded-2xl text-center border-red-500/20 relative group">
+            <div className="min-h-screen bg-background p-6 flex flex-col items-center justify-center">
+                <div className="max-w-sm w-full bg-card border border-red-500/20 shadow-xl p-8 rounded-2xl text-center relative group">
                     <div className="h-16 w-16 bg-red-500/10 text-red-500 rounded-2xl flex items-center justify-center mx-auto mb-6 transition-transform duration-500">
                         <AlertCircle size={32} />
                     </div>
@@ -160,8 +160,8 @@ export default function CarrierBiddingPage() {
         const alreadySubmitted = invite?.status === 'submitted';
 
         return (
-            <div className="min-h-screen bg-[#0a0a0a] p-6 flex flex-col items-center justify-center">
-                <div className="max-w-md w-full glass-panel p-10 rounded-[2rem] text-center border-green-500/20 animate-in zoom-in-95 duration-700 relative overflow-hidden">
+            <div className="min-h-screen bg-background p-6 flex flex-col items-center justify-center">
+                <div className="max-w-md w-full bg-card border border-green-500/20 shadow-2xl p-10 rounded-[2rem] text-center animate-in zoom-in-95 duration-700 relative overflow-hidden">
                     <div className="h-20 w-20 bg-green-500/10 text-green-500 rounded-2xl flex items-center justify-center mx-auto mb-6 shadow-xl shadow-green-500/10">
                         <CheckCircle2 size={40} />
                     </div>
@@ -175,7 +175,7 @@ export default function CarrierBiddingPage() {
                     </p>
                     <Button
                         variant="outline"
-                        className="w-full h-12 text-sm rounded-xl border-white/5 bg-white/5 hover:bg-white/10 transition-all font-bold"
+                        className="w-full h-12 text-sm rounded-xl font-bold"
                         onClick={() => window.close()}
                     >
                         Return to Workspace
@@ -189,7 +189,7 @@ export default function CarrierBiddingPage() {
     const carrier = invite?.carrier;
 
     return (
-        <div className="min-h-screen bg-[#050505] text-foreground relative overflow-hidden selection:bg-primary/30 font-sans">
+        <div className="min-h-screen bg-background text-foreground relative overflow-hidden selection:bg-primary/30 font-sans">
             {/* Background Decorative Elements */}
             <div className="fixed top-0 left-0 w-full h-full pointer-events-none">
                 <div className="absolute top-[-10%] right-[-5%] w-[40%] h-[40%] bg-primary/5 blur-[120px] rounded-full animate-pulse" />
@@ -201,7 +201,7 @@ export default function CarrierBiddingPage() {
                 {/* Header Profile Section */}
                 <header className="flex flex-col sm:flex-row items-center justify-between gap-4 mb-10 animate-in fade-in slide-in-from-top-2 duration-700">
                     <div className="flex items-center gap-4 group">
-                        <div className="h-12 w-12 rounded-xl bg-white/5 border border-white/10 flex items-center justify-center group-hover:border-primary/50 transition-all duration-500">
+                        <div className="h-12 w-12 rounded-xl bg-card border border-border flex items-center justify-center group-hover:border-primary/50 shadow-sm transition-all duration-500">
                             <Building size={24} className="text-primary" />
                         </div>
                         <div className="space-y-0.5">
@@ -222,7 +222,7 @@ export default function CarrierBiddingPage() {
                 <main className="space-y-8">
 
                     {/* Proposal Summary Card */}
-                    <section className="glass-panel p-8 md:p-10 rounded-[1.5rem] border-white/5 relative overflow-hidden group animate-in fade-in slide-in-from-bottom-4 duration-700">
+                    <section className="bg-card shadow-lg p-8 md:p-10 rounded-[1.5rem] border border-border relative overflow-hidden group animate-in fade-in slide-in-from-bottom-4 duration-700">
                         <div className="absolute top-0 right-0 w-[30%] h-full bg-gradient-to-l from-primary/5 to-transparent pointer-events-none" />
 
                         <div className="relative z-10 flex flex-col gap-6">
@@ -232,11 +232,11 @@ export default function CarrierBiddingPage() {
                                     <h1 className="text-3xl md:text-4xl font-black tracking-tighter leading-tight">{rfp?.title}</h1>
                                 </div>
                                 <div className="flex flex-wrap items-center gap-2">
-                                    <div className="flex items-center gap-2 px-3.5 py-1.5 bg-white/5 rounded-xl border border-white/10 text-[10px] font-bold uppercase tracking-widest text-white/70">
+                                    <div className="flex items-center gap-2 px-3.5 py-1.5 bg-muted/50 rounded-xl border border-border/50 text-[10px] font-bold uppercase tracking-widest text-muted-foreground">
                                         <Truck size={14} className="text-primary" />
                                         {rfp?.mode?.replace(/_/g, ' ')}
                                     </div>
-                                    <div className="flex items-center gap-2 px-3.5 py-1.5 bg-rose-500/10 rounded-xl border border-rose-500/20 text-[10px] font-bold uppercase tracking-widest text-rose-400">
+                                    <div className="flex items-center gap-2 px-3.5 py-1.5 bg-rose-500/10 rounded-xl border border-rose-500/20 text-[10px] font-bold uppercase tracking-widest text-rose-500">
                                         <Calendar size={14} />
                                         {rfp?.deadline ? new Date(rfp.deadline).toLocaleDateString() : 'Immediate'}
                                     </div>
@@ -244,8 +244,8 @@ export default function CarrierBiddingPage() {
                             </div>
 
                             {rfp?.notes && (
-                                <div className="w-full p-5 bg-white/5 border border-white/10 rounded-2xl relative backdrop-blur-xl">
-                                    <p className="text-sm leading-relaxed text-muted-foreground italic font-medium whitespace-pre-wrap">
+                                <div className="w-full p-5 bg-muted/30 border border-border/50 rounded-2xl relative">
+                                    <p className="text-sm leading-relaxed text-muted-foreground font-medium whitespace-pre-wrap">
                                         &quot;{rfp.notes}&quot;
                                     </p>
                                 </div>
@@ -270,7 +270,7 @@ export default function CarrierBiddingPage() {
                             {lanes.map((lane, index) => (
                                 <div
                                     key={lane.id}
-                                    className="group glass-panel border-white/5 hover:border-primary/20 p-5 md:p-6 rounded-2xl transition-all duration-300 flex flex-col md:flex-row md:items-center gap-6"
+                                    className="group bg-card shadow-sm border border-border hover:border-primary/30 p-5 md:p-6 rounded-2xl transition-all duration-300 flex flex-col md:flex-row md:items-center gap-6"
                                     style={{ animationDelay: `${index * 50}ms` }}
                                 >
                                     {/* Lane Visualizer */}
@@ -300,22 +300,22 @@ export default function CarrierBiddingPage() {
 
                                             <div className="flex flex-wrap gap-2">
                                                 {lane.equipment_type && (
-                                                    <span className="px-2.5 py-0.5 bg-white/5 rounded-lg border border-white/5 text-[9px] font-black uppercase tracking-widest text-muted-foreground/60">
+                                                    <span className="px-2.5 py-0.5 bg-muted/50 rounded-lg border border-border/50 text-[9px] font-black uppercase tracking-widest text-muted-foreground">
                                                         {lane.equipment_type}
                                                     </span>
                                                 )}
                                                 {lane.frequency && (
-                                                    <span className="px-2.5 py-0.5 bg-white/5 rounded-lg border border-white/5 text-[9px] font-black uppercase tracking-widest text-muted-foreground/60">
+                                                    <span className="px-2.5 py-0.5 bg-muted/50 rounded-lg border border-border/50 text-[9px] font-black uppercase tracking-widest text-muted-foreground">
                                                         Freq: {lane.frequency}
                                                     </span>
                                                 )}
                                                 {lane.total_hours && (
-                                                    <span className="px-2.5 py-0.5 bg-indigo-500/10 rounded-lg border border-indigo-500/20 text-[9px] font-black uppercase tracking-widest text-indigo-400">
+                                                    <span className="px-2.5 py-0.5 bg-indigo-500/10 rounded-lg border border-indigo-500/20 text-[9px] font-black uppercase tracking-widest text-indigo-500">
                                                         Hrs: {lane.total_hours}
                                                     </span>
                                                 )}
                                                 {lane.total_time && (
-                                                    <span className="px-2.5 py-0.5 bg-amber-500/10 rounded-lg border border-amber-500/20 text-[9px] font-black uppercase tracking-widest text-amber-400">
+                                                    <span className="px-2.5 py-0.5 bg-amber-500/10 rounded-lg border border-amber-500/20 text-[9px] font-black uppercase tracking-widest text-amber-500">
                                                         Time: {lane.total_time}
                                                     </span>
                                                 )}
@@ -324,36 +324,36 @@ export default function CarrierBiddingPage() {
                                     </div>
 
                                     <div className="flex flex-col gap-2 w-full md:w-auto">
-                                        <div className="flex flex-row gap-2 items-center p-1.5 bg-white/5 rounded-xl border border-white/5 focus-within:border-primary/40 transition-all duration-300">
+                                        <div className="flex flex-row gap-2 items-center p-1.5 bg-muted/30 rounded-xl border border-border/50 focus-within:border-primary/40 focus-within:bg-background transition-all duration-300">
                                             <div className="relative flex-1 md:w-24">
-                                                <DollarSign className="absolute left-2.5 top-1/2 -translate-y-1/2 text-green-500/50" size={12} />
+                                                <DollarSign className="absolute left-2.5 top-1/2 -translate-y-1/2 text-green-500/70" size={14} />
                                                 <input
                                                     type="number"
                                                     placeholder="Rate"
                                                     min="0.01"
                                                     step="0.01"
-                                                    className="w-full h-9 pl-7 pr-2 bg-transparent border-none text-xs font-black focus:ring-0 placeholder:text-muted-foreground/30"
+                                                    className="w-full h-9 pl-7 pr-2 bg-transparent border-none text-sm font-black focus:ring-0 placeholder:text-muted-foreground/50"
                                                     value={bidsData[lane.id]?.rate || ''}
                                                     onChange={(e) => handleInputChange(lane.id, 'rate', e.target.value)}
                                                 />
                                             </div>
-                                            <div className="h-4 w-[1px] bg-white/10" />
-                                            <div className="relative flex-1 md:w-28">
-                                                <Clock className="absolute left-2.5 top-1/2 -translate-y-1/2 text-primary/50" size={12} />
+                                            <div className="h-5 w-[1px] bg-border" />
+                                            <div className="relative flex-1 md:w-32">
+                                                <Clock className="absolute left-2.5 top-1/2 -translate-y-1/2 text-primary/70" size={14} />
                                                 <input
                                                     type="text"
-                                                    placeholder="Transit"
-                                                    className="w-full h-9 pl-7 pr-2 bg-transparent border-none text-[10px] font-bold focus:ring-0 placeholder:text-muted-foreground/30"
+                                                    placeholder="e.g. 2 Days"
+                                                    className="w-full h-9 pl-7 pr-2 bg-transparent border-none text-xs font-bold focus:ring-0 placeholder:text-muted-foreground/50"
                                                     value={bidsData[lane.id]?.transit_time || ''}
                                                     onChange={(e) => handleInputChange(lane.id, 'transit_time', e.target.value)}
                                                 />
                                             </div>
                                         </div>
                                         <div className="relative group/notes">
-                                            <FileText className="absolute left-3 top-2.5 text-muted-foreground/30 group-focus-within/notes:text-primary/50 transition-colors" size={12} />
+                                            <FileText className="absolute left-3 top-2.5 text-muted-foreground/40 group-focus-within/notes:text-primary transition-colors" size={14} />
                                             <textarea
                                                 placeholder="Add lane specifics or details..."
-                                                className="w-full min-h-[60px] md:w-56 p-2 pl-8 bg-white/5 border border-white/5 rounded-xl text-[10px] font-medium focus:outline-none focus:border-primary/30 transition-all resize-none placeholder:text-muted-foreground/20 leading-relaxed"
+                                                className="w-full min-h-[60px] md:w-[245px] p-2.5 pl-9 bg-muted/30 border border-border/50 rounded-xl text-xs font-medium focus:outline-none focus:border-primary/40 focus:bg-background transition-all resize-none placeholder:text-muted-foreground/40 leading-relaxed"
                                                 value={bidsData[lane.id]?.notes || ''}
                                                 onChange={(e) => handleInputChange(lane.id, 'notes', e.target.value)}
                                             />
@@ -367,7 +367,7 @@ export default function CarrierBiddingPage() {
             </div>
 
             {/* Premium Sticky Footer Action Bar */}
-            <div className="fixed bottom-0 left-0 right-0 p-4 z-[100] bg-gradient-to-t from-[#050505] via-[#050505]/95 to-transparent backdrop-blur-sm">
+            <div className="fixed bottom-0 left-0 right-0 p-4 z-[100] bg-background/80 border-t border-border/50 backdrop-blur-md">
                 <div className="max-w-5xl mx-auto flex items-center justify-between gap-4 px-2">
                     <div className="hidden sm:block">
                         <p className="text-[9px] font-black uppercase tracking-[0.2em] text-muted-foreground">Final Transmission</p>
