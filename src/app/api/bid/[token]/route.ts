@@ -32,6 +32,19 @@ export async function GET(
             );
         }
 
+        // Check if RFP deadline has passed
+        if (invite.rfp?.deadline) {
+            const deadlineDate = new Date(invite.rfp.deadline);
+            // End of the day for the deadline (if it's just a date, let's treat it as EOD UTC or let strict comparison happen)
+            // For safety, let's just do a direct time comparison. If they want EOD, they should set the time in the DB.
+            if (new Date() > deadlineDate) {
+                return NextResponse.json(
+                    { error: 'The submission deadline for this RFP has passed.' },
+                    { status: 403 }
+                );
+            }
+        }
+
         // 2. Fetch the Lanes for this RFP
         const { data: lanes, error: lanesError } = await supabase
             .from('rfp_lanes')
@@ -80,10 +93,13 @@ export async function POST(
             );
         }
 
-        // 1. Verify token and get invite details
+        // 1. Verify token and get invite details along with RFP deadline
         const { data: invite, error: inviteError } = await supabase
             .from('rfp_invites')
-            .select('*')
+            .select(`
+                *,
+                rfp:rfps(deadline)
+            `)
             .eq('access_token', token)
             .single();
 
@@ -92,6 +108,18 @@ export async function POST(
                 { error: 'Invalid or expired bidding link' },
                 { status: 404 }
             );
+        }
+
+        // 1.5. Validate Deadline
+        const rfpData = invite.rfp as any;
+        if (rfpData?.deadline) {
+            const deadlineDate = new Date(rfpData.deadline);
+            if (new Date() > deadlineDate) {
+                return NextResponse.json(
+                    { error: 'The submission deadline for this RFP has passed.' },
+                    { status: 403 }
+                );
+            }
         }
 
         // 2. Validate all bids are positive numbers
