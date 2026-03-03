@@ -56,6 +56,7 @@ export default function CarrierForm({ carrier, onSaved, onCancel }: CarrierFormP
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
+    if (loading) return;
     if (!orgId) return;
 
     // Require at least one identifier
@@ -143,6 +144,7 @@ export default function CarrierForm({ carrier, onSaved, onCancel }: CarrierFormP
   }
 
   async function handleFinalSubmit() {
+    if (loading) return;
     if (!orgId || !fmcsaData) return;
     setLoading(true);
     setError('');
