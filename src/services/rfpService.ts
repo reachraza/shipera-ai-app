@@ -5,7 +5,10 @@ export async function getRFPs(orgId: string): Promise<RFP[]> {
   const supabase = createClient();
   const { data, error } = await supabase
     .from('rfps')
-    .select('*')
+    .select(`
+      *,
+      rfp_invites(status)
+    `)
     .eq('org_id', orgId)
     .order('created_at', { ascending: false });
 

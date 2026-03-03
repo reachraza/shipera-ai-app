@@ -8,6 +8,7 @@ import { RFP_STATUSES } from '@/constants/statuses';
 import { getRFPs } from '@/services/rfpService';
 import { deleteRFP } from '@/services/rfpService';
 import { useAuth } from '@/hooks/useAuth';
+import { createClient } from '@/config/supabase';
 import {
   FileText,
   Clock,
@@ -38,6 +39,35 @@ export default function RFPList({ searchQuery = '', statusFilter = 'all' }: { se
     if (!authLoading) {
       if (orgId) {
         loadRFPs();
+
+        // Subscribing to any changes on rfps and rfp_invites so the UI updates real-time
+        const supabase = createClient();
+        const rfpsSubscription = supabase
+          .channel('public:rfps')
+          .on(
+            'postgres_changes',
+            { event: '*', schema: 'public', table: 'rfps' },
+            () => {
+              loadRFPs();
+            }
+          )
+          .subscribe();
+
+        const invitesSubscription = supabase
+          .channel('public:rfp_invites')
+          .on(
+            'postgres_changes',
+            { event: '*', schema: 'public', table: 'rfp_invites' },
+            () => {
+              loadRFPs();
+            }
+          )
+          .subscribe();
+
+        return () => {
+          supabase.removeChannel(rfpsSubscription);
+          supabase.removeChannel(invitesSubscription);
+        };
       } else {
         setLoading(false);
       }
@@ -179,6 +209,23 @@ export default function RFPList({ searchQuery = '', statusFilter = 'all' }: { se
                   </span>
                 </div>
               </div>
+
+              {/* Bids Received Indicator */}
+              {(() => {
+                const rfpWithInvites = rfp as RFP & { rfp_invites?: { status: string }[] };
+                const submittedBidsCount = rfpWithInvites.rfp_invites?.filter((inv: { status: string }) => inv.status === 'submitted').length || 0;
+                if (submittedBidsCount > 0) {
+                  return (
+                    <div className="mb-4">
+                      <span className="inline-flex items-center gap-1.5 px-3 py-1 bg-indigo-500/10 text-indigo-500 border border-indigo-500/20 rounded-full text-xs font-bold shadow-sm">
+                        <FileText size={14} />
+                        {submittedBidsCount} {submittedBidsCount === 1 ? 'Bid' : 'Bids'} Received
+                      </span>
+                    </div>
+                  );
+                }
+                return null;
+              })()}
 
               <div className="space-y-4 flex-1 flex flex-col justify-end">
                 <div className="grid grid-cols-2 gap-3 text-sm">
