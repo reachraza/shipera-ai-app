@@ -197,21 +197,25 @@ export async function POST(
                     .eq('id', invite.carrier_id)
                     .single();
 
-                const { logActivity } = await import('@/services/activityService');
+                // Use the existing Service Role supabase client since this route handles public inserts bypassing RLS
+                const { error: logError } = await supabase
+                    .from('activity_log')
+                    .insert({
+                        org_id: orgId,
+                        user_id: null, // Since this is a public actor, we can't tie it to a "user" profile cleanly without violating foreign keys sometimes
+                        action_type: 'create',
+                        entity_type: 'bid',
+                        entity_id: invite.rfp_id, // The entity being acted upon (The RFP)
+                        metadata: {
+                            rfp_title: (routeData.rfp as any).title,
+                            carrier_name: carrierInfo?.name || 'A Carrier',
+                            lanes_bid: bids.length
+                        }
+                    });
 
-                // Since this is a public endpoint, we pass the carrier_id as the user_id (it's legally allowed by DB schema to be UUID)
-                await logActivity(
-                    orgId,
-                    invite.carrier_id, // Who did the action
-                    'create',
-                    'bid',
-                    invite.rfp_id, // The entity being acted upon (The RFP)
-                    {
-                        rfp_title: (routeData.rfp as any).title,
-                        carrier_name: carrierInfo?.name || 'A Carrier',
-                        lanes_bid: bids.length
-                    }
-                );
+                if (logError) {
+                    throw logError;
+                }
             } catch (err) {
                 console.error('Failed to log bid submission activity:', err);
             }
