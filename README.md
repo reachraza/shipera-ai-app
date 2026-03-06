@@ -95,7 +95,7 @@ Open [http://localhost:3000](http://localhost:3000) with your browser to see the
 ## ⚙️ How the AI Email Webhook Works
 Because carriers do not always log into portals to submit bids, Shipera allows them to simply reply to the RFP invitation email.
 
-1. A Vercel Cron Job triggers the `/api/email/fetch-gmail` Next.js route every 5 minutes.
+1. A **self-hosted `node-cron` scheduler** (inside `src/instrumentation.ts`) triggers the `/api/email/fetch-gmail` route every 5 minutes automatically when the server starts. No external cron service (like Vercel Cron) is required.
 2. The route uses a persistent Google OAuth Refresh token to securely check the designated inbox.
 3. Every unread email with attachments is fully downloaded.
 4. The `attachmentService` converts all PDFs, Word Docs, and Excel files into a normalized raw string.
