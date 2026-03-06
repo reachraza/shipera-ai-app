@@ -1,0 +1,8 @@
+{
+    "crons": [
+        {
+            "path": "/api/email/fetch-gmail",
+            "schedule": "*/5 * * * *"
+        }
+    ]
+}
