@@ -10,7 +10,7 @@
  */
 
 // Every 5 minutes
-const CRON_SCHEDULE = '0,5,10,15,20,25,30,35,40,45,50,55 * * * *';
+const CRON_SCHEDULE = '0 * * * *';
 
 export async function register() {
     // Only run cron jobs on the Node.js server runtime
