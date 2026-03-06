@@ -1,12 +1,16 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { createClient } from '@/config/supabase';
+import { createClient } from '@supabase/supabase-js';
 import { fetchUnreadGmailMessages, markAsRead } from '@/services/gmailService';
 import { extractBidFromEmail } from '@/services/aiService';
 import { extractTextFromAttachment } from '@/services/attachmentService';
 import { createBidFromAdmin } from '@/services/bidService';
 
 export async function GET(request: NextRequest) {
-    const supabase = createClient();
+    // Use service role key to bypass RLS (this is a backend cron job, not a user request)
+    const supabase = createClient(
+        process.env.NEXT_PUBLIC_SUPABASE_URL!,
+        process.env.SUPABASE_SERVICE_ROLE_KEY!
+    );
 
     try {
         console.log('[Gmail Fetch] Starting fetch...');
