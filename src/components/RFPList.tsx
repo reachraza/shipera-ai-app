@@ -19,7 +19,8 @@ import {
   ShieldCheck,
   AlertCircle,
   MoreVertical,
-  Trash2
+  Trash2,
+  Mail
 } from 'lucide-react';
 import Pagination from '@/components/ui/Pagination';
 import DeleteConfirmationModal from '@/components/ui/DeleteConfirmationModal';
@@ -210,21 +211,37 @@ export default function RFPList({ searchQuery = '', statusFilter = 'all' }: { se
                 </div>
               </div>
 
-              {/* Bids Received Indicator */}
+              {/* Dynamic Indicators */}
               {(() => {
-                const rfpWithInvites = rfp as RFP & { rfp_invites?: { status: string }[] };
-                const submittedBidsCount = rfpWithInvites.rfp_invites?.filter((inv: { status: string }) => inv.status === 'submitted').length || 0;
-                if (submittedBidsCount > 0) {
-                  return (
-                    <div className="mb-4">
+                const rfpExtended = rfp as RFP & {
+                  rfp_invites?: { status: string }[],
+                  inbound_emails?: { id: string, processed: boolean }[]
+                };
+
+                const submittedBidsCount = rfpExtended.rfp_invites?.filter((inv) => inv.status === 'submitted').length || 0;
+
+                // Only count unprocessed emails (those needing manual review) or all emails? 
+                // Let's count all emails so they know carriers are replying.
+                const emailsCount = rfpExtended.inbound_emails?.length || 0;
+
+                if (submittedBidsCount === 0 && emailsCount === 0) return null;
+
+                return (
+                  <div className="mb-4 flex flex-wrap gap-2">
+                    {submittedBidsCount > 0 && (
                       <span className="inline-flex items-center gap-1.5 px-3 py-1 bg-indigo-500/10 text-indigo-500 border border-indigo-500/20 rounded-full text-xs font-bold shadow-sm">
                         <FileText size={14} />
                         {submittedBidsCount} {submittedBidsCount === 1 ? 'Bid' : 'Bids'} Received
                       </span>
-                    </div>
-                  );
-                }
-                return null;
+                    )}
+                    {emailsCount > 0 && (
+                      <span className="inline-flex items-center gap-1.5 px-3 py-1 bg-blue-500/10 text-blue-500 border border-blue-500/20 rounded-full text-xs font-bold shadow-sm">
+                        <Mail size={14} />
+                        {emailsCount} {emailsCount === 1 ? 'Reply' : 'Replies'}
+                      </span>
+                    )}
+                  </div>
+                );
               })()}
 
               <div className="space-y-4 flex-1 flex flex-col justify-end">

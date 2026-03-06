@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import nodemailer from 'nodemailer';
+import { createClient } from '@supabase/supabase-js';
 import { buildInviteEmailHtml, InviteEmailPayload } from '@/services/emailService';
 
 /**
@@ -60,6 +61,20 @@ export async function POST(request: NextRequest) {
                 });
 
                 console.log(`[Email] Sent invite to ${payload.carrierEmail}, messageId: ${info.messageId}`);
+
+                // Update rfp_invites with the messageId for later reply tracking
+                if (payload.inviteId) {
+                    const supabase = createClient(
+                        process.env.NEXT_PUBLIC_SUPABASE_URL!,
+                        process.env.SUPABASE_SERVICE_ROLE_KEY!
+                    );
+
+                    await supabase
+                        .from('rfp_invites')
+                        .update({ last_message_id: info.messageId })
+                        .eq('id', payload.inviteId);
+                }
+
                 return info;
             })
         );

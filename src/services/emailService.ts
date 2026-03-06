@@ -6,6 +6,7 @@
  */
 
 export interface InviteEmailPayload {
+  inviteId: string;
   carrierEmail: string;
   carrierName: string;
   rfpTitle: string;
@@ -191,4 +192,20 @@ export async function sendInviteEmails(payloads: InviteEmailPayload[]): Promise<
     console.error('Error sending invite emails:', error);
     return { success: false, errors: [(error as Error).message] };
   }
+}
+
+/**
+ * Fetches inbound emails related to a specific RFP.
+ */
+export async function getInboundEmailsByRFP(rfpId: string) {
+  const { createClient } = await import('@/config/supabase');
+  const supabase = createClient();
+  const { data, error } = await supabase
+    .from('inbound_emails')
+    .select('*')
+    .eq('rfp_id', rfpId)
+    .order('created_at', { ascending: false });
+
+  if (error) throw error;
+  return data;
 }

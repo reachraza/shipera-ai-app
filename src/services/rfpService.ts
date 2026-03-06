@@ -7,7 +7,8 @@ export async function getRFPs(orgId: string): Promise<RFP[]> {
     .from('rfps')
     .select(`
       *,
-      rfp_invites(status)
+      rfp_invites(status),
+      inbound_emails(id, processed)
     `)
     .eq('org_id', orgId)
     .order('created_at', { ascending: false });

@@ -128,6 +128,7 @@ export interface RFPInvite {
   carrier_id: string;
   status: InviteStatus;
   access_token?: string;
+  last_message_id?: string;
   created_at: string;
   // Joined fields
   carrier?: Carrier;
@@ -161,5 +162,24 @@ export interface ActivityLog {
   entity_type: EntityType;
   entity_id: string;
   metadata: Record<string, unknown>;
+  created_at: string;
+}
+
+// ─── Inbound Email ───────────────────────────────────────────
+export interface InboundEmail {
+  id: string;
+  org_id: string | null;
+  from_email: string;
+  from_name: string | null;
+  to_email: string | null;
+  subject: string | null;
+  body_text: string | null;
+  body_html: string | null;
+  attachments: any[];
+  raw_headers: Record<string, any>;
+  matched_carrier_id: string | null;
+  rfp_id: string | null;
+  rfp_invite_id: string | null;
+  processed: boolean;
   created_at: string;
 }

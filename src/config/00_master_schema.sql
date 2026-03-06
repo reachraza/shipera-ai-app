@@ -94,6 +94,7 @@ CREATE TABLE rfp_invites (
   carrier_id UUID REFERENCES carriers(id) ON DELETE CASCADE NOT NULL,
   access_token UUID DEFAULT uuid_generate_v4(),
   status TEXT NOT NULL CHECK (status IN ('invited', 'opened', 'submitted')) DEFAULT 'invited',
+  last_message_id TEXT, -- Stores the Message-ID of the last invitation email sent
   created_at TIMESTAMPTZ DEFAULT NOW(),
   UNIQUE (rfp_id, carrier_id)
 );
@@ -124,6 +125,8 @@ CREATE TABLE inbound_emails (
   attachments JSONB DEFAULT '[]',
   raw_headers JSONB DEFAULT '{}',
   matched_carrier_id UUID REFERENCES carriers(id) ON DELETE SET NULL,
+  rfp_id UUID REFERENCES rfps(id) ON DELETE SET NULL,
+  rfp_invite_id UUID REFERENCES rfp_invites(id) ON DELETE SET NULL,
   processed BOOLEAN DEFAULT FALSE,
   created_at TIMESTAMPTZ DEFAULT NOW()
 );

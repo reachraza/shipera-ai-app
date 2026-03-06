@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { getBidsForRFP, acceptBid, acceptAllCarrierBids } from '@/services/bidService';
-import { Loader2, DollarSign, Clock, MapPin, Building, Eye, ChevronRight, ChevronDown, CheckCircle2, XCircle, CheckSquare } from 'lucide-react';
+import { Loader2, DollarSign, Clock, MapPin, Building, Eye, ChevronRight, ChevronDown, CheckCircle2, XCircle, CheckSquare, RefreshCw } from 'lucide-react';
 import { Bid } from '@/constants/types';
 import Pagination from '@/components/ui/Pagination';
 import BidDetailsModal from './BidDetailsModal';
@@ -20,6 +20,7 @@ export default function BidList({ rfpId, isLocked }: BidListProps) {
     const [selectedBid, setSelectedBid] = useState<Bid | null>(null);
     const [expandedCarriers, setExpandedCarriers] = useState<Set<string>>(new Set());
     const [processingId, setProcessingId] = useState<string | null>(null);
+    const [syncing, setSyncing] = useState(false);
 
     // Acceptance Modal State
     const [acceptanceModal, setAcceptanceModal] = useState<{
@@ -51,6 +52,19 @@ export default function BidList({ rfpId, isLocked }: BidListProps) {
             setError('Failed to load bids.');
         } finally {
             setLoading(false);
+        }
+    }
+
+    async function handleSync() {
+        setSyncing(true);
+        try {
+            await fetch('/api/email/fetch-gmail');
+            await loadBids();
+        } catch (err) {
+            console.error('Failed to sync bids:', err);
+            alert('Failed to sync bids. Please try again.');
+        } finally {
+            setSyncing(false);
         }
     }
 
@@ -140,20 +154,40 @@ export default function BidList({ rfpId, isLocked }: BidListProps) {
         );
     }
 
+    const Header = () => (
+        <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4 mb-6">
+            <p className="text-sm text-muted-foreground font-medium">
+                AI-extracted bids from carrier emails will automatically sync here.
+            </p>
+            <button
+                onClick={handleSync}
+                disabled={syncing}
+                className="flex items-center gap-2 rounded-full px-5 py-2 hover:bg-primary/5 hover:text-primary transition-colors border border-primary/20 text-foreground text-sm font-medium hover:border-primary/40 disabled:opacity-50"
+            >
+                <RefreshCw size={14} className={syncing ? 'animate-spin' : ''} />
+                {syncing ? 'Syncing...' : 'Sync Bids'}
+            </button>
+        </div>
+    );
+
     if (bids.length === 0) {
         return (
-            <div className="text-center py-12 bg-muted/30 border border-border rounded-2xl">
-                <DollarSign className="w-12 h-12 mx-auto text-muted-foreground opacity-50 mb-4" />
-                <h3 className="text-lg font-bold text-foreground">No Bids Yet</h3>
-                <p className="text-muted-foreground text-sm font-medium mt-1">
-                    Carriers have not submitted any bids for this RFP. Check their invite status for updates!
-                </p>
-            </div>
+            <>
+                <Header />
+                <div className="text-center py-12 bg-muted/30 border border-border rounded-2xl">
+                    <DollarSign className="w-12 h-12 mx-auto text-muted-foreground opacity-50 mb-4" />
+                    <h3 className="text-lg font-bold text-foreground">No Bids Yet</h3>
+                    <p className="text-muted-foreground text-sm font-medium mt-1">
+                        Carriers have not submitted any bids for this RFP. Check their invite status for updates!
+                    </p>
+                </div>
+            </>
         );
     }
 
     return (
         <>
+            <Header />
             <div className="space-y-3">
                 {paginatedCarriers.map(([carrierId, data]) => {
                     const isExpanded = expandedCarriers.has(carrierId);

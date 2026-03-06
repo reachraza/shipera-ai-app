@@ -11,6 +11,7 @@ import CSVUpload from '@/components/CSVUpload';
 import CarrierSelect from '@/components/CarrierSelect';
 import InviteTable from '@/components/InviteTable';
 import BidList from '@/components/BidList';
+import InboundEmailList from '@/components/InboundEmailList';
 import DeleteConfirmationModal from '@/components/ui/DeleteConfirmationModal';
 import { RFP_STATUSES } from '@/constants/statuses';
 import {
@@ -23,7 +24,8 @@ import {
   Clock,
   Loader2,
   DollarSign,
-  Trash2
+  Trash2,
+  Mail
 } from 'lucide-react';
 
 export default function RFPDetailPage() {
@@ -311,6 +313,21 @@ export default function RFPDetailPage() {
           </h2>
         </div>
         <BidList rfpId={rfpId} isLocked={isCarrierLocked} />
+      </div>
+
+      {/* Embedded Inbound Emails Viewer */}
+      <div className={`glass-panel rounded-3xl p-8 sm:p-10 border-2 ${rfp.status === 'active' ? 'border-primary/30!' :
+        rfp.status === 'awarded' ? 'border-emerald-500/30!' :
+          rfp.status === 'closed' ? 'border-red-500/30!' :
+            'border-border/50'
+        }`}>
+        <div className="mb-8 flex items-center justify-between">
+          <h2 className="text-2xl font-black text-foreground flex items-center gap-3">
+            <Mail size={24} className="text-blue-500" />
+            Carrier Replies
+          </h2>
+        </div>
+        <InboundEmailList rfpId={rfpId} />
       </div>
 
       <DeleteConfirmationModal

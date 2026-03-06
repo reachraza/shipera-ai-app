@@ -268,5 +268,69 @@ export async function acceptAllCarrierBids(rfpId: string, carrierId: string): Pr
         console.error('Error logging bulk bid award:', err);
     }
 
+
     return true;
+}
+
+/**
+ * Allows an authenticated admin to manually create a bid on behalf of a carrier.
+ * Used for converting inbound emails or phone calls into official Shipera Bids.
+ */
+export async function createBidFromAdmin(
+    rfpId: string,
+    carrierId: string,
+    bid: Omit<Bid, 'id' | 'created_at'>
+): Promise<Bid> {
+    const supabase = createClient();
+
+    // 1. Insert the single bid
+    const { data: insertedBid, error: bidError } = await supabase
+        .from('bids')
+        .insert({
+            ...bid,
+            carrier_id: carrierId
+        })
+        .select()
+        .single();
+
+    if (bidError) throw new Error(`Failed to create bid: ${bidError.message}`);
+
+    // 2. Update the rfp_invite status so it shows as 'submitted'
+    const { error: inviteError } = await supabase
+        .from('rfp_invites')
+        .update({ status: 'submitted' })
+        .eq('rfp_id', rfpId)
+        .eq('carrier_id', carrierId);
+
+    if (inviteError) console.error('Failed to update invite status:', inviteError);
+
+    // 3. Log the admin action
+    try {
+        const { data: { user } } = await supabase.auth.getUser();
+        if (user) {
+            const { data: userData } = await supabase.from('users').select('org_id').eq('id', user.id).single();
+            const { data: laneData } = await supabase.from('rfp_lanes').select('origin_city, destination_city').eq('id', bid.rfp_lane_id).single();
+
+            if (userData?.org_id) {
+                const { logActivity } = await import('./activityService');
+                await logActivity(
+                    userData.org_id,
+                    user.id,
+                    'create',
+                    'bid',
+                    insertedBid.id,
+                    {
+                        method: 'admin_conversion',
+                        carrier_id: carrierId,
+                        rfp_id: rfpId,
+                        lane: `${laneData?.origin_city} to ${laneData?.destination_city}`
+                    }
+                );
+            }
+        }
+    } catch (logErr) {
+        console.error('Failed to log admin bid creation:', logErr);
+    }
+
+    return insertedBid as Bid;
 }

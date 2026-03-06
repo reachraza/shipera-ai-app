@@ -76,6 +76,7 @@ export default function CarrierSelect({ rfpId, existingInvites, onInvited, isLoc
         const emailPayloads: InviteEmailPayload[] = newInvites
           .filter(inv => inv.carrier?.email && inv.access_token)
           .map(inv => ({
+            inviteId: inv.id,
             carrierEmail: inv.carrier!.email,
             carrierName: inv.carrier!.name,
             rfpTitle: rfpData.title,
