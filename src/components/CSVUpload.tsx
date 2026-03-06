@@ -113,7 +113,7 @@ export default function CSVUpload({ rfpId, onUploaded, isLocked, hasInvites }: C
           disabled={loading || isLocked || hasInvites}
         />
 
-        <div className={`absolute inset-0 rounded-2xl bg-gradient-to-b from-transparent to-primary/5 transition-opacity ${isLocked ? 'opacity-0' : 'opacity-0 group-hover:opacity-100'}`} />
+        <div className={`absolute inset-0 rounded-2xl bg-linear-to-b from-transparent to-primary/5 transition-opacity ${isLocked ? 'opacity-0' : 'opacity-0 group-hover:opacity-100'}`} />
 
         <div className="relative z-10 flex flex-col items-center justify-center space-y-4">
           <div className={`p-4 rounded-full transition-colors duration-300 ${isDragging ? 'bg-primary text-primary-foreground shadow-lg shadow-primary/25' : isLocked ? 'bg-muted text-muted-foreground' : hasInvites ? 'bg-amber-500/10 text-amber-500' : 'bg-background border border-border text-primary shadow-sm group-hover:bg-primary/10'}`}>
@@ -132,7 +132,7 @@ export default function CSVUpload({ rfpId, onUploaded, isLocked, hasInvites }: C
               {!isLocked && !hasInvites && (
                 <div className="relative group/tooltip flex items-center justify-center">
                   <Info size={16} className="text-muted-foreground hover:text-primary cursor-help transition-colors" />
-                  <div className="absolute top-full mt-2 left-1/2 -translate-x-1/2 sm:left-auto sm:right-0 sm:translate-x-0 w-64 p-4 bg-card text-card-foreground border border-border rounded-xl opacity-0 invisible group-hover/tooltip:opacity-100 group-hover/tooltip:visible transition-all shadow-2xl shadow-black/20 z-[99999] pointer-events-none text-left">
+                  <div className="absolute top-full mt-2 left-1/2 -translate-x-1/2 sm:left-auto sm:right-0 sm:translate-x-0 w-64 p-4 bg-card text-card-foreground border border-border rounded-xl opacity-0 invisible group-hover/tooltip:opacity-100 group-hover/tooltip:visible transition-all shadow-2xl shadow-black/20 z-99999 pointer-events-none text-left">
                     <p className="font-black text-[10px] uppercase tracking-widest text-muted-foreground border-b border-border pb-2 mb-2">Required Columns</p>
                     <p className="font-mono text-xs text-primary mb-3 leading-relaxed">origin_city, origin_state, destination_city, destination_state, equipment_type</p>
                     <p className="font-black text-[10px] uppercase tracking-widest text-muted-foreground border-b border-border pb-2 mb-2">Optional</p>
@@ -140,7 +140,7 @@ export default function CSVUpload({ rfpId, onUploaded, isLocked, hasInvites }: C
 
                     {/* Triangle indicator */}
                     <div className="absolute bottom-full left-1/2 -translate-x-1/2 sm:left-auto sm:right-4 sm:translate-x-0 border-4 border-transparent border-b-border" />
-                    <div className="absolute bottom-full left-1/2 -translate-x-1/2 sm:left-auto sm:right-4 sm:translate-x-0 border-[3px] border-transparent border-b-card translate-y-[1px]" />
+                    <div className="absolute bottom-full left-1/2 -translate-x-1/2 sm:left-auto sm:right-4 sm:translate-x-0 border-[3px] border-transparent border-b-card translate-y-px" />
                   </div>
                 </div>
               )}

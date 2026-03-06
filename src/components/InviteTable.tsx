@@ -63,10 +63,10 @@ export default function InviteTable({ invites, isLocked = false, onRevoke }: { i
       <table className="w-full text-sm text-left">
         <thead>
           <tr className="bg-muted/30 border-b border-border">
-            <th className="px-6 py-3 font-black text-muted-foreground tracking-[0.1em] uppercase text-[10px]">Carrier Partner</th>
-            <th className="px-6 py-3 font-black text-muted-foreground tracking-[0.1em] uppercase text-[10px]">Invite Status</th>
-            <th className="px-6 py-3 font-black text-muted-foreground tracking-[0.1em] uppercase text-[10px]">Sent On</th>
-            <th className="px-6 py-3 font-black text-muted-foreground tracking-[0.1em] uppercase text-[10px] text-right">Actions</th>
+            <th className="px-6 py-3 font-black text-muted-foreground tracking-widest uppercase text-[10px]">Carrier Partner</th>
+            <th className="px-6 py-3 font-black text-muted-foreground tracking-widest uppercase text-[10px]">Invite Status</th>
+            <th className="px-6 py-3 font-black text-muted-foreground tracking-widest uppercase text-[10px]">Sent On</th>
+            <th className="px-6 py-3 font-black text-muted-foreground tracking-widest uppercase text-[10px] text-right">Actions</th>
           </tr>
         </thead>
         <tbody className="divide-y divide-border/50">

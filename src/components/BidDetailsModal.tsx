@@ -33,7 +33,7 @@ export default function BidDetailsModal({ bid, onClose }: BidDetailsModalProps) 
     const carrier = bid.carrier;
 
     return createPortal(
-        <div className="fixed inset-0 z-[100] w-screen h-screen flex items-center justify-center p-4">
+        <div className="fixed inset-0 z-100 w-screen h-screen flex items-center justify-center p-4">
             {/* Backdrop */}
             <div
                 className="absolute inset-0 bg-black/80 backdrop-blur-md animate-in fade-in duration-300"
@@ -129,7 +129,7 @@ export default function BidDetailsModal({ bid, onClose }: BidDetailsModalProps) 
                             <FileText size={16} />
                             <span className="text-[10px] font-black uppercase tracking-widest">Bidder Specification Notes</span>
                         </div>
-                        <div className="bg-muted/30 border border-border/50 rounded-[2rem] p-6">
+                        <div className="bg-muted/30 border border-border/50 rounded-4xl p-6">
                             <p className="text-sm font-medium leading-relaxed italic text-foreground/80">
                                 &quot;{bid.notes || 'No operational specifics provided for this lane.'}&quot;
                             </p>

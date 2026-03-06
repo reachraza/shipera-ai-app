@@ -259,7 +259,7 @@ export default function CarrierForm({ carrier, onSaved, onCancel }: CarrierFormP
                 </div>
 
                 <div className="bg-card border border-border shadow-2xl rounded-[40px] overflow-hidden relative group transition-all hover:border-primary/30">
-                  <div className="absolute top-0 left-0 w-full h-1.5 bg-gradient-to-r from-primary via-indigo-500 to-primary/50" />
+                  <div className="absolute top-0 left-0 w-full h-1.5 bg-linear-to-r from-primary via-indigo-500 to-primary/50" />
 
                   <div className="p-8 sm:p-10 space-y-8">
                     {/* Main Identity */}
@@ -339,7 +339,7 @@ export default function CarrierForm({ carrier, onSaved, onCancel }: CarrierFormP
             type="button"
             isLoading={loading}
             onClick={handleFinalSubmit}
-            className="flex-[2] font-bold uppercase tracking-widest text-[10px] py-6 rounded-2xl shadow-2xl shadow-primary/30 transform hover:-translate-y-1 active:translate-y-0 transition-all"
+            className="flex-2 font-bold uppercase tracking-widest text-[10px] py-6 rounded-2xl shadow-2xl shadow-primary/30 transform hover:-translate-y-1 active:translate-y-0 transition-all"
           >
             Authenticate & Complete Registration
           </Button>
@@ -414,7 +414,7 @@ export default function CarrierForm({ carrier, onSaved, onCancel }: CarrierFormP
           type="date"
           value={formData.insurance_expiration || ''}
           onChange={handleChange}
-          className="[color-scheme:light] dark:[color-scheme:dark]"
+          className="scheme-light dark:scheme-dark"
         />
 
         <div className="md:col-span-2">

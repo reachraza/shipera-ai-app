@@ -93,12 +93,12 @@ export default function LaneTable({ lanes, onDelete, onBulkDelete, isLocked, has
                 />
               </th>
             )}
-            <th className={`${(!onBulkDelete || isLocked || hasInvites) ? 'px-6' : 'px-2'} py-5 font-black text-muted-foreground tracking-[0.1em] uppercase text-[10px]`}>Origin</th>
+            <th className={`${(!onBulkDelete || isLocked || hasInvites) ? 'px-6' : 'px-2'} py-5 font-black text-muted-foreground tracking-widest uppercase text-[10px]`}>Origin</th>
             <th className="w-10 px-2 py-5"></th>
-            <th className="px-6 py-5 font-black text-muted-foreground tracking-[0.1em] uppercase text-[10px]">Destination</th>
-            <th className="px-6 py-5 font-black text-muted-foreground tracking-[0.1em] uppercase text-[10px]">Equipment</th>
-            <th className="px-6 py-5 font-black text-muted-foreground tracking-[0.1em] uppercase text-[10px]">Volume / Freq</th>
-            {onDelete && !isLocked && !hasInvites && <th className="px-6 py-5 font-black text-muted-foreground tracking-[0.1em] uppercase text-[10px] text-right">Actions</th>}
+            <th className="px-6 py-5 font-black text-muted-foreground tracking-widest uppercase text-[10px]">Destination</th>
+            <th className="px-6 py-5 font-black text-muted-foreground tracking-widest uppercase text-[10px]">Equipment</th>
+            <th className="px-6 py-5 font-black text-muted-foreground tracking-widest uppercase text-[10px]">Volume / Freq</th>
+            {onDelete && !isLocked && !hasInvites && <th className="px-6 py-5 font-black text-muted-foreground tracking-widest uppercase text-[10px] text-right">Actions</th>}
           </tr>
         </thead>
         <tbody className="divide-y divide-border/50">
