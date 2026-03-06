@@ -14,7 +14,7 @@ export async function GET(request: NextRequest) {
 
     try {
         console.log('[Gmail Fetch] Starting fetch...');
-        const messages = await fetchUnreadGmailMessages(20);
+        const messages = await fetchUnreadGmailMessages(100);
         console.log(`[Gmail Fetch] Found ${messages.length} unread messages.`);
 
         const results = {
