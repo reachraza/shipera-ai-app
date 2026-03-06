@@ -17,22 +17,29 @@ export async function register() {
     if (process.env.NEXT_RUNTIME === 'nodejs') {
         // Dynamic import to avoid bundling node-cron in edge/client
         const cron = (await import('node-cron')).default;
+        const { markRegistered, markRunSuccess, markRunError } = await import('./lib/cronStatus');
 
         console.log('[Cron] Registering email sync cron job...');
+        markRegistered(CRON_SCHEDULE);
 
         cron.schedule(CRON_SCHEDULE, async () => {
             const now = new Date().toISOString();
+            const start = Date.now();
             console.log(`[Cron] Triggering email sync at ${now}`);
             try {
                 const appUrl = process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000';
                 const res = await fetch(`${appUrl}/api/email/fetch-gmail`);
                 const data = await res.json();
+                const durationMs = Date.now() - start;
                 console.log('[Cron] Email sync completed:', JSON.stringify(data));
+                markRunSuccess(data, durationMs);
             } catch (err) {
+                const durationMs = Date.now() - start;
                 console.error('[Cron] Email sync failed:', err);
+                markRunError(err instanceof Error ? err.message : String(err), durationMs);
             }
         });
 
-        console.log('[Cron] Cron job registered. Next run in ~1 minute.');
+        console.log('[Cron] Cron job registered. Runs every 5 minutes.');
     }
 }
